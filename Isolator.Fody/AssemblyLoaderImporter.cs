@@ -13,7 +13,7 @@ public partial class ModuleWeaver
     private TypeDefinition _sourceType;
     private TypeDefinition _commonType;
     private MethodDefinition _attachMethod;
-    private MethodDefinition _loaderCctor;
+    //private MethodDefinition _loaderCctor;
     //private bool _hasUnmanaged;
     //private FieldDefinition _assemblyNamesField;
     //private FieldDefinition _symbolNamesField;

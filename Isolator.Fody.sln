@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36705.20 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{8219EDE3-6947-424F-823D-936FB204CFB7}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,12 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Fody", "Isolator.Fody\Isolator.Fody.csproj", "{4295838D-8B9E-4342-8AE7-B33B796B982F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build", "Build\Build.csproj", "{30ADD8A5-F42A-4805-A032-C83DF0F4AA70}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Costura", "Costura\Costura.csproj", "{2B508691-68E6-4AE6-8F8D-1B78F7E65F80}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Costura.Fody", "Costura.Fody\Costura.Fody.csproj", "{E5622B74-B6C6-46A5-9207-0872533E6C2F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Costura.Template", "Costura.Template\Costura.Template.csproj", "{CD9AEBAA-78F4-4A78-BF06-0CB7D84D83E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosturaConsoleApp", "CosturaConsoleApp\CosturaConsoleApp.csproj", "{2E463435-A575-9C66-4127-C0A8B5ED1BE2}"
 EndProject
@@ -39,18 +33,6 @@ Global
 		{4295838D-8B9E-4342-8AE7-B33B796B982F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30ADD8A5-F42A-4805-A032-C83DF0F4AA70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{30ADD8A5-F42A-4805-A032-C83DF0F4AA70}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B508691-68E6-4AE6-8F8D-1B78F7E65F80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B508691-68E6-4AE6-8F8D-1B78F7E65F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B508691-68E6-4AE6-8F8D-1B78F7E65F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B508691-68E6-4AE6-8F8D-1B78F7E65F80}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5622B74-B6C6-46A5-9207-0872533E6C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5622B74-B6C6-46A5-9207-0872533E6C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5622B74-B6C6-46A5-9207-0872533E6C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5622B74-B6C6-46A5-9207-0872533E6C2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD9AEBAA-78F4-4A78-BF06-0CB7D84D83E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD9AEBAA-78F4-4A78-BF06-0CB7D84D83E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD9AEBAA-78F4-4A78-BF06-0CB7D84D83E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD9AEBAA-78F4-4A78-BF06-0CB7D84D83E8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
