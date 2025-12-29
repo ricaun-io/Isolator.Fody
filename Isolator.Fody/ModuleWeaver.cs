@@ -15,20 +15,11 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         var config = new Configuration(Config);
 
-        WriteInfo($"Costura.Fody v{GetType().Assembly.GetVersion()}");
+        WriteInfo($"{GetType().Assembly.GetName().Name}.Fody v{GetType().Assembly.GetVersion()}");
 
         FindMsCoreReferences();
-
-        //FixResourceCase();
-        //ProcessNativeResources(!config.DisableCompression);
-        //EmbedResources(config);
-
-        CalculateHash();
         ImportAssemblyLoader(config.CreateTemporaryAssemblies);
         CallAttach(config);
-
-        //AddChecksumsToTemplate();
-        //BuildUpNameDictionary(config.CreateTemporaryAssemblies, config.PreloadOrder);
     }
 
     public override IEnumerable<string> GetAssembliesForScanning()

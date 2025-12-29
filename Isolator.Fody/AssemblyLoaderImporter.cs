@@ -334,10 +334,10 @@ public partial class ModuleWeaver
 
     private Instruction CloneInstruction(TypeDefinition targetType, Instruction instruction)
     {
-        if (instruction.OpCode == OpCodes.Ldstr && (string)instruction.Operand == "To be replaced at compile time")
-        {
-            return Instruction.Create(OpCodes.Ldstr, _resourcesHash);
-        }
+        //if (instruction.OpCode == OpCodes.Ldstr && (string)instruction.Operand == "To be replaced at compile time")
+        //{
+        //    return Instruction.Create(OpCodes.Ldstr, _resourcesHash);
+        //}
 
         var newInstruction = (Instruction)_instructionConstructorInfo.Invoke(new[] { instruction.OpCode, instruction.Operand });
         newInstruction.Operand = Import(targetType, instruction.Operand);
