@@ -2,377 +2,203 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.IO.Compression;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-// ReSharper disable CommentTypo
+
+
+#if NET
+using System.Runtime.Loader;
+using System.Runtime.CompilerServices;
+#endif
 
 internal static class Common
 {
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hReservedNull, uint dwFlags);
-
-    [Conditional("DEBUG")]
-    public static void Log(string format, params object[] args)
+#if NET
+    internal class LocalAssemblyLoadContext : AssemblyLoadContext
     {
-        //#if DEBUG
-        //        Console.WriteLine("=== COSTURA === " + string.Format(format, args));
-        //#else
-        //        // Should this be trace?
-        //        Debug.WriteLine("=== COSTURA === " + string.Format(format, args));
-        //#endif
-
-        // Should this be trace?
-        Debug.WriteLine("=== COSTURA === " + string.Format(format, args));
-    }
-
-    private static void CopyTo(Stream source, Stream destination)
-    {
-        var array = new byte[81920];
-        int count;
-        while ((count = source.Read(array, 0, array.Length)) != 0)
+        public bool ConsoleShow { get; set; } = false;
+        private void WriteLine(string message)
         {
-            destination.Write(array, 0, count);
+            if (ConsoleShow)
+                Console.WriteLine(message);
         }
-    }
 
-    private static void CreateDirectory(string tempBasePath)
-    {
-        if (!Directory.Exists(tempBasePath))
-        {
-            Directory.CreateDirectory(tempBasePath);
-        }
-    }
+        private AssemblyDependencyResolver _resolver;
+        private readonly string _assemblyPath;
+        private Assembly _assembly;
 
-    private static byte[] ReadStream(Stream stream)
-    {
-        using (var memoryStream = new MemoryStream())
+        public LocalAssemblyLoadContext(string assemblyPath) : base("LocalContext", isCollectible: true)
         {
-            stream.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
-    }
+            this._assemblyPath = assemblyPath;
+            this._resolver = new AssemblyDependencyResolver(assemblyPath);
 
-    public static string CalculateChecksum(string filename)
-    {
-        using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-        using (var bs = new BufferedStream(fs))
-        using (var sha1 = SHA1.Create())
-        {
-            var hash = sha1.ComputeHash(bs);
-            var formatted = new StringBuilder(2 * hash.Length);
-            foreach (var b in hash)
+            WriteLine($"{this.Name} Start: {AssemblyName.GetAssemblyName(assemblyPath)}");
+
+            this.Unloading += (context) =>
             {
-                formatted.AppendFormat("{0:X2}", b);
+                WriteLine($"{this.Name} Unload: {context.Name}");
+                _assembly = null;
+            };
+        }
+
+        public Assembly Initialize()
+        {
+            if (_assembly is null)
+            {
+                _assembly = LoadFromAssemblyPath(_assemblyPath);
             }
-            return formatted.ToString();
+            return _assembly;
         }
-    }
 
-    public static Assembly ReadExistingAssembly(AssemblyName name)
-    {
-        var currentDomain = AppDomain.CurrentDomain;
-        var assemblies = currentDomain.GetAssemblies();
-        foreach (var assembly in assemblies)
+        protected override Assembly Load(AssemblyName name)
         {
-            var currentName = assembly.GetName();
-            if (string.Equals(currentName.Name, name.Name, StringComparison.InvariantCultureIgnoreCase) &&
-                string.Equals(CultureToString(currentName.CultureInfo), CultureToString(name.CultureInfo), StringComparison.InvariantCultureIgnoreCase))
+            WriteLine($"{this.Name} Load: {name}");
+
+            string assemblyPath = _resolver.ResolveAssemblyToPath(name);
+            if (assemblyPath != null)
             {
-                Log("Assembly '{0}' already loaded, returning existing assembly", assembly.FullName);
-
-                return assembly;
-            }
-        }
-        return null;
-    }
-
-    private static string CultureToString(CultureInfo culture)
-    {
-        if (culture is null)
-        {
-            return string.Empty;
-        }
-
-        return culture.Name;
-    }
-
-    public static Assembly ReadFromDiskCache(string tempBasePath, AssemblyName requestedAssemblyName)
-    {
-        var name = GetAssemblyResourceName(requestedAssemblyName);
-
-        var platformName = GetPlatformName();
-
-        var assemblyTempFilePath = Path.Combine(tempBasePath, string.Concat(name, ".dll"));
-        if (File.Exists(assemblyTempFilePath))
-        {
-            return Assembly.LoadFile(assemblyTempFilePath);
-        }
-
-        assemblyTempFilePath = Path.ChangeExtension(assemblyTempFilePath, "exe");
-        if (File.Exists(assemblyTempFilePath))
-        {
-            return Assembly.LoadFile(assemblyTempFilePath);
-        }
-
-        assemblyTempFilePath = Path.Combine(Path.Combine(tempBasePath, platformName), string.Concat(name, ".dll"));
-        if (File.Exists(assemblyTempFilePath))
-        {
-            return Assembly.LoadFile(assemblyTempFilePath);
-        }
-
-        assemblyTempFilePath = Path.ChangeExtension(assemblyTempFilePath, "exe");
-        if (File.Exists(assemblyTempFilePath))
-        {
-            return Assembly.LoadFile(assemblyTempFilePath);
-        }
-
-        return null;
-    }
-
-    public static Assembly ReadFromEmbeddedResources(Dictionary<string, string> assemblyNames, Dictionary<string, string> symbolNames, AssemblyName requestedAssemblyName)
-    {
-        var name = GetAssemblyResourceName(requestedAssemblyName);
-
-        byte[] assemblyData;
-        using (var assemblyStream = LoadStream(assemblyNames, name))
-        {
-            if (assemblyStream is null)
-            {
-                return null;
-            }
-            assemblyData = ReadStream(assemblyStream);
-        }
-
-        using (var pdbStream = LoadStream(symbolNames, name))
-        {
-            if (pdbStream is not null)
-            {
-                var pdbData = ReadStream(pdbStream);
-                return Assembly.Load(assemblyData, pdbData);
-            }
-        }
-
-        return Assembly.Load(assemblyData);
-    }
-
-    private static string GetAssemblyResourceName(AssemblyName requestedAssemblyName)
-    {
-        var name = requestedAssemblyName.Name.ToLowerInvariant();
-
-        if (requestedAssemblyName.CultureInfo is not null && !string.IsNullOrEmpty(requestedAssemblyName.CultureInfo.Name))
-        {
-            name = $"{CultureToString(requestedAssemblyName.CultureInfo)}.{name}".ToLowerInvariant();
-        }
-
-        return name;
-    }
-
-    private static Stream LoadStream(Dictionary<string, string> resourceNames, string name)
-    {
-        if (resourceNames.TryGetValue(name, out var value))
-        {
-            return LoadStream(value);
-        }
-
-        return null;
-    }
-
-    private static Stream LoadStream(string fullName)
-    {
-        var executingAssembly = Assembly.GetExecutingAssembly();
-
-        if (fullName.EndsWith(".compressed"))
-        {
-            using (var stream = executingAssembly.GetManifestResourceStream(fullName))
-            using (var compressStream = new DeflateStream(stream, CompressionMode.Decompress))
-            {
-                var memStream = new MemoryStream();
-                CopyTo(compressStream, memStream);
-                memStream.Position = 0;
-                return memStream;
-            }
-        }
-
-        return executingAssembly.GetManifestResourceStream(fullName);
-    }
-
-    public static void PreloadUnmanagedLibraries(string hash, string tempBasePath, List<string> libs, Dictionary<string, string> checksums)
-    {
-        // since tempBasePath is per user, the mutex can be per user
-        var mutexId = $"Costura{hash}";
-
-        using (var mutex = new Mutex(false, mutexId))
-        {
-            var hasHandle = false;
-            try
-            {
-                try
-                {
-                    hasHandle = mutex.WaitOne(60000, false);
-                    if (hasHandle == false)
-                    {
-                        throw new TimeoutException("Timeout waiting for exclusive access");
-                    }
-                }
-                catch (AbandonedMutexException)
-                {
-                    hasHandle = true;
-                }
-
-                var platformName = GetPlatformName();
-
-                var path = Path.Combine(tempBasePath, platformName);
-
-                Log("Preloading unmanaged libraries to '{0}'", path);
-
-                CreateDirectory(path);
-                InternalPreloadUnmanagedLibraries(tempBasePath, libs, checksums);
-            }
-            finally
-            {
-                if (hasHandle)
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
-        }
-    }
-
-    private static void InternalPreloadUnmanagedLibraries(string tempBasePath, IList<string> libs, Dictionary<string, string> checksums)
-    {
-        string name;
-
-        foreach (var lib in libs)
-        {
-            name = ResourceNameToPath(lib);
-
-            var assemblyTempFilePath = Path.Combine(tempBasePath, name);
-
-            Log("Preloading unmanaged library '{0}' to '{1}'", name, assemblyTempFilePath);
-
-            if (File.Exists(assemblyTempFilePath))
-            {
-                var checksum = CalculateChecksum(assemblyTempFilePath);
-                if (checksum != checksums[lib])
-                {
-                    File.Delete(assemblyTempFilePath);
-                }
+                return LoadFromAssemblyPath(assemblyPath);
             }
 
-            if (!File.Exists(assemblyTempFilePath))
-            {
-                using (var copyStream = LoadStream(lib))
-                using (var assemblyTempFile = File.OpenWrite(assemblyTempFilePath))
-                {
-                    CopyTo(copyStream, assemblyTempFile);
-                }
-            }
+            return null;
         }
-
-        // prevent system-generated error message when LoadLibrary is called on a dll with an unmet dependency
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms680621(v=vs.85).aspx
-        //
-        // SEM_FAILCRITICALERRORS - The system does not display the critical-error-handler message box. Instead, the system sends the error to the calling process.
-        // SEM_NOGPFAULTERRORBOX  - The system does not display the Windows Error Reporting dialog.
-        // SEM_NOOPENFILEERRORBOX - The OpenFile function does not display a message box when it fails to find a file. Instead, the error is returned to the caller.
-        //
-        // return value is the previous state of the error-mode bit flags.
-        // ErrorModes.SEM_FAILCRITICALERRORS | ErrorModes.SEM_NOGPFAULTERRORBOX | ErrorModes.SEM_NOOPENFILEERRORBOX;
-        uint errorModes = 32771;
-        var originalErrorMode = SetErrorMode(errorModes);
-
-        foreach (var lib in libs)
-        {
-            name = ResourceNameToPath(lib);
-
-            if (name.EndsWith(".dll"))
-            {
-                var assemblyTempFilePath = Path.Combine(tempBasePath, name);
-
-                // LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008
-                LoadLibraryEx(assemblyTempFilePath, IntPtr.Zero, 0x00000008);
-            }
-        }
-
-        // restore to previous state
-        SetErrorMode(originalErrorMode);
     }
-
-    [DllImport("kernel32.dll")]
-    private static extern uint SetErrorMode(uint uMode);
-
-    private static string ResourceNameToPath(string lib)
-    {
-        var platformName = GetPlatformName();
-        var name = lib;
-
-        // _ instead of - since '-' is not supported in resource names
-        var platformPrefix = string.Concat("costura-", platformName, ".")
-            .Replace("-", "_");
-        var costuraPrefix = "costura.";
-
-        if (lib.StartsWith(platformPrefix))
-        {
-            name = Path.Combine(platformName, lib.Substring(platformPrefix.Length));
-        }
-        else if (lib.StartsWith(costuraPrefix))
-        {
-            name = lib.Substring(costuraPrefix.Length);
-        }
-
-        if (name.EndsWith(".compressed"))
-        {
-            name = name.Substring(0, name.Length - 11);
-        }
-
-        return name;
-    }
-
-    private static string GetPlatformName()
-    {
-#if NETCORE
-        var os = "win";
-
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            throw new NotSupportedException("Platform is not (yet) supported");
-        }
-
-        //if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        //{
-        //    os = "osx";
-        //}
-        //else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        //{
-        //    os = "linux";
-        //}
-
-        var processorArchitecture = RuntimeInformation.ProcessArchitecture;
-
-        switch (processorArchitecture)
-        {
-            case Architecture.Arm64:
-                return string.Format("{0}-{1}", os, "arm64");
-
-            case Architecture.X86:
-                return string.Format("{0}-{1}", os, "x86");
-
-            case Architecture.X64:
-                return string.Format("{0}-{1}", os, "x64");
-
-            default:
-                // Note: somehow copying string interpolation doesn't work correctly, hence using string.Format instead
-                //throw new NotSupportedException($"Architecture '{processorArchitecture}' not supported");
-                throw new NotSupportedException(string.Format("Architecture '{0}' not supported", processorArchitecture));
-        }
-#else
-        var bittyness = IntPtr.Size == 8 ? "64" : "86";
-        return $"win-x{bittyness}";
 #endif
-    }
+
+
+    //#if NET
+
+    //    //internal static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
+
+    //    internal static object CreateInstanceInternal(ConditionalWeakTable<object, object> _table, object key, params object[] args)
+    //    {
+    //        lock (_table)
+    //        {
+    //            if (_table.TryGetValue(key, out var instance) == false)
+    //            {
+    //                Console.WriteLine("asdasdsasd");
+    //                var context = Get();
+    //                var type = key.GetType();
+    //                var assembly = context.LoadFromAssemblyName(type.Assembly.GetName());
+    //                instance = assembly.CreateInstance(type.FullName, true, BindingFlags.Default, null, args, null, null);
+    //                _table.Add(key, instance);
+    //            }
+    //            return instance;
+    //        }
+    //    }
+
+    //    public static object GetDataInternal(ConditionalWeakTable<object, object> _table, object key)
+    //    {
+    //        lock (_table)
+    //        {
+    //            if (_table.TryGetValue(key, out var instance))
+    //            {
+    //                return instance;
+    //            }
+    //            return null;
+    //        }
+    //    }
+
+    //    static AssemblyLoadContext _context;
+    //    internal static AssemblyLoadContext Get()
+    //    {
+    //        var assembly = Assembly.GetExecutingAssembly();
+    //        Console.WriteLine("assembly");
+    //        //var context = AssemblyLoadContext.GetLoadContext(assembly);
+    //        //Console.WriteLine(context);
+
+    //        //if (IsDefault2() == false)
+    //        //    _context = context;
+
+    //        //if (_context is null)
+    //        //{
+    //        //    _context = new LocalAssemblyLoadContext(assembly.Location);
+    //        //    _context.Unloading += Unloading;
+    //        //}
+
+    //        return _context;
+    //    }
+
+    //    private static void Unloading(AssemblyLoadContext context)
+    //    {
+    //        _context = null;
+    //        Console.WriteLine($"AssemblyLoadContext Unloading: {context.Name}");
+    //    }
+
+    //    public static void Unload()
+    //    {
+    //        _context?.Unload();
+    //    }
+
+
+
+    //    internal class LocalAssemblyLoadContext : AssemblyLoadContext
+    //    {
+    //        public bool ConsoleShow { get; set; } = false;
+    //        private void WriteLine(string message)
+    //        {
+    //            if (ConsoleShow)
+    //                Console.WriteLine(message);
+    //        }
+
+    //        private AssemblyDependencyResolver _resolver;
+    //        private readonly string _assemblyPath;
+    //        private Assembly _assembly;
+
+    //        public LocalAssemblyLoadContext(string assemblyPath) : base("LocalContext", isCollectible: true)
+    //        {
+    //            this._assemblyPath = assemblyPath;
+    //            this._resolver = new AssemblyDependencyResolver(assemblyPath);
+
+    //            WriteLine($"{this.Name} Start: {AssemblyName.GetAssemblyName(assemblyPath)}");
+
+    //            this.Unloading += (context) =>
+    //            {
+    //                WriteLine($"{this.Name} Unload: {context.Name}");
+    //                _assembly = null;
+    //            };
+    //        }
+
+    //        public Assembly Initialize()
+    //        {
+    //            if (_assembly is null)
+    //            {
+    //                _assembly = LoadFromAssemblyPath(_assemblyPath);
+    //            }
+    //            return _assembly;
+    //        }
+
+    //        protected override Assembly Load(AssemblyName name)
+    //        {
+    //            WriteLine($"{this.Name} Load: {name}");
+
+    //            string assemblyPath = _resolver.ResolveAssemblyToPath(name);
+    //            if (assemblyPath != null)
+    //            {
+    //                return LoadFromAssemblyPath(assemblyPath);
+    //            }
+
+    //            return null;
+    //        }
+    //    }
+
+    //#else
+
+    //#endif
+
+    //    public static bool IsDefault2()
+    //    {
+    //#if NET
+    //        var assembly = Assembly.GetExecutingAssembly();
+    //        var context = AssemblyLoadContext.GetLoadContext(assembly);
+
+    //        if (context == AssemblyLoadContext.Default)
+    //            return true;
+
+    //        return context.GetType().Name != nameof(LocalAssemblyLoadContext);
+    //#else
+
+    //        return false;
+
+    //#endif
+    //}
 }

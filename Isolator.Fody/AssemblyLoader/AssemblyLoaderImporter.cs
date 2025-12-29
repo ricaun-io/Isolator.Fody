@@ -233,6 +233,7 @@ public partial class ModuleWeaver
 
         if (existingMethod is not null)
         {
+            WriteMessage($"ExistingMethod: '{templateMethod.Name}'", Fody.MessageImportance.High);
             return existingMethod;
         }
 

@@ -2,85 +2,147 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
-#if NETCORE
+#if NET
 using System.Runtime.Loader;
 #endif
 
 internal static class ILTemplate
 {
-    private static object nullCacheLock = new object();
-    private static Dictionary<string, bool> nullCache = new Dictionary<string, bool>();
+    internal static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
 
-    private static Dictionary<string, string> assemblyNames = new Dictionary<string, string>();
-    private static Dictionary<string, string> symbolNames = new Dictionary<string, string>();
+    internal static object CreateInstance(object key, params object[] args)
+    {
+#if NET
+        lock (_table)
+        {
+            if (_table.TryGetValue(key, out var instance) == false)
+            {
+                var context = Get();
+                var type = key.GetType();
+                var assembly = context.LoadFromAssemblyName(type.Assembly.GetName());
+                instance = assembly.CreateInstance(type.FullName, true, BindingFlags.Default, null, args, null, null);
+                _table.Add(key, instance);
+            }
+            return instance;
+        }
+#else
+        return key;
+#endif
+    }
 
-    private static int isAttached;
+#if NET
+    static AssemblyLoadContext _context;
+    static string ContextName = null;
+    internal static AssemblyLoadContext Get()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var context = AssemblyLoadContext.GetLoadContext(assembly);
+
+        if (IsDefault() == false)
+            _context = context;
+
+        if (_context is null)
+        {
+            //_context = new LocalAssemblyLoadContext(assembly.Location);
+            var frame = new System.Diagnostics.StackFrame(0);
+            var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(LocalAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
+
+            _context = Activator.CreateInstance(type, assembly.Location) as AssemblyLoadContext;
+            _context?.Unloading += Unloading;
+            ContextName = _context.Name;
+        }
+
+        return _context;
+    }
+    private static void Unloading(AssemblyLoadContext context)
+    {
+        _context = null;
+        Console.WriteLine($"Isolator.Unloading ... {ContextName}");
+    }
+
+    public static void Unload()
+    {
+        _context?.Unload();
+    }
+
+#endif
+
+    internal static object GetData(object key)
+    {
+#if NET
+        lock (_table)
+        {
+            if (_table.TryGetValue(key, out var instance))
+            {
+                return instance;
+            }
+            return null;
+        }
+#else
+        return null;
+#endif
+    }
+
+    public static bool IsDefault()
+    {
+#if NET
+        var assembly = Assembly.GetExecutingAssembly();
+        var context = AssemblyLoadContext.GetLoadContext(assembly);
+
+        if (context == AssemblyLoadContext.Default)
+            return true;
+
+        return context.GetType().Name != nameof(LocalAssemblyLoadContext);
+#else
+        return false;
+#endif
+    }
 
     public static void Attach(bool subscribe)
     {
-        Console.WriteLine("Attach ... ");
-        Console.WriteLine(" Isolator.Template ... ");
-        if (Interlocked.Exchange(ref isAttached, 1) == 1)
-        {
-            return;
-        }
-
-        if (subscribe)
-        {
-#if NETCORE
-            AssemblyLoadContext.Default.Resolving += ResolveAssembly;
-#else
-            var currentDomain = AppDomain.CurrentDomain;
-            currentDomain.AssemblyResolve += ResolveAssembly;
+        var assembly = Assembly.GetExecutingAssembly();
+        var context = string.Empty;
+#if NET
+        context = AssemblyLoadContext.GetLoadContext(assembly).ToString();
 #endif
-        }
+        Console.WriteLine($"Isolator ... {context}");
     }
 
-#if NETCORE
-    public static Assembly ResolveAssembly(AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
-#else
-    public static Assembly ResolveAssembly(object sender, ResolveEventArgs e)
-#endif
+#if NET
+    internal class LocalAssemblyLoadContext : AssemblyLoadContext
     {
-#if NETCORE
-        var assemblyNameAsString = assemblyName.Name;
-#else
-        var assemblyNameAsString = e.Name;
-        var assemblyName = new AssemblyName(assemblyNameAsString);
+        private AssemblyDependencyResolver _resolver;
+        private readonly string _assemblyPath;
+        private Assembly _assembly;
+
+        public LocalAssemblyLoadContext(string assemblyPath) : base("LocalContext", isCollectible: true)
+        {
+            this._assemblyPath = assemblyPath;
+            this._resolver = new AssemblyDependencyResolver(assemblyPath);
+        }
+
+        public Assembly Initialize()
+        {
+            if (_assembly is null)
+            {
+                _assembly = LoadFromAssemblyPath(_assemblyPath);
+            }
+            return _assembly;
+        }
+
+        protected override Assembly Load(AssemblyName name)
+        {
+            string assemblyPath = _resolver.ResolveAssemblyToPath(name);
+            if (assemblyPath != null)
+            {
+                return LoadFromAssemblyPath(assemblyPath);
+            }
+
+            return null;
+        }
+    }
 #endif
 
-        lock (nullCacheLock)
-        {
-            if (nullCache.ContainsKey(assemblyNameAsString))
-            {
-                return null;
-            }
-        }
-
-        var assembly = Common.ReadExistingAssembly(assemblyName);
-        if (assembly is not null)
-        {
-            return assembly;
-        }
-
-        Common.Log("Loading assembly '{0}' into the current context", assemblyName);
-
-        assembly = Common.ReadFromEmbeddedResources(assemblyNames, symbolNames, assemblyName);
-        if (assembly is null)
-        {
-            lock (nullCacheLock)
-            {
-                nullCache[assemblyNameAsString] = true;
-            }
-
-            // Handles re-targeted assemblies like PCL
-            if ((assemblyName.Flags & AssemblyNameFlags.Retargetable) != 0)
-            {
-                assembly = Assembly.Load(assemblyName);
-            }
-        }
-
-        return assembly;
-    }
 }
