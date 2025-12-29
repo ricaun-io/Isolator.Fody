@@ -25,9 +25,16 @@ internal static class ILTemplate
             if (_table.TryGetValue(key, out var instance) == false)
             {
                 var context = Get();
-                var type = key.GetType();
+                var type = key is Type ? (Type)key : key.GetType();
                 var assembly = context.LoadFromAssemblyName(type.Assembly.GetName());
-                instance = assembly.CreateInstance(type.FullName, true, BindingFlags.Default, null, args, null, null);
+                if (key is Type)
+                {
+                    instance = assembly.GetType(type.FullName);
+                }
+                else
+                {
+                    instance = assembly.CreateInstance(type.FullName, true, BindingFlags.Default, null, args, null, null);
+                }
                 _table.Add(key, instance);
             }
             return instance;
