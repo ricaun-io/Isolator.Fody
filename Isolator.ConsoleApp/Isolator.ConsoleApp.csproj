@@ -5,7 +5,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <FodyName>Isolator</FodyName>
   </PropertyGroup>
 
   <!--<PropertyGroup Condition="$(Configuration.Contains('Debug'))">
@@ -15,8 +14,8 @@
   </PropertyGroup>-->
   
   <ItemGroup>
-    <ProjectReference Include="..\$(FodyName).Fody\$(FodyName).Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
-    <WeaverFiles Include="..\$(FodyName).Fody\bin\$(Configuration)\netstandard2.0\$(FodyName).Fody.dll" />
+    <ProjectReference Include="..\Isolator.Fody\Isolator.Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
+    <WeaverFiles Include="..\Isolator.Fody\bin\$(Configuration)\netstandard2.0\Isolator.Fody.dll" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -28,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\$(FodyName)\$(FodyName).csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\Isolator\Isolator.csproj" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
