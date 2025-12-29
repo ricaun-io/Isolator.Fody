@@ -17,12 +17,32 @@ public class Program
         Console.WriteLine(i2);
         Console.WriteLine(i3);
 
+        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
+
         //new MyClass().MyMethod();
         //Console.WriteLine(" ");
         //new MyClass2().MyMethod();
         //var obj = new MyClass2("class name");
         //var arg = obj.MyMethod2("argument");
         //Console.WriteLine(arg);
+    }
+}
+
+[Isolator]
+public static class IsolatorStaticClass
+{
+    static IsolatorStaticClass()
+    {
+        Console.WriteLine("Inside IsolatorStaticClass static constructor");
+    }
+    public static void MyStaticMethodVoid()
+    {
+        Console.WriteLine("Inside MyStaticMethod");
+    }
+
+    public static int MyStaticMethod(int x)
+    {
+        return x * 2;
     }
 }
 

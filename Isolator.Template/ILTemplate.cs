@@ -48,6 +48,10 @@ internal static class ILTemplate
             {
                 return instance;
             }
+            if (key is Type type)
+            {
+                return CreateInstance(type, new object[0]);
+            }
             return null;
         }
     }

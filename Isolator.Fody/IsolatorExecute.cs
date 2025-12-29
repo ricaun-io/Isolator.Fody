@@ -140,8 +140,19 @@ public partial class ModuleWeaver
             var dataVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
             method.Body.Variables.Add(dataVariable);
 
-            il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
-            il.InsertBefore(first, il.Create(OpCodes.Call, getDataMethodRef)); // Call GetData(this)
+            // Load key argument: 'this' for instance methods, typeof(DeclaringType) for static methods
+            if (method.IsStatic)
+            {
+                var typeOfMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.DeclaringType));
+                il.InsertBefore(first, il.Create(OpCodes.Call, typeOfMethod));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
+            }
+
+            il.InsertBefore(first, il.Create(OpCodes.Call, getDataMethodRef)); // Call GetData(this or typeof)
             il.InsertBefore(first, il.Create(OpCodes.Stloc, dataVariable)); // Store result in 'data' variable
 
             // Import System.Reflection types and methods
@@ -158,20 +169,40 @@ public partial class ModuleWeaver
             var methodInfoVariable = new VariableDefinition(methodInfoType);
             method.Body.Variables.Add(methodInfoVariable);
 
-            // Determine binding flags based on method visibility
-            var bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+            // Determine binding flags based on method visibility and static/instance nature
+            var bindingFlags = method.IsStatic 
+                ? System.Reflection.BindingFlags.Static 
+                : System.Reflection.BindingFlags.Instance;
+            
             if (method.IsPrivate)
             {
-                bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
             }
             else if (method.IsAssembly || method.IsFamilyAndAssembly) // internal
             {
-                bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
+            }
+            else
+            {
+                bindingFlags |= System.Reflection.BindingFlags.Public;
             }
 
-            // Get the method using reflection: data.GetType().GetMethod(method.Name, bindingFlags)
-            il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
+            // Get the method using reflection
+            // For static methods: data is already Type, use it directly
+            // For instance methods: data is object instance, call GetType()
+            if (method.IsStatic)
+            {
+                // data is Type, cast and use directly: ((Type)data).GetMethod(methodName, bindingFlags)
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
+                il.InsertBefore(first, il.Create(OpCodes.Castclass, typeType)); // Cast to Type
+            }
+            else
+            {
+                // data is object instance, call GetType(): data.GetType().GetMethod(methodName, bindingFlags)
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
+            }
+            
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name)); // Load method name
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags)); // Load binding flags
             il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodMethod)); // Call GetMethod(methodName, bindingFlags)
@@ -179,19 +210,29 @@ public partial class ModuleWeaver
 
             // Invoke: methodInfo.Invoke(data, parameters)
             il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo
-            il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data' as target object
+            
+            // For static methods, pass null as target; for instance methods, pass 'data'
+            if (method.IsStatic)
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data' as target object
+            }
 
-            // Create array with correct size for all method parameters (excluding 'this')
+            // Create array with correct size for all method parameters (excluding 'this' for instance methods)
             var parameterCount = method.Parameters.Count;
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, parameterCount)); // Load parameter count
             il.InsertBefore(first, il.Create(OpCodes.Newarr, ModuleDefinition.TypeSystem.Object)); // Create object array
 
             // Load each method argument into the array
+            var argOffset = method.IsStatic ? 0 : 1; // Static methods start at arg0, instance methods start at arg1
             for (int i = 0; i < parameterCount; i++)
             {
                 il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + 1)); // Load method argument (arg0, arg1, etc. - +1 to skip 'this')
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load method argument
 
                 // Box value types
                 if (method.Parameters[i].ParameterType.IsValueType)
