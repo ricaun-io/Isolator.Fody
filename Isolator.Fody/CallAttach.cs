@@ -5,6 +5,7 @@ using Mono.Cecil.Cil;
 
 public partial class ModuleWeaver
 {
+    private const string AttachMethodName = "CosturaUtility::Initialize()";
     private void CallAttach(Configuration config)
     {
         var disableEventSubscription = config.DisableEventSubscription;
@@ -16,7 +17,7 @@ public partial class ModuleWeaver
         }
         else if (!initialized)
         {
-            throw new WeavingException("Costura was not initialized. Make sure LoadAtModuleInit=true or call CosturaUtility.Initialize().");
+            throw new WeavingException($"Costura was not initialized. Make sure LoadAtModuleInit=true or call {AttachMethodName}.");
         }
     }
 
@@ -52,7 +53,7 @@ public partial class ModuleWeaver
                         continue;
                     }
                     
-                    if (callMethod.FullName == "System.Void CosturaUtility::Initialize()")
+                    if (callMethod.FullName == $"System.Void {AttachMethodName}")
                     {
                         found = true;
 
