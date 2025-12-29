@@ -5,6 +5,9 @@ public class Program
     {
         Console.WriteLine("Hello, World!");
         new MyClass().MyMethod();
+        Console.WriteLine(" ");
+        new MyClass2().MyMethod();
+        new MyClass2("class name").MyMethod();
     }
 }
 

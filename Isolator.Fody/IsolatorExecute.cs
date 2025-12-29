@@ -34,7 +34,7 @@ public partial class ModuleWeaver
                     continue;
                 }
 
-                InjectLog(method, consoleWriteLine);
+                InjectMethod(method, consoleWriteLine);
             }
         }
     }
@@ -97,7 +97,7 @@ public partial class ModuleWeaver
         il.InsertBefore(first, il.Create(OpCodes.Ret));
     }
 
-    private void InjectLog(MethodDefinition method, MethodReference writeLine)
+    private void InjectMethod(MethodDefinition method, MethodReference writeLine)
     {
         var il = method.Body.GetILProcessor();
         var first = method.Body.Instructions.First();

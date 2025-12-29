@@ -47,7 +47,7 @@ internal static class ILTemplate
         {
             //_context = new LocalAssemblyLoadContext(assembly.Location);
             var frame = new System.Diagnostics.StackFrame(0);
-            var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(LocalAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
+            var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(IsolatorAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
 
             _context = Activator.CreateInstance(type, assembly.Location) as AssemblyLoadContext;
             _context?.Unloading += Unloading;
@@ -94,7 +94,7 @@ internal static class ILTemplate
         if (context == AssemblyLoadContext.Default)
             return true;
 
-        return context.GetType().Name != nameof(LocalAssemblyLoadContext);
+        return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
 #else
         return false;
 #endif
@@ -111,13 +111,13 @@ internal static class ILTemplate
     }
 
 #if NET
-    internal class LocalAssemblyLoadContext : AssemblyLoadContext
+    internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
         private readonly string _assemblyPath;
         private Assembly _assembly;
 
-        public LocalAssemblyLoadContext(string assemblyPath) : base("LocalContext", isCollectible: true)
+        public IsolatorAssemblyLoadContext(string assemblyPath) : base("IsolatorContext", isCollectible: true)
         {
             this._assemblyPath = assemblyPath;
             this._resolver = new AssemblyDependencyResolver(assemblyPath);
