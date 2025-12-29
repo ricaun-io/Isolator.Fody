@@ -8,6 +8,12 @@ public partial class ModuleWeaver
     private const string AttachMethodName = "IsolatorUtility::Initialize()";
     private void CallAttach(Configuration config)
     {
+        if (_attachMethod is null)
+        {
+            WriteMessage($"AttachMethod is null and CallAttach is ignored.", MessageImportance.High);
+            return;
+        }
+
         var disableEventSubscription = config.DisableEventSubscription;
         var loadAtModuleInit = config.LoadAtModuleInit;
         var initialized = FindInitializeCalls(disableEventSubscription);
@@ -53,7 +59,7 @@ public partial class ModuleWeaver
                     {
                         continue;
                     }
-                    
+
                     if (callMethod.FullName == $"System.Void {AttachMethodName}")
                     {
                         found = true;

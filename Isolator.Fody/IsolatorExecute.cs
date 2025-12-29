@@ -18,7 +18,7 @@ public partial class ModuleWeaver
 
         foreach (var type in ModuleDefinition.GetTypes())
         {
-            WriteMessage($"Type: {type} {string.Join(" ", type.CustomAttributes.Select(e => e.AttributeType))}", MessageImportance.High);
+            // WriteMessage($"Type: {type} {string.Join(" ", type.CustomAttributes.Select(e => e.AttributeType))}", MessageImportance.High);
 
             if (!type.TryGetAndRemoveCustomAttribute(IsolatorAttribute))
                 continue;

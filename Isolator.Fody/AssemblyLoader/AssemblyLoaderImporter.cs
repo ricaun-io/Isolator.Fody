@@ -72,7 +72,7 @@ public partial class ModuleWeaver
 
             // Copy type + nested types
             CopyType(_targetType, _sourceType, true, true);
-            _attachMethod = _targetType.Methods.Single(_ => _.Name == "Attach");
+            _attachMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "Attach");
 
             //// Copy type + nested types
             //CopyType(_targetType, _sourceType, true, false);
