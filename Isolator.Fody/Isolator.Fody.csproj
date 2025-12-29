@@ -41,22 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="$(AssemblyName).xcf" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="$(AssemblyName).props">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(AssemblyName).targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(AssemblyName).xcf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="*" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
