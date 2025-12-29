@@ -19,19 +19,18 @@ public class Program
         Console.WriteLine(i3);
 
         Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
+        //Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
 
         IsolatorStaticClass.MyStaticMethod("Test");
         IsolatorStaticClass.MyStaticMethod("Test", 2);
 
 
-        object data = new ExternalCommand();
-        var message = "";
-        //var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(string).MakeByRefType() }, null);
-        //method.Invoke(data, new object[1] { message });
+        var message = "?";
+        NewMethod(ref message);
+        Console.WriteLine(message);
 
-        var cmd = "";
-        new ExternalCommand().Execute(ref cmd);
-
+        //var cmd = "?";
+        //new ExternalCommand().Execute(ref cmd);
         //Console.WriteLine(cmd);
 
         //new MyClass().MyMethod();
@@ -41,6 +40,16 @@ public class Program
         //var arg = obj.MyMethod2("argument");
         //Console.WriteLine(arg);
     }
+
+    private static unsafe void NewMethod(ref string message)
+    {
+        object data = new ExternalCommand();
+        var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(string).MakeByRefType() }, null);
+        var args = new object[1] { message };
+        method.Invoke(data, args);
+        Console.WriteLine($"{message} >>>");
+    }
+
 }
 
 [Isolator]
@@ -60,6 +69,11 @@ public static class IsolatorStaticClass
         return x * 2;
     }
 
+    public static int MyStaticMethod(int x, int y)
+    {
+        return x * y;
+    }
+
     public static void MyStaticMethod(params object[] args)
     {
         foreach (var item in args)
@@ -73,6 +87,13 @@ public static class IsolatorStaticClass
 public class IsolatorClass
 {
     public IsolatorClass(string name = null)
+    {
+        var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
+        Console.WriteLine(context);
+        this.Name = name;
+    }
+
+    public IsolatorClass(string name, string name2)
     {
         var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
         Console.WriteLine(context);

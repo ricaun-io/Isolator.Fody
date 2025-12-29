@@ -295,18 +295,9 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
             }
 
-            // Invoke: methodInfo.Invoke(data, parameters)
-            il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo
-
-            // For static methods, pass null as target; for instance methods, pass 'data'
-            if (method.IsStatic)
-            {
-                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
-            }
-            else
-            {
-                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data' as target object
-            }
+            // Create local variable for array of method parameters
+            var parametersArrayVariable = new VariableDefinition(new ArrayType(ModuleDefinition.TypeSystem.Object));
+            method.Body.Variables.Add(parametersArrayVariable);
 
             // Create array with correct size for all method parameters (excluding 'this' for instance methods)
             var parameterCount = method.Parameters.Count;
@@ -336,6 +327,23 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
             }
 
+            // Store the parameters array for potential ref/out parameter updates
+            il.InsertBefore(first, il.Create(OpCodes.Stloc, parametersArrayVariable)); // Store array reference
+
+            // Invoke: methodInfo.Invoke(data, parameters)
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo
+
+            // For static methods, pass null as target; for instance methods, pass 'data'
+            if (method.IsStatic)
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data' as target object
+            }
+
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersArrayVariable)); // Load parameters array
             il.InsertBefore(first, il.Create(OpCodes.Callvirt, invokeMethod)); // Call methodInfo.Invoke(data, args)
 
             // Handle return value
@@ -409,5 +417,5 @@ public partial class ModuleWeaver
             MetadataType.IntPtr or MetadataType.UIntPtr => Instruction.Create(OpCodes.Ldind_I),
             _ => Instruction.Create(OpCodes.Ldind_Ref),
         };
-}
+    }
 }
