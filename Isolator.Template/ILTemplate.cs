@@ -20,6 +20,7 @@ internal static class ILTemplate
     public static void Attach(bool subscribe)
     {
         Console.WriteLine("Attach ... ");
+        Console.WriteLine(" Isolator.Template ... ");
         if (Interlocked.Exchange(ref isAttached, 1) == 1)
         {
             return;

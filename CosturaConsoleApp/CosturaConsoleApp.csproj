@@ -1,27 +1,34 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <FodyName>Isolator</FodyName>
   </PropertyGroup>
 
+  <!--<PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <Revision>$([MSBuild]::Divide($([System.DateTime]::Now.TimeOfDay.TotalSeconds), 4).ToString('F0'))</Revision>
+    <PackageAssemblyVersion>.Dev.$(Version).$(Revision)</PackageAssemblyVersion>
+    <AssemblyName>$(AssemblyName)$(PackageAssemblyVersion)</AssemblyName>
+  </PropertyGroup>-->
+  
   <ItemGroup>
-    <ProjectReference Include="..\Costura.Fody\Costura.Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
-    <WeaverFiles Include="..\Costura.Fody\bin\$(Configuration)\netstandard2.0\Costura.Fody.dll" />
+    <ProjectReference Include="..\$(FodyName).Fody\$(FodyName).Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
+    <WeaverFiles Include="..\$(FodyName).Fody\bin\$(Configuration)\netstandard2.0\$(FodyName).Fody.dll" />
   </ItemGroup>
 
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Costura />
+        <Isolator />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Costura\Costura.csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\$(FodyName)\$(FodyName).csproj" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

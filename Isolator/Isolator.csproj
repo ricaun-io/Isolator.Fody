@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <PackageId>Costura.Fody</PackageId>
+    <PackageId>Isolator.Fody</PackageId>
     <DisableFody>true</DisableFody>
     <NoWarn>$(NoWarn);NU5100</NoWarn>
     <NoError>$(NoError);NU5100</NoError>

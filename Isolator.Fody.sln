@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Costura.Template", "Costura
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosturaConsoleApp", "CosturaConsoleApp\CosturaConsoleApp.csproj", "{2E463435-A575-9C66-4127-C0A8B5ED1BE2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator", "Isolator\Isolator.csproj", "{C0C411AC-3DAB-C399-4E30-5FABBE53214D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Template", "Isolator.Template\Isolator.Template.csproj", "{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E463435-A575-9C66-4127-C0A8B5ED1BE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0C411AC-3DAB-C399-4E30-5FABBE53214D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0C411AC-3DAB-C399-4E30-5FABBE53214D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0C411AC-3DAB-C399-4E30-5FABBE53214D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0C411AC-3DAB-C399-4E30-5FABBE53214D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
