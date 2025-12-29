@@ -5,13 +5,14 @@ using Mono.Cecil.Cil;
 
 public partial class ModuleWeaver
 {
-    private const string AttachMethodName = "CosturaUtility::Initialize()";
+    private const string AttachMethodName = "IsolatorUtility::Initialize()";
     private void CallAttach(Configuration config)
     {
         var disableEventSubscription = config.DisableEventSubscription;
+        var loadAtModuleInit = config.LoadAtModuleInit;
         var initialized = FindInitializeCalls(disableEventSubscription);
 
-        if (config.LoadAtModuleInit)
+        if (loadAtModuleInit)
         {
             AddModuleInitializerCall(disableEventSubscription);
         }

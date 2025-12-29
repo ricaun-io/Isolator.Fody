@@ -1,12 +1,12 @@
 ﻿using System;
 
 /// <summary>
-/// Contains methods for interacting with the Costura system.
+/// Contains methods for interacting with the Isolator system.
 /// </summary>
-public static class CosturaUtility
+public static class IsolatorUtility
 {
     /// <summary>
-    /// Call this to Initialize the Costura system.
+    /// Call this to Initialize the Isolator system.
     /// </summary>
     public static void Initialize()
     {

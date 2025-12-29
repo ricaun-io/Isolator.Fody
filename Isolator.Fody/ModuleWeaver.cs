@@ -18,8 +18,10 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
         WriteInfo($"{GetType().Assembly.GetName().Name}.Fody v{GetType().Assembly.GetVersion()}");
 
         FindMsCoreReferences();
-        ImportAssemblyLoader(config.CreateTemporaryAssemblies);
+        ImportAssemblyLoader();
         CallAttach(config);
+
+        IsolatorExecute();
     }
 
     public override IEnumerable<string> GetAssembliesForScanning()
