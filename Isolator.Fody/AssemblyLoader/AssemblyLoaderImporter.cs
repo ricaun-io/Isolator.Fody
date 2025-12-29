@@ -25,7 +25,10 @@ public partial class ModuleWeaver
 
     private const string ModuleName = "Isolator";
 
-    private void ImportAssemblyLoader(bool createTemporaryAssemblies = false)
+    /// <summary>
+    /// This method and dependecies are based in the `Costura.Fody` project.
+    /// </summary>
+    private void ImportAssemblyLoader()
     {
         var readerParameters = new ReaderParameters
         {
@@ -34,7 +37,7 @@ public partial class ModuleWeaver
             SymbolReaderProvider = new PdbReaderProvider()
         };
 
-        // Default version always used by Costura
+        // Default version always used by Isolator
         var targetFramework = "netstandard2.0";
 
         var systemRuntimeReference = ModuleDefinition.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Runtime");

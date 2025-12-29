@@ -9,7 +9,7 @@ using Mono.Cecil;
 /// </summary>
 public sealed class NetStandardAssemblyResolver : IAssemblyResolver
 {
-            const string dllName = "Isolator.NETFramework.netstandard.dll";
+    const string dllName = "Isolator.NETFramework.netstandard.dll";
 
     private readonly ModuleWeaver _weaver;
     private readonly HashSet<AssemblyNameReference> _resolvedReferences;
