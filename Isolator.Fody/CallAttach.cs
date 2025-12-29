@@ -7,11 +7,12 @@ public partial class ModuleWeaver
 {
     private void CallAttach(Configuration config)
     {
-        var initialized = FindInitializeCalls(config);
+        var disableEventSubscription = config.DisableEventSubscription;
+        var initialized = FindInitializeCalls(disableEventSubscription);
 
         if (config.LoadAtModuleInit)
         {
-            AddModuleInitializerCall(config);
+            AddModuleInitializerCall(disableEventSubscription);
         }
         else if (!initialized)
         {
@@ -19,7 +20,7 @@ public partial class ModuleWeaver
         }
     }
 
-    private bool FindInitializeCalls(Configuration config)
+    private bool FindInitializeCalls(bool disableEventSubscription)
     {
         var found = false;
 
@@ -56,7 +57,7 @@ public partial class ModuleWeaver
                         found = true;
 
                         instructions[i] = Instruction.Create(OpCodes.Call, _attachMethod);
-                        instructions.Insert(i--, Instruction.Create(config.DisableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
+                        instructions.Insert(i--, Instruction.Create(disableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
                     }
                 }
             }
@@ -65,7 +66,7 @@ public partial class ModuleWeaver
         return found;
     }
 
-    private void AddModuleInitializerCall(Configuration config)
+    private void AddModuleInitializerCall(bool disableEventSubscription)
     {
         const MethodAttributes attributes = MethodAttributes.Private
                                             | MethodAttributes.HideBySig
@@ -87,7 +88,7 @@ public partial class ModuleWeaver
             moduleClass.Methods.Add(cctor);
         }
 
-        cctor.Body.Instructions.Insert(0, Instruction.Create(config.DisableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
+        cctor.Body.Instructions.Insert(0, Instruction.Create(disableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
         cctor.Body.Instructions.Insert(1, Instruction.Create(OpCodes.Call, _attachMethod));
     }
 }

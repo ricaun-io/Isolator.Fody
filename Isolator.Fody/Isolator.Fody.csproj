@@ -26,7 +26,7 @@
     <EmbeddedResource Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\Facades\netstandard.dll">
       <Link>src\netstandard.dll</Link>
       <InProject>false</InProject>
-      <LogicalName>Costura.NETFramework.netstandard.dll</LogicalName>
+      <LogicalName>Isolator.NETFramework.netstandard.dll</LogicalName>
     </EmbeddedResource>
 
     <EmbeddedResource Include="$(MSBuildProjectDirectory)\..\Isolator.Template\Common.cs">

@@ -9,6 +9,8 @@ using Mono.Cecil;
 /// </summary>
 public sealed class NetStandardAssemblyResolver : IAssemblyResolver
 {
+            const string dllName = "Isolator.NETFramework.netstandard.dll";
+
     private readonly ModuleWeaver _weaver;
     private readonly HashSet<AssemblyNameReference> _resolvedReferences;
     private readonly Lazy<AssemblyDefinition> _netStandardAssemblyDefinition;
@@ -20,7 +22,6 @@ public sealed class NetStandardAssemblyResolver : IAssemblyResolver
         _resolvedReferences = new HashSet<AssemblyNameReference>();
         _netStandardAssemblyDefinition = new Lazy<AssemblyDefinition>(() =>
         {
-            const string dllName = "Costura.NETFramework.netstandard.dll";
             var assembly = GetType().Assembly;
             using (var stream = assembly.GetManifestResourceStream(dllName))
             {
