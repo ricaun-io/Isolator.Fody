@@ -10,11 +10,16 @@ using System.Runtime.Loader;
 
 internal static class ILTemplate
 {
-    internal static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
+#if !NET
+    internal static object CreateInstance(object key, params object[] args) { return null; }
+    internal static object GetData(object key) { return null; }
+    public static void Attach(bool subscribe) { }
+    public static bool IsDefault() { return false; }
+#endif
 
+#if NET
     internal static object CreateInstance(object key, params object[] args)
     {
-#if NET
         lock (_table)
         {
             if (_table.TryGetValue(key, out var instance) == false)
@@ -27,12 +32,20 @@ internal static class ILTemplate
             }
             return instance;
         }
-#else
-        return key;
-#endif
+    }
+    internal static object GetData(object key)
+    {
+        lock (_table)
+        {
+            if (_table.TryGetValue(key, out var instance))
+            {
+                return instance;
+            }
+            return null;
+        }
     }
 
-#if NET
+    static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
     static AssemblyLoadContext _context;
     static string ContextName = null;
     static string ContextToString = null;
@@ -69,27 +82,8 @@ internal static class ILTemplate
         _context?.Unload();
     }
 
-#endif
-
-    internal static object GetData(object key)
-    {
-#if NET
-        lock (_table)
-        {
-            if (_table.TryGetValue(key, out var instance))
-            {
-                return instance;
-            }
-            return null;
-        }
-#else
-        return null;
-#endif
-    }
-
     public static bool IsDefault()
     {
-#if NET
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
 
@@ -97,9 +91,6 @@ internal static class ILTemplate
             return true;
 
         return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
-#else
-        return false;
-#endif
     }
 
     public static void Attach(bool subscribe)
@@ -113,7 +104,6 @@ internal static class ILTemplate
         Console.WriteLine($"Isolator ... {context}");
     }
 
-#if NET
     internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
