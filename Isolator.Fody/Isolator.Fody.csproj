@@ -1,39 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
     <DisableFody>true</DisableFody>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FodyHelpers" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Isolator.Template\Isolator.Template.csproj" PrivateAssets="All" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\Isolator.Template\bin\$(Configuration)\netstandard2.0\Isolator.Template.dll">
-      <Link>src\Template.dll</Link>
+      <Link>src\Template.netstandard2.0.dll</Link>
       <InProject>false</InProject>
       <LogicalName>Isolator.Template.netstandard2.0.dll</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="..\Isolator.Template\bin\$(Configuration)\net6.0\Isolator.Template.dll">
-      <Link>src\Template.dll</Link>
+      <Link>src\Template.net6.0.dll</Link>
       <InProject>false</InProject>
       <LogicalName>Isolator.Template.net6.0.dll</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="..\Isolator.Template\bin\$(Configuration)\net8.0\Isolator.Template.dll">
-      <Link>src\Template.dll</Link>
+      <Link>src\Template.net8.0.dll</Link>
       <InProject>false</InProject>
       <LogicalName>Isolator.Template.net8.0.dll</LogicalName>
     </EmbeddedResource>
-
-    <EmbeddedResource Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\Facades\netstandard.dll">
-      <Link>src\netstandard.dll</Link>
-      <InProject>false</InProject>
-      <LogicalName>Isolator.NETFramework.netstandard.dll</LogicalName>
-    </EmbeddedResource>
-
     <EmbeddedResource Include="$(MSBuildProjectDirectory)\..\Isolator.Template\Common.cs">
       <Link>src\Common.cs</Link>
       <InProject>false</InProject>
     </EmbeddedResource>
-
     <EmbeddedResource Include="$(MSBuildProjectDirectory)\..\Isolator.Template\ILTemplate.cs">
       <Link>src\ILTemplate.cs</Link>
       <InProject>false</InProject>
@@ -41,14 +41,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="*" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" GeneratePathProperty="true" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Isolator.Template\Isolator.Template.csproj" PrivateAssets="All">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
+    <EmbeddedResource Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\Facades\netstandard.dll">
+      <Link>src\netstandard.dll</Link>
+      <InProject>false</InProject>
+      <LogicalName>Isolator.NETFramework.netstandard.dll</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
