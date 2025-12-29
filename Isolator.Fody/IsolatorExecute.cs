@@ -98,10 +98,16 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
                 il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load constructor argument
 
-                // Box value types
-                if (method.Parameters[i].ParameterType.IsValueType)
+                var paramType = method.Parameters[i].ParameterType;
+                if (paramType.IsByReference)
                 {
-                    il.InsertBefore(first, il.Create(OpCodes.Box, method.Parameters[i].ParameterType));
+                    paramType = paramType.GetElementType();
+                    il.InsertBefore(first, CreateLdind(paramType));
+                }
+                // Box value types
+                if (paramType.IsValueType)
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Box, ModuleDefinition.ImportReference(paramType)));
                 }
 
                 il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
@@ -173,10 +179,10 @@ public partial class ModuleWeaver
             var getMethodWithoutTypesMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string), typeof(System.Reflection.BindingFlags) }));
             var methodInfoType = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodInfo));
             var invokeMethod = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodBase).GetMethod("Invoke", new[] { typeof(object), typeof(object[]) }));
-            
+
             // Import BindingFlags
             var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
-            
+
             // Import Type.MakeByRefType method
             var makeByRefTypeMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("MakeByRefType", Type.EmptyTypes));
 
@@ -185,10 +191,10 @@ public partial class ModuleWeaver
             method.Body.Variables.Add(methodInfoVariable);
 
             // Determine binding flags based on method visibility and static/instance nature
-            var bindingFlags = method.IsStatic 
-                ? System.Reflection.BindingFlags.Static 
+            var bindingFlags = method.IsStatic
+                ? System.Reflection.BindingFlags.Static
                 : System.Reflection.BindingFlags.Instance;
-            
+
             if (method.IsPrivate)
             {
                 bindingFlags |= System.Reflection.BindingFlags.NonPublic;
@@ -217,27 +223,27 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
             }
-            
+
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name)); // Load method name
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags)); // Load binding flags
-            
+
             // If method has parameters, use GetMethod overload with Type[] parameter types
             if (method.Parameters.Count > 0)
             {
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // Binder (null for default)
-                
+
                 // Create Type[] array for parameter types
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, method.Parameters.Count));
                 il.InsertBefore(first, il.Create(OpCodes.Newarr, typeType));
-                
+
                 // Populate Type[] array with parameter types
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
                     il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
                     il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                    
+
                     var paramType = method.Parameters[i].ParameterType;
-                    
+
                     // Handle ref/out parameters by getting the element type and calling MakeByRefType
                     if (paramType.IsByReference)
                     {
@@ -253,10 +259,10 @@ public partial class ModuleWeaver
                         var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
                         il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
                     }
-                    
+
                     il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
                 }
-                
+
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // ParameterModifier[] (null)
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithTypesMethod)); // Call GetMethod with types
             }
@@ -265,7 +271,7 @@ public partial class ModuleWeaver
                 // No parameters, use simple GetMethod overload
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithoutTypesMethod)); // Call GetMethod(methodName, bindingFlags)
             }
-            
+
             il.InsertBefore(first, il.Create(OpCodes.Stloc, methodInfoVariable)); // Store MethodInfo
 
             if (logEnable)
@@ -273,25 +279,25 @@ public partial class ModuleWeaver
                 var message = $"[Fody] MethodInfo retrieved for {method.DeclaringType.FullName}.{method.Name}: ";
                 // Log message prefix
                 il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
-                
+
                 // Load the methodInfoVariable and convert to string
                 il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable));
-                
+
                 // Call object.ToString() on the MethodInfo
                 var objectToStringMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("ToString", Type.EmptyTypes));
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, objectToStringMethod));
-                
+
                 // Concatenate the strings
                 var stringConcatMethod = ModuleDefinition.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }));
                 il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
-                
+
                 // Write to console
                 il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
             }
 
             // Invoke: methodInfo.Invoke(data, parameters)
             il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo
-            
+
             // For static methods, pass null as target; for instance methods, pass 'data'
             if (method.IsStatic)
             {
@@ -315,10 +321,16 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
                 il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load method argument
 
-                // Box value types
-                if (method.Parameters[i].ParameterType.IsValueType)
+                var paramType = method.Parameters[i].ParameterType;
+                if (paramType.IsByReference)
                 {
-                    il.InsertBefore(first, il.Create(OpCodes.Box, method.Parameters[i].ParameterType));
+                    paramType = paramType.GetElementType();
+                    il.InsertBefore(first, CreateLdind(paramType));
+                }
+                // Box value types
+                if (paramType.IsValueType)
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Box, ModuleDefinition.ImportReference(paramType)));
                 }
 
                 il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
@@ -380,4 +392,22 @@ public partial class ModuleWeaver
 
         return shouldIsolateMethod;
     }
+
+    static Instruction CreateLdind(TypeReference type)
+    {
+        return type.MetadataType switch
+        {
+            MetadataType.Boolean or MetadataType.SByte => Instruction.Create(OpCodes.Ldind_I1),
+            MetadataType.Byte => Instruction.Create(OpCodes.Ldind_U1),
+            MetadataType.Int16 => Instruction.Create(OpCodes.Ldind_I2),
+            MetadataType.UInt16 => Instruction.Create(OpCodes.Ldind_U2),
+            MetadataType.Int32 => Instruction.Create(OpCodes.Ldind_I4),
+            MetadataType.UInt32 => Instruction.Create(OpCodes.Ldind_U4),
+            MetadataType.Int64 or MetadataType.UInt64 => Instruction.Create(OpCodes.Ldind_I8),
+            MetadataType.Single => Instruction.Create(OpCodes.Ldind_R4),
+            MetadataType.Double => Instruction.Create(OpCodes.Ldind_R8),
+            MetadataType.IntPtr or MetadataType.UIntPtr => Instruction.Create(OpCodes.Ldind_I),
+            _ => Instruction.Create(OpCodes.Ldind_Ref),
+        };
+}
 }
