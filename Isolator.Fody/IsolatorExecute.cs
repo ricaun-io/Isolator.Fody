@@ -147,19 +147,34 @@ public partial class ModuleWeaver
             // Import System.Reflection types and methods
             var typeType = ModuleDefinition.ImportReference(typeof(Type));
             var getTypeMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("GetType"));
-            var getMethodMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string) }));
+            var getMethodMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string), typeof(System.Reflection.BindingFlags) }));
             var methodInfoType = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodInfo));
             var invokeMethod = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodBase).GetMethod("Invoke", new[] { typeof(object), typeof(object[]) }));
+            
+            // Import BindingFlags
+            var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
 
             // Create local variable for MethodInfo
             var methodInfoVariable = new VariableDefinition(methodInfoType);
             method.Body.Variables.Add(methodInfoVariable);
 
-            // Get the method using reflection: data.GetType().GetMethod(method.Name)
+            // Determine binding flags based on method visibility
+            var bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+            if (method.IsPrivate)
+            {
+                bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            }
+            else if (method.IsAssembly || method.IsFamilyAndAssembly) // internal
+            {
+                bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            }
+
+            // Get the method using reflection: data.GetType().GetMethod(method.Name, bindingFlags)
             il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
             il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name)); // Load method name
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodMethod)); // Call GetMethod(methodName)
+            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags)); // Load binding flags
+            il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodMethod)); // Call GetMethod(methodName, bindingFlags)
             il.InsertBefore(first, il.Create(OpCodes.Stloc, methodInfoVariable)); // Store MethodInfo
 
             // Invoke: methodInfo.Invoke(data, parameters)

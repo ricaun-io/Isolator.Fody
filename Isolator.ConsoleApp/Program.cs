@@ -36,6 +36,11 @@ public class IsolatorClass
         this.Name = name;
     }
 
+    private void PrivateMethod()
+    {
+        Console.WriteLine($"Inside PrivateMethod {this}");
+    }
+
     public string Name { get; set; }
 
     internal string Context { get; set; }
