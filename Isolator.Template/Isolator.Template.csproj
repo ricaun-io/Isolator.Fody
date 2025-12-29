@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
-    <DisableFody>true</DisableFody>
+    <!--<DisableFody>true</DisableFody>-->
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="*" PrivateAssets="none" />
+    <!--<PackageReference Include="Fody" Version="*" PrivateAssets="none" />-->
   </ItemGroup>
 </Project>

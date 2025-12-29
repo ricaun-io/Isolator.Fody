@@ -24,6 +24,7 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
+        "BeforeCompile",
         "Build",
         "Clean",
         "Compile",
