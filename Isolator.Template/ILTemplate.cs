@@ -35,6 +35,7 @@ internal static class ILTemplate
 #if NET
     static AssemblyLoadContext _context;
     static string ContextName = null;
+    static string ContextToString = null;
     internal static AssemblyLoadContext Get()
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -52,6 +53,7 @@ internal static class ILTemplate
             _context = Activator.CreateInstance(type, assembly.Location) as AssemblyLoadContext;
             _context?.Unloading += Unloading;
             ContextName = _context.Name;
+            ContextToString = _context.ToString();
         }
 
         return _context;
@@ -59,7 +61,7 @@ internal static class ILTemplate
     private static void Unloading(AssemblyLoadContext context)
     {
         _context = null;
-        Console.WriteLine($"Isolator.Unloading ... {ContextName}");
+        //Console.WriteLine($"Isolator.Unloading ... {ContextName}");
     }
 
     public static void Unload()
