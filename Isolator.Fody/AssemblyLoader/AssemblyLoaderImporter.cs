@@ -60,11 +60,17 @@ public partial class ModuleWeaver
         {
             var moduleDefinition = ModuleDefinition.ReadModule(resourceStream, readerParameters);
 
-            _sourceType = moduleDefinition.Types.Single(_ => _.Name == "ILTemplate");
+            _sourceType = moduleDefinition.Types.SingleOrDefault(_ => _.Name == "ILTemplate");
             DumpSource("ILTemplate");
 
-            _commonType = moduleDefinition.Types.Single(_ => _.Name == "Common");
+            _commonType = moduleDefinition.Types.SingleOrDefault(_ => _.Name == "Common");
             DumpSource("Common");
+
+            if (_sourceType is null)
+            {
+                WriteMessage("Source type is null", Fody.MessageImportance.High);
+                return;
+            }
 
             _targetType = new TypeDefinition(ModuleName, "AssemblyLoader", _sourceType.Attributes, Resolve(_sourceType.BaseType));
             _targetType.CustomAttributes.Add(new CustomAttribute(_compilerGeneratedAttributeCtor));
@@ -140,7 +146,7 @@ public partial class ModuleWeaver
         {
             var newField = new FieldDefinition(field.Name, field.Attributes, Resolve(field.FieldType));
             targetType.Fields.Add(newField);
-            
+
             //if (field.Name == "assemblyNames")
             //{
             //    _assemblyNamesField = newField;
@@ -160,7 +166,7 @@ public partial class ModuleWeaver
             //{
             //    _preloadWinX86ListField = newField;
             //}
-            
+
             //if (field.Name == "preloadWinX64List")
             //{
             //    _preloadWinX64ListField = newField;
@@ -376,7 +382,7 @@ public partial class ModuleWeaver
                     //little poetic license... :). .Resolve() doesn't work with "extern" methods
                     var method = methodReference.DeclaringType.Resolve().Methods
                         .First(_ => _.Name == methodReference.Name && _.Parameters.Count == methodReference.Parameters.Count);
-                    
+
                     return CopyMethod(targetType, method, methodReference.DeclaringType != _sourceType);
                 }
                 return mr;
@@ -418,8 +424,8 @@ public partial class ModuleWeaver
                 return targetTypeField;
             }
 
-            var importReferenceField = new FieldReference(fieldReference.Name, 
-                ModuleDefinition.ImportReference(fieldReference.FieldType.Resolve()), 
+            var importReferenceField = new FieldReference(fieldReference.Name,
+                ModuleDefinition.ImportReference(fieldReference.FieldType.Resolve()),
                 ModuleDefinition.ImportReference(fieldReference.DeclaringType.Resolve()));
 
             return importReferenceField;
