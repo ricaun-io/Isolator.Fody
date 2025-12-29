@@ -176,6 +176,9 @@ public partial class ModuleWeaver
             
             // Import BindingFlags
             var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
+            
+            // Import Type.MakeByRefType method
+            var makeByRefTypeMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("MakeByRefType", Type.EmptyTypes));
 
             // Create local variable for MethodInfo
             var methodInfoVariable = new VariableDefinition(methodInfoType);
@@ -232,9 +235,25 @@ public partial class ModuleWeaver
                 {
                     il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
                     il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                    il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.Parameters[i].ParameterType)); // Load parameter type token
-                    var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
-                    il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
+                    
+                    var paramType = method.Parameters[i].ParameterType;
+                    
+                    // Handle ref/out parameters by getting the element type and calling MakeByRefType
+                    if (paramType.IsByReference)
+                    {
+                        paramType = paramType.GetElementType();
+                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType)); // Load parameter type token
+                        var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
+                        il.InsertBefore(first, il.Create(OpCodes.Callvirt, makeByRefTypeMethod)); // Call MakeByRefType
+                    }
+                    else
+                    {
+                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType)); // Load parameter type token
+                        var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
+                    }
+                    
                     il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
                 }
                 

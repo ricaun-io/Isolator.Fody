@@ -4,7 +4,7 @@ using System.Runtime.Loader;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public unsafe static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
         var i1 = new IsolatorClass("Test1");
@@ -24,11 +24,13 @@ public class Program
         IsolatorStaticClass.MyStaticMethod("Test", 2);
 
 
-        //object data = new ExternalCommand();
-        //var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(ref string).MakeByRefType() }, null);
+        object data = new ExternalCommand();
+        var message = "";
+        var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(string).MakeByRefType() }, null);
+        method.Invoke(data, new object[1] { message });
 
-        //var cmd = "";
-        //new ExternalCommand().Execute(ref cmd);
+        var cmd = "";
+        new ExternalCommand().Execute(ref cmd);
 
         //Console.WriteLine(cmd);
 
