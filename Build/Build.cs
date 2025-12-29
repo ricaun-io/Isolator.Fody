@@ -3,8 +3,9 @@ using Nuke.Common.Execution;
 using ricaun.Nuke;
 using ricaun.Nuke.Components;
 
-class Build : NukeBuild, IPublishRevit
+class Build : NukeBuild, IPublishPack, ICompileExample, IPrePack
 {
-    string IHazRevitPackageBuilder.Application => "Revit.App";
-    public static int Main() => Execute<Build>(x => x.From<IPublishRevit>().Build);
+    string IHazMainProject.MainName => "CosturaConsoleApp";
+    string IHazExample.Name => "Isolator";
+    public static int Main() => Execute<Build>(x => x.From<IPublishPack>().Build);
 }
