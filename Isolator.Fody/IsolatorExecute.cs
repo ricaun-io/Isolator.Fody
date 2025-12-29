@@ -169,7 +169,8 @@ public partial class ModuleWeaver
             // Import System.Reflection types and methods
             var typeType = ModuleDefinition.ImportReference(typeof(Type));
             var getTypeMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("GetType"));
-            var getMethodMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string), typeof(System.Reflection.BindingFlags) }));
+            var getMethodWithTypesMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string), typeof(System.Reflection.BindingFlags), typeof(System.Reflection.Binder), typeof(Type[]), typeof(System.Reflection.ParameterModifier[]) }));
+            var getMethodWithoutTypesMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetMethod", new[] { typeof(string), typeof(System.Reflection.BindingFlags) }));
             var methodInfoType = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodInfo));
             var invokeMethod = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodBase).GetMethod("Invoke", new[] { typeof(object), typeof(object[]) }));
             
@@ -203,21 +204,71 @@ public partial class ModuleWeaver
             // For instance methods: data is object instance, call GetType()
             if (method.IsStatic)
             {
-                // data is Type, cast and use directly: ((Type)data).GetMethod(methodName, bindingFlags)
+                // data is Type, cast and use directly: ((Type)data).GetMethod(methodName, bindingFlags, ...)
                 il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
                 il.InsertBefore(first, il.Create(OpCodes.Castclass, typeType)); // Cast to Type
             }
             else
             {
-                // data is object instance, call GetType(): data.GetType().GetMethod(methodName, bindingFlags)
+                // data is object instance, call GetType(): data.GetType().GetMethod(methodName, bindingFlags, ...)
                 il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
             }
             
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name)); // Load method name
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags)); // Load binding flags
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodMethod)); // Call GetMethod(methodName, bindingFlags)
+            
+            // If method has parameters, use GetMethod overload with Type[] parameter types
+            if (method.Parameters.Count > 0)
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // Binder (null for default)
+                
+                // Create Type[] array for parameter types
+                il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, method.Parameters.Count));
+                il.InsertBefore(first, il.Create(OpCodes.Newarr, typeType));
+                
+                // Populate Type[] array with parameter types
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
+                    il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
+                    il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.Parameters[i].ParameterType)); // Load parameter type token
+                    var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                    il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
+                    il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
+                }
+                
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // ParameterModifier[] (null)
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithTypesMethod)); // Call GetMethod with types
+            }
+            else
+            {
+                // No parameters, use simple GetMethod overload
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithoutTypesMethod)); // Call GetMethod(methodName, bindingFlags)
+            }
+            
             il.InsertBefore(first, il.Create(OpCodes.Stloc, methodInfoVariable)); // Store MethodInfo
+
+            if (logEnable)
+            {
+                var message = $"[Fody] MethodInfo retrieved for {method.DeclaringType.FullName}.{method.Name}: ";
+                // Log message prefix
+                il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
+                
+                // Load the methodInfoVariable and convert to string
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable));
+                
+                // Call object.ToString() on the MethodInfo
+                var objectToStringMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("ToString", Type.EmptyTypes));
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, objectToStringMethod));
+                
+                // Concatenate the strings
+                var stringConcatMethod = ModuleDefinition.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }));
+                il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
+                
+                // Write to console
+                il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
+            }
 
             // Invoke: methodInfo.Invoke(data, parameters)
             il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo

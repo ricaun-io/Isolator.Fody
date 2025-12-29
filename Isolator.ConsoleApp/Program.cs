@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 
 public class Program
@@ -19,6 +20,18 @@ public class Program
 
         Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
 
+        IsolatorStaticClass.MyStaticMethod("Test");
+        IsolatorStaticClass.MyStaticMethod("Test", 2);
+
+
+        //object data = new ExternalCommand();
+        //var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(ref string).MakeByRefType() }, null);
+
+        //var cmd = "";
+        //new ExternalCommand().Execute(ref cmd);
+
+        //Console.WriteLine(cmd);
+
         //new MyClass().MyMethod();
         //Console.WriteLine(" ");
         //new MyClass2().MyMethod();
@@ -35,7 +48,7 @@ public static class IsolatorStaticClass
     {
         Console.WriteLine("Inside IsolatorStaticClass static constructor");
     }
-    public static void MyStaticMethodVoid()
+    public static void MyStaticMethod()
     {
         Console.WriteLine("Inside MyStaticMethod");
     }
@@ -43,6 +56,14 @@ public static class IsolatorStaticClass
     public static int MyStaticMethod(int x)
     {
         return x * 2;
+    }
+
+    public static void MyStaticMethod(params object[] args)
+    {
+        foreach (var item in args)
+        {
+            Console.WriteLine(item);
+        }
     }
 }
 
