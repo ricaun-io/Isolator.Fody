@@ -28,7 +28,6 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
     {
         yield return "mscorlib";
         yield return "System";
-        yield return "System.Runtime.Loader";
     }
 
     public override bool ShouldCleanReference => true;

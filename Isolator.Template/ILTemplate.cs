@@ -104,6 +104,7 @@ internal static class ILTemplate
 
     public static void Attach(bool subscribe)
     {
+        if (IsDefault()) return;
         var assembly = Assembly.GetExecutingAssembly();
         var context = string.Empty;
 #if NET
