@@ -73,7 +73,17 @@ public partial class ModuleWeaver
             var instanceVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
             method.Body.Variables.Add(instanceVariable);
 
-            il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
+            // Load key argument: 'this' for instance constructors, typeof(DeclaringType) for static constructors
+            if (method.IsStatic)
+            {
+                var typeOfMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.DeclaringType));
+                il.InsertBefore(first, il.Create(OpCodes.Call, typeOfMethod));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
+            }
 
             // Create array with correct size for all constructor parameters (excluding 'this')
             var parameterCount = method.Parameters.Count;
@@ -81,11 +91,12 @@ public partial class ModuleWeaver
             il.InsertBefore(first, il.Create(OpCodes.Newarr, ModuleDefinition.TypeSystem.Object)); // Create object array
 
             // Load each constructor argument into the array
+            var argOffset = method.IsStatic ? 0 : 1; // Static constructors start at arg0, instance constructors start at arg1
             for (int i = 0; i < parameterCount; i++)
             {
                 il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + 1)); // Load constructor argument (arg0, arg1, etc. - +1 to skip 'this')
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load constructor argument
 
                 // Box value types
                 if (method.Parameters[i].ParameterType.IsValueType)
@@ -96,7 +107,7 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Call, createInstanceMethodRef)); // Call CreateInstance(this, args)
+            il.InsertBefore(first, il.Create(OpCodes.Call, createInstanceMethodRef)); // Call CreateInstance(this or typeof, args)
             il.InsertBefore(first, il.Create(OpCodes.Stloc, instanceVariable)); // Store result in 'instance' variable
         }
 
