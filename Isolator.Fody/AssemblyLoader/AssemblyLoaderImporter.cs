@@ -226,6 +226,16 @@ public partial class ModuleWeaver
             IsPreserveSig = templateMethod.IsPreserveSig,
         };
 
+        var existingMethod = targetType.Methods.SingleOrDefault(m => 
+            m.Name == templateMethod.Name && 
+            m.Parameters.Count == templateMethod.Parameters.Count && 
+            m.ReturnType.Name == returnType.Name);
+
+        if (existingMethod is not null)
+        {
+            return existingMethod;
+        }
+
         if (templateMethod.IsPInvokeImpl)
         {
             var moduleRef = ModuleDefinition.ModuleReferences.FirstOrDefault(mr => mr.Name == templateMethod.PInvokeInfo.Module.Name);
@@ -383,7 +393,9 @@ public partial class ModuleWeaver
                     var method = methodReference.DeclaringType.Resolve().Methods
                         .First(_ => _.Name == methodReference.Name && _.Parameters.Count == methodReference.Parameters.Count);
 
-                    return CopyMethod(targetType, method, methodReference.DeclaringType != _sourceType);
+                    var makePrivate = methodReference.DeclaringType != _sourceType;
+                    makePrivate = false;
+                    return CopyMethod(targetType, method, makePrivate);
                 }
                 return mr;
             }
