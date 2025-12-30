@@ -27,7 +27,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator />
+        <Isolator IsolateInterfaces="" IsolateTypes="CommandIsolator" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>

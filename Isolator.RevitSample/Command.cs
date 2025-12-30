@@ -40,6 +40,48 @@ namespace Isolator.RevitSample
             return Result.Succeeded;
         }
 
+        public Result Execute(ExternalCommandData commandData, ElementSet elementSet)
+        {
+            UIApplication uiapp = commandData.Application;
+
+            System.Console.WriteLine(uiapp.Application.VersionBuild);
+            System.Console.WriteLine("Test");
+
+#if NET
+            var assembly = Assembly.GetExecutingAssembly();
+            var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+            System.Console.WriteLine(context);
+#endif
+
+            return Result.Succeeded;
+        }
+
+        public Result Execute123(object commandData, out string message, object elementSet)
+        {
+
+#if NET
+            var assembly = Assembly.GetExecutingAssembly();
+            var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+            System.Console.WriteLine(context);
+#endif
+            message = "Executed";
+            return Result.Succeeded;
+        }
+
+        public Result Execute(object commandData, string message, object elementSet)
+        {
+
+#if NET
+            var assembly = Assembly.GetExecutingAssembly();
+            var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+            System.Console.WriteLine(context);
+#endif
+
+            return Result.Succeeded;
+        }
+
+        public void Execute() { }
+
         public Result Execute7(ref string message, ExternalCommandData commandData,  ElementSet elementSet)
         {
             UIApplication uiapp = commandData.Application;
@@ -74,7 +116,7 @@ namespace Isolator.RevitSample
             return null;
         }
 
-        public Result AExecute(ExternalCommandData commandData, ElementSet elementSet)
+        public Result Execute3(ExternalCommandData commandData, ElementSet elementSet)
         {
             System.Console.WriteLine("Test");
 

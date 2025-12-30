@@ -14,14 +14,19 @@ public class Configuration
         DisableEventSubscription = false;
         LoadAtModuleInit = true;
 
+        IsolateTypes = new List<string>();
+
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
         DisableEventSubscription = ReadBool(config, nameof(DisableEventSubscription), DisableEventSubscription);
         LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
+
+        IsolateTypes = ReadList(config, nameof(IsolateTypes));
     }
 
     public bool EnableWriteBackRefOutParameters { get; }
     public bool DisableEventSubscription { get; }
     public bool LoadAtModuleInit { get; }
+    public List<string> IsolateTypes { get; }
 
     public static bool ReadBool(XElement config, string nodeName, bool @default)
     {

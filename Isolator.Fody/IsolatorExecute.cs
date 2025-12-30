@@ -16,11 +16,18 @@ public partial class ModuleWeaver
                 nameof(Console.WriteLine),
                 new[] { typeof(string) }));
 
+        var config = new Configuration(Config);
+        var isolateTypes = config.IsolateTypes;
+
         foreach (var type in ModuleDefinition.GetTypes())
         {
             // WriteMessage($"Type: {type} {string.Join(" ", type.CustomAttributes.Select(e => e.AttributeType))}", MessageImportance.High);
 
-            if (!type.TryGetAndRemoveCustomAttribute(IsolatorAttribute))
+            var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute);
+            var equalToIsolateTypes = isolateTypes != null && isolateTypes.Count > 0 && isolateTypes.Contains(type.Name);
+
+            var skipIsolation = !needToIsolate && !equalToIsolateTypes;
+            if (skipIsolation)
                 continue;
 
             foreach (var method in type.Methods)
