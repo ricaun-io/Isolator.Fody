@@ -80,9 +80,9 @@ Every time a method or constructor of the isolated class is called, it checks if
 
 - [x] Support attribute `[Isolator]` to mark classes for isolation.
 - [x] Support for isolating static classes and methods.
-- [ ] Support multiple methods with ref/out parameters
-- [ ] Support xml configuration for advanced settings. 
-	- [ ] Isolate all classes/interfaces by name.
+- [x] Support multiple methods with ref/out parameters. (There are some limitations when multiple methods with the same name.)
+- [x] Support xml configuration for advanced settings. 
+	- [x] Isolate all classes/interfaces by name.
 - [ ] Support context name.
 	- [ ] Isolate classes into different `AssemblyLoadContext` instances.
 	- [ ] Find existent `AssemblyLoadContext` and use to share a common context between different `Assembly`.
