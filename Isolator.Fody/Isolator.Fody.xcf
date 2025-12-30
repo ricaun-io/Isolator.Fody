@@ -3,23 +3,23 @@
   <xs:all>
     <xs:element minOccurs="0" maxOccurs="1" name="ClassNames" type="xs:string">
       <xs:annotation>
-        <xs:documentation></xs:documentation>
+        <xs:documentation>Class names to isolate.</xs:documentation>
       </xs:annotation>
     </xs:element>
     <xs:element minOccurs="0" maxOccurs="1" name="InterfaceNames" type="xs:string">
       <xs:annotation>
-        <xs:documentation></xs:documentation>
+        <xs:documentation>Interface names to isolate.</xs:documentation>
       </xs:annotation>
     </xs:element>
   </xs:all>
   <xs:attribute name="ClassNames" type="xs:string">
     <xs:annotation>
-      <xs:documentation>, delimited with |.</xs:documentation>
+      <xs:documentation>Class names to isolate, delimited with |.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
   <xs:attribute name="InterfaceNames" type="xs:string">
     <xs:annotation>
-      <xs:documentation>, delimited with |.</xs:documentation>
+      <xs:documentation>Interface names to isolate, delimited with |.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
   <xs:attribute name="DisableWriteBackRefOutParameters" type="xs:boolean">
