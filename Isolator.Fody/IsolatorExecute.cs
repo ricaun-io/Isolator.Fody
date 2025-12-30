@@ -163,6 +163,8 @@ public partial class ModuleWeaver
             il.InsertBefore(first, il.Create(OpCodes.Stloc, dataVariable));
 
             // Create parameters type array using the new method
+            var parametersArrayVariable = CreateParametersArray(method, il, first);
+            // Create parameters array using the new method
             var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first);
 
             // Import System.Reflection types and methods
@@ -246,8 +248,8 @@ public partial class ModuleWeaver
             //ForceToReturn(method, il, first); return;
 
             // Create parameters array using the new method
-            var parametersArrayVariable = CreateParametersArray(method, il, first);
-            
+            //var parametersArrayVariable = CreateParametersArray(method, il, first);
+
             VariableDefinition returnValueVariable = null;
             if (method.ReturnType.FullName != "System.Void")
             {
@@ -279,7 +281,7 @@ public partial class ModuleWeaver
             }
 
             // Write back ref/out parameters
-            WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
+            //WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
 
             // Handle return value
             if (method.ReturnType.FullName != "System.Void")

@@ -80,7 +80,7 @@ Every time a method or constructor of the isolated class is called, it checks if
 
 - [x] Support attribute `[Isolator]` to mark classes for isolation.
 - [x] Support for isolating static classes and methods.
-- [x] Support multiple methods with ref/out parameters
+- [ ] Support multiple methods with ref/out parameters
 - [ ] Support xml configuration for advanced settings. 
 	- [ ] Isolate all classes/interfaces by name.
 - [ ] Support context name.

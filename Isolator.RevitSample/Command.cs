@@ -8,7 +8,40 @@ namespace Isolator.RevitSample
     [Transaction(TransactionMode.Manual)]
     public class Command : IExternalCommand
     {
+        public Command(out string message)
+        {
+            message = "Initialized";
+        }
+
+        public Command(out string message, ElementSet elementSet)
+        {
+            message = "Initialized";
+        }
+
+        public Command(out string message, ElementSet elementSet, UIApplication uiapp)
+        {
+            message = "Initialized";
+        }
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elementSet)
+        {
+            UIApplication uiapp = commandData.Application;
+
+            System.Console.WriteLine("Test");
+
+            return Result.Succeeded;
+        }
+
+        public Result Execute(ref string message, ExternalCommandData commandData,  ElementSet elementSet)
+        {
+            UIApplication uiapp = commandData.Application;
+
+            System.Console.WriteLine("Test");
+
+            return Result.Succeeded;
+        }
+
+        public Result Execute( ExternalCommandData commandData, ElementSet elementSet, ref string message)
         {
             UIApplication uiapp = commandData.Application;
 
