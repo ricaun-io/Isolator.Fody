@@ -99,6 +99,31 @@ public class IsolatorClass
         this.Name = name;
     }
 
+    public int MyStaticMethod(string x, string y)
+    {
+        return 0;
+    }
+
+    public int MyStaticMethod(string x, string y, string z)
+    {
+        return 0;
+    }
+
+    public int MyStaticMethod(string x, string y, int z)
+    {
+        return 0;
+    }
+
+    public int MyStaticMethod(string x)
+    {
+        return 0;
+    }
+
+    public int MyStaticMethod(int x)
+    {
+        return 0;
+    }
+
     public int MyStaticMethod(int x, int y)
     {
         return 0;

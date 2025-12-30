@@ -122,8 +122,13 @@ public partial class ModuleWeaver
 
     private void InjectMethod(MethodDefinition method, MethodReference writeLine)
     {
-        var il = method.Body.GetILProcessor();
-        var first = method.Body.Instructions.First();
+        var body = method.Body;
+        var il = body.GetILProcessor();
+        var first = body.Instructions.First();
+
+        // REQUIRED
+        body.SimplifyMacros();
+        body.InitLocals = true;
 
         // Create a method that returns bool to control isolation
         var isolationControlMethod = CreateIsolationControlMethod();
@@ -276,9 +281,6 @@ public partial class ModuleWeaver
             // Create parameters array using the new method
             var parametersArrayVariable = CreateParametersArray(method, il, first);
             
-            //ForceToReturn(method, il, first);
-            //return;
-
             VariableDefinition returnValueVariable = null;
             if (method.ReturnType.FullName != "System.Void")
             {
@@ -349,6 +351,9 @@ public partial class ModuleWeaver
 
         // Return from isolation block (prevents fall-through to original method)
         il.InsertBefore(first, il.Create(OpCodes.Ret));
+
+        // REQUIRED
+        method.Body.OptimizeMacros(); // This helps with stack issues
     }
 
     private static void ForceToReturn(MethodDefinition method, ILProcessor il, Instruction first)
