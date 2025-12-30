@@ -377,6 +377,9 @@ public partial class ModuleWeaver
 
         // Return from isolation block (prevents fall-through to original method)
         il.InsertBefore(first, il.Create(OpCodes.Ret));
+
+        // REQUIRED
+        method.Body.OptimizeMacros(); // This helps with stack issues
     }
 
     private MethodDefinition CreateIsolationControlMethod()
