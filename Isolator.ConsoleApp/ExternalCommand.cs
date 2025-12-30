@@ -1,5 +1,5 @@
 ﻿[Isolator]
-public class ExternalCommand// : IExternalCommand
+public class ExternalCommand : IExternalCommand
 {
     public void Execute(ref string message)
     {
@@ -14,15 +14,22 @@ public class ExternalCommand// : IExternalCommand
     //    return null;
     //}
 
-    public object Execute(object context, ref string message, params object[] args)
+    public Result Execute(object context, ref string message, params object[] args)
     {
         message = "Executed MyExternalCommand";
         Console.WriteLine("MyExternalCommand executed with context: " + context);
-        return true;
+        return Result.Succeeded;
     }
 }
 
-//public interface IExternalCommand
-//{
-//    object Execute(object context, ref string message, params object[] args);
-//}
+public interface IExternalCommand
+{
+    Result Execute(object context, ref string message, params object[] args);
+}
+
+public enum Result
+{
+    Succeeded,
+    Failed,
+    Cancelled
+}

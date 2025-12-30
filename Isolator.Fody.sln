@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{8219EDE3-6947-424F-823D-936FB204CFB7}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Template", "Isolator.Template\Isolator.Template.csproj", "{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.ConsoleApp", "Isolator.ConsoleApp\Isolator.ConsoleApp.csproj", "{0F366368-6648-558B-DC6D-5D65296C5F0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.RevitSample", "Isolator.RevitSample\Isolator.RevitSample.csproj", "{3AD7594D-BA0E-4CB1-AB50-FA6B09F1F1AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{0F366368-6648-558B-DC6D-5D65296C5F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F366368-6648-558B-DC6D-5D65296C5F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F366368-6648-558B-DC6D-5D65296C5F0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD7594D-BA0E-4CB1-AB50-FA6B09F1F1AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD7594D-BA0E-4CB1-AB50-FA6B09F1F1AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD7594D-BA0E-4CB1-AB50-FA6B09F1F1AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD7594D-BA0E-4CB1-AB50-FA6B09F1F1AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

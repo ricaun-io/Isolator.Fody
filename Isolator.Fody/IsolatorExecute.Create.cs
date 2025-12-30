@@ -43,6 +43,58 @@ public partial class ModuleWeaver
         return parameter.Index + (method.HasThis ? 1 : 0);
     }
 
+    private VariableDefinition CreateParametersTypeArray(
+        MethodDefinition method,
+        ILProcessor il,
+        Instruction insertBefore)
+    {
+        int parameterCount = method.Parameters.Count;
+        if (parameterCount == 0)
+        {
+            return null;
+        }
+
+        var module = method.Module;
+        var body = method.Body;
+
+        body.InitLocals = true;
+
+        var systemTypeReference = module.ImportReference(typeof(System.Type));
+        var typeArrayVariable = new VariableDefinition(new ArrayType(systemTypeReference));
+        body.Variables.Add(typeArrayVariable);
+
+        var getTypeFromHandle = module.ImportReference(
+            typeof(System.Type).GetMethod(nameof(System.Type.GetTypeFromHandle), new[] { typeof(System.RuntimeTypeHandle) }));
+
+        var makeByRefTypeMethod = module.ImportReference(typeof(System.Type)
+            .GetMethod(nameof(System.Type.MakeByRefType), System.Type.EmptyTypes));
+
+        il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldc_I4, parameterCount));
+        il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Newarr, systemTypeReference));
+        il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Stloc, typeArrayVariable));
+
+        for (int i = 0; i < parameterCount; i++)
+        {
+            var parameterType = method.Parameters[i].ParameterType;
+            var isByReference = parameterType.IsByReference;
+            var typeForToken = isByReference ? parameterType.GetElementType() : parameterType;
+
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldloc, typeArrayVariable));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldc_I4, i));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldtoken, typeForToken));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Call, getTypeFromHandle));
+
+            if (isByReference)
+            {
+                il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Callvirt, makeByRefTypeMethod));
+            }
+
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Stelem_Ref));
+        }
+
+        return typeArrayVariable;
+    }
+
     private VariableDefinition CreateParametersArray(
     MethodDefinition method,
     ILProcessor il,

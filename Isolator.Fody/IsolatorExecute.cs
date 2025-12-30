@@ -162,6 +162,9 @@ public partial class ModuleWeaver
             il.InsertBefore(first, il.Create(OpCodes.Call, getDataMethodRef));
             il.InsertBefore(first, il.Create(OpCodes.Stloc, dataVariable));
 
+            // Create parameters type array using the new method
+            var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first);
+
             // Import System.Reflection types and methods
             var typeType = ModuleDefinition.ImportReference(typeof(Type));
             var getTypeMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("GetType"));
@@ -214,34 +217,8 @@ public partial class ModuleWeaver
                 // Load null for Binder parameter
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull));
 
-                // Create Type[] array for parameter types
-                il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, method.Parameters.Count));
-                il.InsertBefore(first, il.Create(OpCodes.Newarr, typeType));
-
-                var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
-
-                for (int i = 0; i < method.Parameters.Count; i++)
-                {
-                    il.InsertBefore(first, il.Create(OpCodes.Dup));
-                    il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i));
-
-                    var paramType = method.Parameters[i].ParameterType;
-
-                    if (paramType.IsByReference)
-                    {
-                        var elementType = paramType.GetElementType();
-                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, elementType));
-                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod));
-                        il.InsertBefore(first, il.Create(OpCodes.Callvirt, makeByRefTypeMethod));
-                    }
-                    else
-                    {
-                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType));
-                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod));
-                    }
-
-                    il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref));
-                }
+                // Use pre-built Type[] array for parameter types
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersTypeArrayVariable));
 
                 // Load null for ParameterModifier[] parameter
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull));
@@ -265,6 +242,8 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
                 il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
             }
+
+            //ForceToReturn(method, il, first); return;
 
             // Create parameters array using the new method
             var parametersArrayVariable = CreateParametersArray(method, il, first);
