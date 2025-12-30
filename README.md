@@ -1,9 +1,11 @@
-# Isolator.Fody
+# Isolator.Fody 
 
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-blue)](../..)
 [![Nuke](https://img.shields.io/badge/Nuke-Build-blue)](https://nuke.build/)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build](../../actions/workflows/Build.yml/badge.svg)](../../actions)
+
+### This is an add-in for [Fody](https://github.com/Fody/Home/)
 
 This is a Fody add-in that isolates classes marked with the `[Isolator]` attribute by injection custom code to force the methods and constructor to run in a separate `AssemblyLoadContext`.
 
