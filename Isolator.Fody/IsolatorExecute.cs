@@ -91,36 +91,15 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
             }
 
-            // Create array with correct size for all constructor parameters (excluding 'this')
-            var parameterCount = method.Parameters.Count;
-            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, parameterCount)); // Load parameter count
-            il.InsertBefore(first, il.Create(OpCodes.Newarr, ModuleDefinition.TypeSystem.Object)); // Create object array
+            // Create parameters array using the helper
+            var parametersArrayVariable = CreateParametersArray(method, il, first);
 
-            // Load each constructor argument into the array
-            var argOffset = method.IsStatic ? 0 : 1; // Static constructors start at arg0, instance constructors start at arg1
-            for (int i = 0; i < parameterCount; i++)
-            {
-                il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
-                il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load constructor argument
-
-                var paramType = method.Parameters[i].ParameterType;
-                if (paramType.IsByReference)
-                {
-                    paramType = paramType.GetElementType();
-                    il.InsertBefore(first, CreateLdind(paramType));
-                }
-                // Box value types
-                if (paramType.IsValueType)
-                {
-                    il.InsertBefore(first, il.Create(OpCodes.Box, ModuleDefinition.ImportReference(paramType)));
-                }
-
-                il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
-            }
-
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersArrayVariable));
             il.InsertBefore(first, il.Create(OpCodes.Call, createInstanceMethodRef)); // Call CreateInstance(this or typeof, args)
             il.InsertBefore(first, il.Create(OpCodes.Stloc, instanceVariable)); // Store result in 'instance' variable
+
+            // Write back ref/out parameters
+            WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
         }
 
         il.InsertBefore(first, il.Create(OpCodes.Ret));

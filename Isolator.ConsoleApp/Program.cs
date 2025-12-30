@@ -85,6 +85,11 @@ public static class IsolatorStaticClass
 [Isolator]
 public class IsolatorClass
 {
+    public IsolatorClass(ref string name)
+    {
+
+    }
+
     public IsolatorClass(string name = null)
     {
         var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
@@ -97,6 +102,12 @@ public class IsolatorClass
         var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
         Console.WriteLine(context);
         this.Name = name;
+    }
+
+    public int MyStaticMethod(out string x, string y)
+    {
+        x = "output";
+        return 0;
     }
 
     public int MyStaticMethod(string x, string y)
