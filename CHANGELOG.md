@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support attribute `[Isolator]` to mark classes for isolation.
 - Support for isolating static classes and methods.
 - Support multiple methods with ref/out parameters.
+- Support configuration to isolate class or interface by name.
 ### Updates
 - Unique method name does not need Types parameters to identify method.
 - Update `Configuration` class to support future xml configuration.
