@@ -156,6 +156,15 @@ public class IsolatorClass
 }
 
 [Isolator]
+public class MyIsolatedClass
+{
+    public void MyMethod()
+    {
+        Console.WriteLine("Method implementation");
+    }
+}
+
+[Isolator]
 public class MyClass
 {
     public void MyMethod()
