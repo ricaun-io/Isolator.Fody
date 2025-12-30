@@ -19,11 +19,10 @@ public class Program
         Console.WriteLine(i3);
 
         Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
-        //Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
+        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
 
         IsolatorStaticClass.MyStaticMethod("Test");
         IsolatorStaticClass.MyStaticMethod("Test", 2);
-
 
         var message = "?";
         NewMethod(ref message);
@@ -98,6 +97,11 @@ public class IsolatorClass
         var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
         Console.WriteLine(context);
         this.Name = name;
+    }
+
+    public int MyStaticMethod(int x, int y)
+    {
+        return 0;
     }
 
     private void PrivateMethod()

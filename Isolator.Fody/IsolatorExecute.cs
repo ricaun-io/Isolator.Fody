@@ -130,25 +130,22 @@ public partial class ModuleWeaver
         var isolationControlMethodRef = ModuleDefinition.ImportReference(isolationControlMethod);
 
         // Call the isolation control method
-        il.InsertBefore(first, il.Create(OpCodes.Call, isolationControlMethodRef));
+        var callIsolationControl = il.Create(OpCodes.Call, isolationControlMethodRef);
+        il.InsertBefore(first, callIsolationControl);
 
-        // Create the target instruction for the false branch (continue normal execution)
-        var continueNormalExecution = first;
-
-        // Branch if false (skip log and return)
-        var branchIfFalse = il.Create(OpCodes.Brfalse_S, continueNormalExecution);
+        // Branch if false (skip isolation and continue normal execution)
+        // When IsDefault() returns false, jump to original method body
+        var branchIfFalse = il.Create(OpCodes.Brfalse_S, first);
         il.InsertBefore(first, branchIfFalse);
 
         if (logEnable)
         {
             var message = $"[Fody] Entering {method.DeclaringType.FullName}.{method.Name}";
-            // Log message
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
             il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
         }
 
         var getDataMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "GetData");
-        // Call object GetData(object key) like var 'data = GetData(this)';
         if (getDataMethod != null)
         {
             var getDataMethodRef = ModuleDefinition.ImportReference(getDataMethod);
@@ -166,11 +163,11 @@ public partial class ModuleWeaver
             }
             else
             {
-                il.InsertBefore(first, il.Create(OpCodes.Ldarg_0)); // Load 'this' as the key argument
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Call, getDataMethodRef)); // Call GetData(this or typeof)
-            il.InsertBefore(first, il.Create(OpCodes.Stloc, dataVariable)); // Store result in 'data' variable
+            il.InsertBefore(first, il.Create(OpCodes.Call, getDataMethodRef));
+            il.InsertBefore(first, il.Create(OpCodes.Stloc, dataVariable));
 
             // Import System.Reflection types and methods
             var typeType = ModuleDefinition.ImportReference(typeof(Type));
@@ -180,17 +177,13 @@ public partial class ModuleWeaver
             var methodInfoType = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodInfo));
             var invokeMethod = ModuleDefinition.ImportReference(typeof(System.Reflection.MethodBase).GetMethod("Invoke", new[] { typeof(object), typeof(object[]) }));
 
-            // Import BindingFlags
             var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
-
-            // Import Type.MakeByRefType method
             var makeByRefTypeMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("MakeByRefType", Type.EmptyTypes));
 
-            // Create local variable for MethodInfo
             var methodInfoVariable = new VariableDefinition(methodInfoType);
             method.Body.Variables.Add(methodInfoVariable);
 
-            // Determine binding flags based on method visibility and static/instance nature
+            // Determine binding flags
             var bindingFlags = method.IsStatic
                 ? System.Reflection.BindingFlags.Static
                 : System.Reflection.BindingFlags.Instance;
@@ -199,7 +192,7 @@ public partial class ModuleWeaver
             {
                 bindingFlags |= System.Reflection.BindingFlags.NonPublic;
             }
-            else if (method.IsAssembly || method.IsFamilyAndAssembly) // internal
+            else if (method.IsAssembly || method.IsFamilyAndAssembly)
             {
                 bindingFlags |= System.Reflection.BindingFlags.NonPublic;
             }
@@ -209,147 +202,142 @@ public partial class ModuleWeaver
             }
 
             // Get the method using reflection
-            // For static methods: data is already Type, use it directly
-            // For instance methods: data is object instance, call GetType()
             if (method.IsStatic)
             {
-                // data is Type, cast and use directly: ((Type)data).GetMethod(methodName, bindingFlags, ...)
-                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
-                il.InsertBefore(first, il.Create(OpCodes.Castclass, typeType)); // Cast to Type
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable));
+                il.InsertBefore(first, il.Create(OpCodes.Castclass, typeType));
             }
             else
             {
-                // data is object instance, call GetType(): data.GetType().GetMethod(methodName, bindingFlags, ...)
-                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data'
-                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod)); // Call data.GetType()
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable));
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod));
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name)); // Load method name
-            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags)); // Load binding flags
+            il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name));
+            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags));
 
-            // If method has parameters, use GetMethod overload with Type[] parameter types
             if (method.Parameters.Count > 0)
             {
-                il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // Binder (null for default)
+                // Load null for Binder parameter
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
 
                 // Create Type[] array for parameter types
                 il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, method.Parameters.Count));
                 il.InsertBefore(first, il.Create(OpCodes.Newarr, typeType));
 
-                // Populate Type[] array with parameter types
+                var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
-                    il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
-                    il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
+                    il.InsertBefore(first, il.Create(OpCodes.Dup));
+                    il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i));
 
                     var paramType = method.Parameters[i].ParameterType;
 
-                    // Handle ref/out parameters by getting the element type and calling MakeByRefType
                     if (paramType.IsByReference)
                     {
-                        paramType = paramType.GetElementType();
-                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType)); // Load parameter type token
-                        var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
-                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
-                        il.InsertBefore(first, il.Create(OpCodes.Callvirt, makeByRefTypeMethod)); // Call MakeByRefType
+                        var elementType = paramType.GetElementType();
+                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, elementType));
+                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod));
+                        il.InsertBefore(first, il.Create(OpCodes.Callvirt, makeByRefTypeMethod));
                     }
                     else
                     {
-                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType)); // Load parameter type token
-                        var getTypeFromHandleMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
-                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod)); // Get Type from token
+                        il.InsertBefore(first, il.Create(OpCodes.Ldtoken, paramType));
+                        il.InsertBefore(first, il.Create(OpCodes.Call, getTypeFromHandleMethod));
                     }
 
-                    il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
+                    il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref));
                 }
 
-                il.InsertBefore(first, il.Create(OpCodes.Ldnull)); // ParameterModifier[] (null)
-                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithTypesMethod)); // Call GetMethod with types
+                // Load null for ParameterModifier[] parameter
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithTypesMethod));
             }
             else
             {
-                // No parameters, use simple GetMethod overload
-                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithoutTypesMethod)); // Call GetMethod(methodName, bindingFlags)
+                il.InsertBefore(first, il.Create(OpCodes.Callvirt, getMethodWithoutTypesMethod));
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Stloc, methodInfoVariable)); // Store MethodInfo
+            il.InsertBefore(first, il.Create(OpCodes.Stloc, methodInfoVariable));
 
             if (logEnable)
             {
                 var message = $"[Fody] MethodInfo retrieved for {method.DeclaringType.FullName}.{method.Name}: ";
-                // Log message prefix
                 il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
-
-                // Load the methodInfoVariable and convert to string
                 il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable));
-
-                // Call object.ToString() on the MethodInfo
                 var objectToStringMethod = ModuleDefinition.ImportReference(typeof(object).GetMethod("ToString", Type.EmptyTypes));
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, objectToStringMethod));
-
-                // Concatenate the strings
                 var stringConcatMethod = ModuleDefinition.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }));
                 il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
-
-                // Write to console
                 il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
             }
 
-            // Create local variable for array of method parameters
-            var parametersArrayVariable = new VariableDefinition(new ArrayType(ModuleDefinition.TypeSystem.Object));
-            method.Body.Variables.Add(parametersArrayVariable);
+            // Create parameters array using the new method
+            var parametersArrayVariable = CreateParametersArray(method, il, first);
 
-            // Create array with correct size for all method parameters (excluding 'this' for instance methods)
-            var parameterCount = method.Parameters.Count;
-            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, parameterCount)); // Load parameter count
-            il.InsertBefore(first, il.Create(OpCodes.Newarr, ModuleDefinition.TypeSystem.Object)); // Create object array
 
-            // Load each method argument into the array
-            var argOffset = method.IsStatic ? 0 : 1; // Static methods start at arg0, instance methods start at arg1
-            for (int i = 0; i < parameterCount; i++)
+            // GetData not found - return default value
+            if (method.ReturnType.FullName != "System.Void")
             {
-                il.InsertBefore(first, il.Create(OpCodes.Dup)); // Duplicate array reference
-                il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, i)); // Load array index
-                il.InsertBefore(first, il.Create(OpCodes.Ldarg, i + argOffset)); // Load method argument
-
-                var paramType = method.Parameters[i].ParameterType;
-                if (paramType.IsByReference)
+                if (method.ReturnType.IsValueType)
                 {
-                    paramType = paramType.GetElementType();
-                    il.InsertBefore(first, CreateLdind(paramType));
+                    var variable = new VariableDefinition(method.ReturnType);
+                    method.Body.Variables.Add(variable);
+                    il.InsertBefore(first, il.Create(OpCodes.Ldloca_S, variable));
+                    il.InsertBefore(first, il.Create(OpCodes.Initobj, method.ReturnType));
+                    il.InsertBefore(first, il.Create(OpCodes.Ldloc, variable));
                 }
-                // Box value types
-                if (paramType.IsValueType)
+                else
                 {
-                    il.InsertBefore(first, il.Create(OpCodes.Box, ModuleDefinition.ImportReference(paramType)));
+                    il.InsertBefore(first, il.Create(OpCodes.Ldnull));
                 }
-
-                il.InsertBefore(first, il.Create(OpCodes.Stelem_Ref)); // Store in array
             }
 
-            // Store the parameters array for potential ref/out parameter updates
-            il.InsertBefore(first, il.Create(OpCodes.Stloc, parametersArrayVariable)); // Store array reference
+            // Return from isolation block (prevents fall-through to original method)
+            il.InsertBefore(first, il.Create(OpCodes.Ret));
+            return;
 
-            // Invoke: methodInfo.Invoke(data, parameters)
-            il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable)); // Load MethodInfo
 
-            // For static methods, pass null as target; for instance methods, pass 'data'
+
+            VariableDefinition returnValueVariable = null;
+            if (method.ReturnType.FullName != "System.Void")
+            {
+                returnValueVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
+                method.Body.Variables.Add(returnValueVariable);
+            }
+
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, methodInfoVariable));
+
             if (method.IsStatic)
             {
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull));
             }
             else
             {
-                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable)); // Load 'data' as target object
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, dataVariable));
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersArrayVariable)); // Load parameters array
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, invokeMethod)); // Call methodInfo.Invoke(data, args)
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersArrayVariable));
+            il.InsertBefore(first, il.Create(OpCodes.Callvirt, invokeMethod));
+
+            if (method.ReturnType.FullName != "System.Void")
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Stloc, returnValueVariable));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Pop));
+            }
+
+            // Write back ref/out parameters
+            WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
 
             // Handle return value
             if (method.ReturnType.FullName != "System.Void")
             {
-                // Unbox/cast the result to the correct return type
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, returnValueVariable));
+
                 if (method.ReturnType.IsValueType)
                 {
                     il.InsertBefore(first, il.Create(OpCodes.Unbox_Any, method.ReturnType));
@@ -359,18 +347,12 @@ public partial class ModuleWeaver
                     il.InsertBefore(first, il.Create(OpCodes.Castclass, method.ReturnType));
                 }
             }
-            else
-            {
-                // Pop the return value if method is void
-                il.InsertBefore(first, il.Create(OpCodes.Pop));
-            }
         }
         else
         {
-            // Return immediately after log injection
+            // GetData not found - return default value
             if (method.ReturnType.FullName != "System.Void")
             {
-                // Return default value for non-void methods
                 if (method.ReturnType.IsValueType)
                 {
                     var variable = new VariableDefinition(method.ReturnType);
@@ -386,6 +368,7 @@ public partial class ModuleWeaver
             }
         }
 
+        // Return from isolation block (prevents fall-through to original method)
         il.InsertBefore(first, il.Create(OpCodes.Ret));
     }
 
@@ -399,23 +382,5 @@ public partial class ModuleWeaver
         }
 
         return shouldIsolateMethod;
-    }
-
-    static Instruction CreateLdind(TypeReference type)
-    {
-        return type.MetadataType switch
-        {
-            MetadataType.Boolean or MetadataType.SByte => Instruction.Create(OpCodes.Ldind_I1),
-            MetadataType.Byte => Instruction.Create(OpCodes.Ldind_U1),
-            MetadataType.Int16 => Instruction.Create(OpCodes.Ldind_I2),
-            MetadataType.UInt16 => Instruction.Create(OpCodes.Ldind_U2),
-            MetadataType.Int32 => Instruction.Create(OpCodes.Ldind_I4),
-            MetadataType.UInt32 => Instruction.Create(OpCodes.Ldind_U4),
-            MetadataType.Int64 or MetadataType.UInt64 => Instruction.Create(OpCodes.Ldind_I8),
-            MetadataType.Single => Instruction.Create(OpCodes.Ldind_R4),
-            MetadataType.Double => Instruction.Create(OpCodes.Ldind_R8),
-            MetadataType.IntPtr or MetadataType.UIntPtr => Instruction.Create(OpCodes.Ldind_I),
-            _ => Instruction.Create(OpCodes.Ldind_Ref),
-        };
     }
 }
