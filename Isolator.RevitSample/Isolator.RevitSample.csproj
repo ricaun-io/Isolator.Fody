@@ -27,7 +27,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator InterfaceNames="IExternalApplication|IExternalDBApplication" ClassNames="CommandIsolator" />
+        <Isolator InterfaceNames="IExternalApplication|IExternalDBApplication|IExternalCommand" ClassNames="CommandIsolator" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>

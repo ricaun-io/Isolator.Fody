@@ -29,8 +29,7 @@ public partial class ModuleWeaver
 
             var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute);
             var equalToTypes = typeNames != null && typeNames.Count > 0 && typeNames.Contains(type.Name);
-
-            var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
+            var listOfInterfacesInType = GetInterfacesAndBaseInterfaces(type);
             var equalToInterfaces = intefaceNames != null &&
                 intefaceNames.Count > 0 &&
                 listOfInterfacesInType.Intersect(intefaceNames).Any();
@@ -53,6 +52,35 @@ public partial class ModuleWeaver
                 InjectMethod(method, consoleWriteLine);
             }
         }
+    }
+
+    private static List<string> GetInterfacesAndBaseInterfaces(TypeDefinition type)
+    {
+        var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
+        // Add interfaces inside the base types
+        var baseType = type.BaseType;
+        while (baseType != null)
+        {
+            var baseTypeDef = baseType.Resolve();
+            if (baseTypeDef != null)
+            {
+                foreach (var iface in baseTypeDef.Interfaces)
+                {
+                    var ifaceName = iface.InterfaceType.Name;
+                    if (!listOfInterfacesInType.Contains(ifaceName))
+                    {
+                        listOfInterfacesInType.Add(ifaceName);
+                    }
+                }
+                baseType = baseTypeDef.BaseType;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return listOfInterfacesInType;
     }
 
     private static bool logEnable = false;

@@ -5,7 +5,7 @@ using Autodesk.Revit.UI;
 namespace Isolator.RevitSample
 {
     [Transaction(TransactionMode.Manual)]
-    public class CommandIsolator : IExternalCommand
+    public class CommandIsolator
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elementSet)
         {
@@ -14,5 +14,4 @@ namespace Isolator.RevitSample
             return Result.Succeeded;
         }
     }
-
 }
