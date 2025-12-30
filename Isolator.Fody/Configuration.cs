@@ -9,6 +9,7 @@ public class Configuration
 {
     public Configuration(XElement config)
     {
+        EnableWriteBackRefOutParameters = false;
         // Defaults
         OptOutAssemblies = true;
         IncludeDebugSymbols = true;
@@ -84,6 +85,8 @@ public class Configuration
             throw new WeavingException("Either configure IncludeAssemblies OR ExcludeAssemblies, not both.");
         }
     }
+
+    public bool EnableWriteBackRefOutParameters { get; }
 
     public bool OptOutAssemblies { get; }
     public bool OptOutRuntimeAssemblies { get; }

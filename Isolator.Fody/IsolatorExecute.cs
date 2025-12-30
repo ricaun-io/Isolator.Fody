@@ -281,7 +281,8 @@ public partial class ModuleWeaver
             }
 
             // Write back ref/out parameters
-            //WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
+            if (new Configuration(Config).EnableWriteBackRefOutParameters)
+                WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
 
             // Handle return value
             if (method.ReturnType.FullName != "System.Void")
