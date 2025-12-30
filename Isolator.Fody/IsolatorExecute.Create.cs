@@ -1,5 +1,7 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System;
+using System.Linq;
 
 public partial class ModuleWeaver
 {
@@ -50,6 +52,15 @@ public partial class ModuleWeaver
     {
         int parameterCount = method.Parameters.Count;
         if (parameterCount == 0)
+        {
+            return null;
+        }
+
+        // Check if Type contains only a single method with the given name
+        var methodName = method.Name;
+        var typeDefinition = method.DeclaringType.Resolve();
+        var hasSingleMethod = typeDefinition.Methods.Count(m => m.Name == methodName) == 1;
+        if (hasSingleMethod)
         {
             return null;
         }

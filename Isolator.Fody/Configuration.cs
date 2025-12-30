@@ -9,7 +9,7 @@ public class Configuration
 {
     public Configuration(XElement config)
     {
-        EnableWriteBackRefOutParameters = false;
+        EnableWriteBackRefOutParameters = true;
         // Defaults
         OptOutAssemblies = true;
         IncludeDebugSymbols = true;

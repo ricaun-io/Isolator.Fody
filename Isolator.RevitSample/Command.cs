@@ -32,7 +32,7 @@ namespace Isolator.RevitSample
             return Result.Succeeded;
         }
 
-        public Result Execute(ref string message, ExternalCommandData commandData,  ElementSet elementSet)
+        public Result Execute7(ref string message, ExternalCommandData commandData,  ElementSet elementSet)
         {
             UIApplication uiapp = commandData.Application;
 
@@ -41,7 +41,7 @@ namespace Isolator.RevitSample
             return Result.Succeeded;
         }
 
-        public Result Execute( ExternalCommandData commandData, ElementSet elementSet, ref string message)
+        public Result Execute8( ExternalCommandData commandData, ElementSet elementSet, ref string message)
         {
             UIApplication uiapp = commandData.Application;
 
@@ -66,31 +66,31 @@ namespace Isolator.RevitSample
             return null;
         }
 
-        public Result Execute(ExternalCommandData commandData, ElementSet elementSet)
+        public Result AExecute(ExternalCommandData commandData, ElementSet elementSet)
         {
             System.Console.WriteLine("Test");
 
             return Result.Succeeded;
         }
-        public Result Execute(ExternalCommandData commandData, ref string message)
+        public Result BExecute(ExternalCommandData commandData, ref string message)
         {
             System.Console.WriteLine("Test");
 
             return Result.Succeeded;
         }
-        public Result Execute(ref string message, ElementSet elementSet)
+        public Result CExecute(ref string message, ElementSet elementSet)
         {
             System.Console.WriteLine("Test");
 
             return Result.Succeeded;
         }
-        public Result Execute(ref string message)
+        public Result DExecute(ref string message)
         {
             System.Console.WriteLine("Test");
 
             return Result.Succeeded;
         }
-        public Result Execute(ExternalCommandData commandData)
+        public Result EExecute(ExternalCommandData commandData)
         {
             System.Console.WriteLine("Test");
 

@@ -214,7 +214,7 @@ public partial class ModuleWeaver
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name));
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags));
 
-            if (method.Parameters.Count > 0)
+            if (method.Parameters.Count > 0 && parametersTypeArrayVariable != null)
             {
                 // Load null for Binder parameter
                 il.InsertBefore(first, il.Create(OpCodes.Ldnull));
