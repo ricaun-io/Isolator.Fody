@@ -14,22 +14,22 @@ public class Configuration
         DisableEventSubscription = false;
         LoadAtModuleInit = true;
 
-        IsolateTypes = new List<string>();
-        IsolateInterfaces = new List<string>();
+        ClassNames = new List<string>();
+        InterfaceNames = new List<string>();
 
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
         DisableEventSubscription = ReadBool(config, nameof(DisableEventSubscription), DisableEventSubscription);
         LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
 
-        IsolateTypes = ReadList(config, nameof(IsolateTypes));
-        IsolateInterfaces = ReadList(config, nameof(IsolateInterfaces));
+        ClassNames = ReadList(config, nameof(ClassNames));
+        InterfaceNames = ReadList(config, nameof(InterfaceNames));
     }
 
     public bool EnableWriteBackRefOutParameters { get; }
     public bool DisableEventSubscription { get; }
     public bool LoadAtModuleInit { get; }
-    public List<string> IsolateTypes { get; }
-    public List<string> IsolateInterfaces { get; }
+    public List<string> ClassNames { get; }
+    public List<string> InterfaceNames { get; }
 
     public static bool ReadBool(XElement config, string nodeName, bool @default)
     {

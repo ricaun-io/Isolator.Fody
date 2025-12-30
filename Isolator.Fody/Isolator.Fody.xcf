@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <xs:complexType xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:all>
-    <xs:element minOccurs="0" maxOccurs="1" name="IsolateTypes" type="xs:string">
+    <xs:element minOccurs="0" maxOccurs="1" name="ClassNames" type="xs:string">
       <xs:annotation>
         <xs:documentation></xs:documentation>
       </xs:annotation>
     </xs:element>
-    <xs:element minOccurs="0" maxOccurs="1" name="IsolateInterfaces" type="xs:string">
+    <xs:element minOccurs="0" maxOccurs="1" name="InterfaceNames" type="xs:string">
       <xs:annotation>
         <xs:documentation></xs:documentation>
       </xs:annotation>
     </xs:element>
   </xs:all>
-  <xs:attribute name="IsolateTypes" type="xs:string">
+  <xs:attribute name="ClassNames" type="xs:string">
     <xs:annotation>
       <xs:documentation>, delimited with |.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
-  <xs:attribute name="IsolateInterfaces" type="xs:string">
+  <xs:attribute name="InterfaceNames" type="xs:string">
     <xs:annotation>
       <xs:documentation>, delimited with |.</xs:documentation>
     </xs:annotation>

@@ -17,22 +17,25 @@ public partial class ModuleWeaver
                 new[] { typeof(string) }));
 
         var config = new Configuration(Config);
-        var isolateTypes = config.IsolateTypes;
+        var typeNames = config.ClassNames;
+        var intefaceNames = config.InterfaceNames;
 
         foreach (var type in ModuleDefinition.GetTypes())
         {
             // WriteMessage($"Type: {type} {string.Join(" ", type.CustomAttributes.Select(e => e.AttributeType))}", MessageImportance.High);
 
+            if (!type.IsClass)
+                continue;
+
             var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute);
-            var equalToIsolateTypes = isolateTypes != null && isolateTypes.Count > 0 && isolateTypes.Contains(type.Name);
+            var equalToTypes = typeNames != null && typeNames.Count > 0 && typeNames.Contains(type.Name);
 
             var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
+            var equalToInterfaces = intefaceNames != null &&
+                intefaceNames.Count > 0 &&
+                listOfInterfacesInType.Intersect(intefaceNames).Any();
 
-            var equalToIsolateInterfaces = config.IsolateInterfaces != null &&
-                config.IsolateInterfaces.Count > 0 &&
-                listOfInterfacesInType.Intersect(config.IsolateInterfaces).Any();
-
-            var skipIsolation = !needToIsolate && !equalToIsolateTypes && !equalToIsolateInterfaces;
+            var skipIsolation = !needToIsolate && !equalToTypes && !equalToInterfaces;
             if (skipIsolation)
                 continue;
 
