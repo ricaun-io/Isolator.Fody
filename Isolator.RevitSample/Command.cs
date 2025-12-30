@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using System.Reflection;
 
 namespace Isolator.RevitSample
 {
@@ -27,7 +28,14 @@ namespace Isolator.RevitSample
         {
             UIApplication uiapp = commandData.Application;
 
+            System.Console.WriteLine(uiapp.Application.VersionBuild);
             System.Console.WriteLine("Test");
+
+#if NET
+            var assembly = Assembly.GetExecutingAssembly();
+            var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+            System.Console.WriteLine(context);
+#endif
 
             return Result.Succeeded;
         }
