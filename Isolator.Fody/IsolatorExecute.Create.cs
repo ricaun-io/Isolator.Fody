@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Rocks;
+﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Fody;
-using System;
 
 public partial class ModuleWeaver
 {

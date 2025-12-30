@@ -43,8 +43,14 @@ public partial class ModuleWeaver
 
     private void InsjectConstructor(MethodDefinition method, MethodReference writeLine)
     {
-        var il = method.Body.GetILProcessor();
-        var first = method.Body.Instructions.First();
+        var body = method.Body;
+        var il = body.GetILProcessor();
+        var first = body.Instructions.First();
+
+        // REQUIRED
+        body.SimplifyMacros();
+        body.InitLocals = true;
+
         // Create a method that returns bool to control isolation
         var isolationControlMethod = CreateIsolationControlMethod();
         var isolationControlMethodRef = ModuleDefinition.ImportReference(isolationControlMethod);
@@ -118,6 +124,9 @@ public partial class ModuleWeaver
         }
 
         il.InsertBefore(first, il.Create(OpCodes.Ret));
+
+        // REQUIRED
+        method.Body.OptimizeMacros(); // This helps with stack issues
     }
 
     private void InjectMethod(MethodDefinition method, MethodReference writeLine)
