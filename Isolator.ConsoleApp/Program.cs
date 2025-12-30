@@ -19,18 +19,18 @@ public class Program
         Console.WriteLine(i3);
 
         Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
-        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
+        //Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
 
         IsolatorStaticClass.MyStaticMethod("Test");
         IsolatorStaticClass.MyStaticMethod("Test", 2);
 
-        var message = "?";
-        NewMethod(ref message);
-        Console.WriteLine(message);
+        //var message = "?";
+        //NewMethod(ref message);
+        //Console.WriteLine(message);
 
-        //var cmd = "?";
-        //new ExternalCommand().Execute(ref cmd);
-        //Console.WriteLine(cmd);
+        var cmd = "?";
+        new ExternalCommand().Execute(ref cmd);
+        Console.WriteLine(cmd);
 
         //new MyClass().MyMethod();
         //Console.WriteLine(" ");

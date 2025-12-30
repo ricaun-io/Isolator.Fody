@@ -275,30 +275,9 @@ public partial class ModuleWeaver
 
             // Create parameters array using the new method
             var parametersArrayVariable = CreateParametersArray(method, il, first);
-
-
-            // GetData not found - return default value
-            if (method.ReturnType.FullName != "System.Void")
-            {
-                if (method.ReturnType.IsValueType)
-                {
-                    var variable = new VariableDefinition(method.ReturnType);
-                    method.Body.Variables.Add(variable);
-                    il.InsertBefore(first, il.Create(OpCodes.Ldloca_S, variable));
-                    il.InsertBefore(first, il.Create(OpCodes.Initobj, method.ReturnType));
-                    il.InsertBefore(first, il.Create(OpCodes.Ldloc, variable));
-                }
-                else
-                {
-                    il.InsertBefore(first, il.Create(OpCodes.Ldnull));
-                }
-            }
-
-            // Return from isolation block (prevents fall-through to original method)
-            il.InsertBefore(first, il.Create(OpCodes.Ret));
-            return;
-
-
+            
+            //ForceToReturn(method, il, first);
+            //return;
 
             VariableDefinition returnValueVariable = null;
             if (method.ReturnType.FullName != "System.Void")
@@ -365,6 +344,29 @@ public partial class ModuleWeaver
                 {
                     il.InsertBefore(first, il.Create(OpCodes.Ldnull));
                 }
+            }
+        }
+
+        // Return from isolation block (prevents fall-through to original method)
+        il.InsertBefore(first, il.Create(OpCodes.Ret));
+    }
+
+    private static void ForceToReturn(MethodDefinition method, ILProcessor il, Instruction first)
+    {
+        // GetData not found - return default value
+        if (method.ReturnType.FullName != "System.Void")
+        {
+            if (method.ReturnType.IsValueType)
+            {
+                var variable = new VariableDefinition(method.ReturnType);
+                method.Body.Variables.Add(variable);
+                il.InsertBefore(first, il.Create(OpCodes.Ldloca_S, variable));
+                il.InsertBefore(first, il.Create(OpCodes.Initobj, method.ReturnType));
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, variable));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
             }
         }
 
