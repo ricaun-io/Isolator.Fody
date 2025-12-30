@@ -71,6 +71,21 @@ public class MyIsolatedClass
 
 Every time a method or constructor of the isolated class is called, it checks if it is running in the default `AssemblyLoadContext`. If it is, it uses reflection to invoke the method or constructor in a separate context.
 
+## Features
+
+- [x] Support attribute `[Isolator]` to mark classes for isolation.
+- [x] Support for isolating static classes and methods.
+- [x] Support multiple methods with ref/out parameters
+- [ ] Support xml configuration for advanced settings. 
+	- [ ] Isolate all classes/interfaces by name.
+- [ ] Support context name.
+	- [ ] Isolate classes into different `AssemblyLoadContext` instances.
+	- [ ] Find existent `AssemblyLoadContext` and use to share a common context between different `Assembly`.
+
+## References
+
+This project use [Fody](https://github.com/Fody/Fody) and some of the base implementation was inspired by the [Costura.Fody](https://github.com/Fody/Costura).
+
 ## License
 
 This project is [licensed](LICENSE) under the [MIT License](https://en.wikipedia.org/wiki/MIT_License).

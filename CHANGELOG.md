@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0] / 2025-12-29
 ### Features
-- Support attribute `[Isolator]` to mark classes for isolation
-- Support multiple methods with ref/out parameters
+- Support attribute `[Isolator]` to mark classes for isolation.
+- Support for isolating static classes and methods.
+- Support multiple methods with ref/out parameters.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0
