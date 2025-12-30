@@ -26,7 +26,13 @@ public partial class ModuleWeaver
             var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute);
             var equalToIsolateTypes = isolateTypes != null && isolateTypes.Count > 0 && isolateTypes.Contains(type.Name);
 
-            var skipIsolation = !needToIsolate && !equalToIsolateTypes;
+            var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
+
+            var equalToIsolateInterfaces = config.IsolateInterfaces != null &&
+                config.IsolateInterfaces.Count > 0 &&
+                listOfInterfacesInType.Intersect(config.IsolateInterfaces).Any();
+
+            var skipIsolation = !needToIsolate && !equalToIsolateTypes && !equalToIsolateInterfaces;
             if (skipIsolation)
                 continue;
 
