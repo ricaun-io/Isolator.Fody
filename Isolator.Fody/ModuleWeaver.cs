@@ -19,7 +19,7 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         FindMsCoreReferences();
         ImportAssemblyLoader();
-        CallAttach(config);
+        //CallAttach(config);
 
         IsolatorExecute();
     }
