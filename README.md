@@ -38,9 +38,13 @@ Next, mark the classes you want to isolate with the `[Isolator]` attribute:
 [Isolator]
 public class MyIsolatedClass
 {
+	public MyIsolatedClass()
+	{
+		Console.WriteLine("Constructor implementation");
+	}
 	public void MyMethod()
 	{
-		// Method implementation
+		Console.WriteLine("Method implementation");
 	}
 }
 ```
@@ -49,27 +53,39 @@ When you build your project, the weaver will modify the IL code of the marked cl
 ```csharp
 public class MyIsolatedClass
 {
-	public void MyMethod()
-	{
-		if (AssemblyLoader.IsDefault())
-		{
-			object data = AssemblyLoader.GetData(this);
-			MethodInfo method = data.GetType().GetMethod("MyMethod", BindingFlags.Instance | BindingFlags.Public);
-			object[] parameters = new object[0];
-			method.Invoke(data, parameters);
-		}
-		else
-		{
-			Console.WriteLine("Method implementation");
-		}
-	}
-
 	public MyIsolatedClass()
 	{
 		if (AssemblyLoader.IsDefault())
 		{
 			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
+			return;
 		}
+		_isolator__ctor();
+	}
+
+	public void MyMethod()
+	{
+		if (AssemblyLoader.IsDefault())
+		{
+			object data = AssemblyLoader.GetData(this);
+			object[] parameters = new object[0];
+			MethodInfo method = data.GetType().GetMethod("MyMethod", BindingFlags.Instance | BindingFlags.Public);
+			method.Invoke(data, parameters);
+		}
+		else
+		{
+			_isolator_MyMethod();
+		}
+	}
+
+	private void _isolator__ctor()
+	{
+		Console.WriteLine("Constructor implementation");
+	}
+
+	private void _isolator_MyMethod()
+	{
+		Console.WriteLine("Method implementation");
 	}
 }
 ```
