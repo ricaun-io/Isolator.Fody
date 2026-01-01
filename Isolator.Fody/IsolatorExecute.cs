@@ -8,13 +8,11 @@ using System;
 
 public partial class ModuleWeaver
 {
+    MethodReference writeLine;
     public static string IsolatorAttribute { get; } = nameof(IsolatorAttribute);
     private void IsolatorExecute()
     {
-        var consoleWriteLine = ModuleDefinition
-            .ImportReference(typeof(Console).GetMethod(
-                nameof(Console.WriteLine),
-                new[] { typeof(string) }));
+        writeLine = ModuleDefinition.ImportReference(typeof(Console).GetMethod(nameof(Console.WriteLine), new[] { typeof(string) }));
 
         var config = new Configuration(Config);
         var typeNames = config.ClassNames;
@@ -48,11 +46,11 @@ public partial class ModuleWeaver
 
                 if (method.IsConstructor)
                 {
-                    InsjectConstructor(method, consoleWriteLine);
+                    InsjectConstructor(method);
                     continue;
                 }
 
-                InjectMethod(method, consoleWriteLine);
+                InjectMethod(method);
             }
         }
     }
@@ -88,7 +86,7 @@ public partial class ModuleWeaver
 
     private static bool logEnable = false;
 
-    private void InsjectConstructor(MethodDefinition method, MethodReference writeLine)
+    private void InsjectConstructor(MethodDefinition method)
     {
         var body = method.Body;
         var il = body.GetILProcessor();
@@ -155,7 +153,7 @@ public partial class ModuleWeaver
         method.Body.OptimizeMacros(); // This helps with stack issues
     }
 
-    private void InjectMethod(MethodDefinition method, MethodReference writeLine)
+    private void InjectMethod(MethodDefinition method)
     {
         var body = method.Body;
         var il = body.GetILProcessor();
