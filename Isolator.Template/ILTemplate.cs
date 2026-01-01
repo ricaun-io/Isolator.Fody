@@ -56,36 +56,62 @@ internal static class ILTemplate
         }
     }
 
+    internal static string GetContextName() => null;
+
     static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
     static AssemblyLoadContext _context;
-    static string ContextName = null;
-    static string ContextToString = null;
     internal static AssemblyLoadContext Get()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
+        var contextName = GetContextName() ?? $"IsolatorContext.{assembly.GetName().Name}.{Guid.NewGuid().ToString()}";
 
         if (IsDefault() == false)
             _context = context;
 
         if (_context is null)
         {
-            //_context = new LocalAssemblyLoadContext(assembly.Location);
+            if (!string.IsNullOrEmpty(GetContextName()))
+            {
+                _context = FindAssemblyLoadContext(contextName);
+                if (_context != null)
+                {
+                    _context.LoadFromAssemblyPath(assembly.Location);
+                    return _context;
+                }
+            }
+
             var frame = new System.Diagnostics.StackFrame(0);
             var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(IsolatorAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
 
-            _context = Activator.CreateInstance(type, assembly.Location) as AssemblyLoadContext;
+            _context = Activator.CreateInstance(type, contextName, assembly.Location) as AssemblyLoadContext;
             _context?.Unloading += Unloading;
-            ContextName = _context.Name;
-            ContextToString = _context.ToString();
         }
 
         return _context;
     }
+
+    private static AssemblyLoadContext FindAssemblyLoadContext(string contextName)
+    {
+        foreach (var context in AssemblyLoadContext.All)
+        {
+            if (context.Name == contextName)
+            {
+                var name = context.GetType().Name;
+                if (name == nameof(IsolatorAssemblyLoadContext))
+                {
+                    return context;
+                }
+            }
+        }
+        return null;
+    }
+
     private static void Unloading(AssemblyLoadContext context)
     {
         _context = null;
-        //Console.WriteLine($"Isolator.Unloading ... {ContextName}");
+        Console.WriteLine($"Isolator.Unloading ... {context.Name}");
+        Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
     }
 
     public static void Unload()
@@ -121,7 +147,7 @@ internal static class ILTemplate
         private readonly string _assemblyPath;
         private Assembly _assembly;
 
-        public IsolatorAssemblyLoadContext(string assemblyPath) : base("IsolatorContext", isCollectible: true)
+        public IsolatorAssemblyLoadContext(string contextName, string assemblyPath) : base(contextName, isCollectible: true)
         {
             this._assemblyPath = assemblyPath;
             this._resolver = new AssemblyDependencyResolver(assemblyPath);

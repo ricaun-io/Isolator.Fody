@@ -22,6 +22,11 @@
       <xs:documentation>Interface names to isolate, delimited with |.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
+  <xs:attribute name="ContextName" type="xs:string">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="EnableCloneMethods" type="xs:boolean">
     <xs:annotation>
       <xs:documentation></xs:documentation>

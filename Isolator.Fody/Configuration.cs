@@ -25,6 +25,7 @@ public class Configuration
 
         ClassNames = ReadList(config, nameof(ClassNames));
         InterfaceNames = ReadList(config, nameof(InterfaceNames));
+        ContextName = ReadString(config, nameof(ContextName));
     }
 
     public bool EnableCloneMethods { get; }
@@ -33,6 +34,7 @@ public class Configuration
     public bool LoadAtModuleInit { get; }
     public List<string> ClassNames { get; }
     public List<string> InterfaceNames { get; }
+    public string ContextName { get; }
 
     public static bool ReadBool(XElement config, string nodeName, bool @default)
     {
@@ -82,5 +84,15 @@ public class Configuration
         }
 
         return list;
+    }
+
+    public static string ReadString(XElement config, string nodeName)
+    {
+        var attribute = config.Attribute(nodeName);
+        if (attribute is not null)
+        {
+            return attribute.Value?.Trim();
+        }
+        return null;
     }
 }

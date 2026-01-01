@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Fody;
+using Mono.Cecil.Cil;
 
 public sealed partial class ModuleWeaver : BaseModuleWeaver
 {
@@ -22,9 +24,31 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         FindMsCoreReferences();
         ImportAssemblyLoader();
+
+        FindContextNameMethod(config.ContextName);
         //CallAttach(config);
 
         IsolatorExecute();
+    }
+
+    private void FindContextNameMethod(string contextName)
+    {
+        if (_targetType is null)
+            return;
+
+        if (string.IsNullOrEmpty(contextName))
+            return;
+
+        contextName = $"IsolatorContext.{contextName}";
+
+        var getContextNameMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "GetContextName");
+        if (getContextNameMethod is not null)
+        {
+            // change GetContextName to return a constant string
+            getContextNameMethod.Body.Instructions.Clear();
+            getContextNameMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ldstr, contextName));
+            getContextNameMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+        }
     }
 
     public bool IsolatorAvailable()
