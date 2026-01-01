@@ -10,6 +10,7 @@ public class Configuration
     public Configuration(XElement config)
     {
         // Defaults
+        EnableCloneMethods = true;
         EnableWriteBackRefOutParameters = true;
         DisableEventSubscription = false;
         LoadAtModuleInit = true;
@@ -17,6 +18,7 @@ public class Configuration
         ClassNames = new List<string>();
         InterfaceNames = new List<string>();
 
+        EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
         DisableEventSubscription = ReadBool(config, nameof(DisableEventSubscription), DisableEventSubscription);
         LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
@@ -25,6 +27,7 @@ public class Configuration
         InterfaceNames = ReadList(config, nameof(InterfaceNames));
     }
 
+    public bool EnableCloneMethods { get; }
     public bool EnableWriteBackRefOutParameters { get; }
     public bool DisableEventSubscription { get; }
     public bool LoadAtModuleInit { get; }

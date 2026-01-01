@@ -22,7 +22,12 @@
       <xs:documentation>Interface names to isolate, delimited with |.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
-  <xs:attribute name="DisableWriteBackRefOutParameters" type="xs:boolean">
+  <xs:attribute name="EnableCloneMethods" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="EnableWriteBackRefOutParameters" type="xs:boolean">
     <xs:annotation>
       <xs:documentation>This flag disables the use of `ref` and `out` parameters in the weaving process.</xs:documentation>
     </xs:annotation>

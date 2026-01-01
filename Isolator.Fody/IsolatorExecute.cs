@@ -19,6 +19,7 @@ public partial class ModuleWeaver
         var config = new Configuration(Config);
         var typeNames = config.ClassNames;
         var intefaceNames = config.InterfaceNames;
+        var cloneMethods = config.EnableCloneMethods;
 
         foreach (var type in ModuleDefinition.GetTypes())
         {
@@ -38,10 +39,12 @@ public partial class ModuleWeaver
             if (skipIsolation)
                 continue;
 
-            foreach (var method in type.Methods)
+            foreach (var method in type.Methods.ToArray())
             {
                 if (!method.HasBody)
                     continue;
+
+                CloneMethod(type, method, "_isolator_");
 
                 if (method.IsConstructor)
                 {

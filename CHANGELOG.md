@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Unique method name does not need Types parameters to identify method.
 - Update `Configuration` class to support future xml configuration.
 - Update to find interface names inside base class.
+- Update to clone all methods to try to isolate internally called methods. (`EnableCloneMethods`)
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0
