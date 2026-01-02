@@ -43,7 +43,9 @@ public partial class ModuleWeaver
                 if (!method.HasBody)
                     continue;
 
-                var isolatorMethod = CloneMethod(type, method, $"_isolator_{index++}_");
+                var isolatorMethod = cloneMethods ? 
+                    CloneMethod(type, method, $"_isolator_{index++}_") : 
+                    method;
 
                 if (method.IsConstructor)
                 {

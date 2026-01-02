@@ -14,7 +14,7 @@ internal static class ILTemplate
     internal static object CreateInstance(object key, params object[] args) { return null; }
     internal static object GetData(object key) { return null; }
     internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
-    public static void Attach(bool subscribe) { }
+    public static void Attach() { }
     public static bool IsDefault() { return false; }
 #endif
 
@@ -154,7 +154,7 @@ internal static class ILTemplate
         return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
     }
 
-    public static void Attach(bool subscribe)
+    public static void Attach()
     {
         if (IsDefault()) return;
         var assembly = Assembly.GetExecutingAssembly();

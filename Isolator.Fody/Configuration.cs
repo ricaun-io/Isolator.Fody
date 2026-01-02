@@ -12,7 +12,6 @@ public class Configuration
         // Defaults
         EnableCloneMethods = true;
         EnableWriteBackRefOutParameters = true;
-        DisableEventSubscription = false;
         LoadAtModuleInit = true;
 
         ClassNames = new List<string>();
@@ -20,7 +19,6 @@ public class Configuration
 
         EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
-        DisableEventSubscription = ReadBool(config, nameof(DisableEventSubscription), DisableEventSubscription);
         LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
 
         ClassNames = ReadList(config, nameof(ClassNames));
@@ -30,7 +28,6 @@ public class Configuration
 
     public bool EnableCloneMethods { get; }
     public bool EnableWriteBackRefOutParameters { get; }
-    public bool DisableEventSubscription { get; }
     public bool LoadAtModuleInit { get; }
     public List<string> ClassNames { get; }
     public List<string> InterfaceNames { get; }

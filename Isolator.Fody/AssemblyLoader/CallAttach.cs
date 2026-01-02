@@ -14,21 +14,20 @@ public partial class ModuleWeaver
             return;
         }
 
-        var disableEventSubscription = config.DisableEventSubscription;
         var loadAtModuleInit = config.LoadAtModuleInit;
-        var initialized = FindInitializeCalls(disableEventSubscription);
+        var initialized = FindInitializeCalls();
 
         if (loadAtModuleInit)
         {
-            AddModuleInitializerCall(disableEventSubscription);
+            AddModuleInitializerCall();
         }
         else if (!initialized)
         {
-            throw new WeavingException($"Costura was not initialized. Make sure LoadAtModuleInit=true or call {AttachMethodName}.");
+            throw new WeavingException($"Isolator was not initialized. Make sure LoadAtModuleInit=true or call {AttachMethodName}.");
         }
     }
 
-    private bool FindInitializeCalls(bool disableEventSubscription)
+    private bool FindInitializeCalls()
     {
         var found = false;
 
@@ -65,7 +64,6 @@ public partial class ModuleWeaver
                         found = true;
 
                         instructions[i] = Instruction.Create(OpCodes.Call, _attachMethod);
-                        instructions.Insert(i--, Instruction.Create(disableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
                     }
                 }
             }
@@ -74,7 +72,7 @@ public partial class ModuleWeaver
         return found;
     }
 
-    private void AddModuleInitializerCall(bool disableEventSubscription)
+    private void AddModuleInitializerCall()
     {
         const MethodAttributes attributes = MethodAttributes.Private
                                             | MethodAttributes.HideBySig
@@ -96,7 +94,6 @@ public partial class ModuleWeaver
             moduleClass.Methods.Add(cctor);
         }
 
-        cctor.Body.Instructions.Insert(0, Instruction.Create(disableEventSubscription ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1));
-        cctor.Body.Instructions.Insert(1, Instruction.Create(OpCodes.Call, _attachMethod));
+        cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, _attachMethod));
     }
 }
