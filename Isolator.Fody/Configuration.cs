@@ -12,10 +12,11 @@ public class Configuration
         // Defaults
         EnableCloneMethods = true;
         EnableWriteBackRefOutParameters = true;
-        LoadAtModuleInit = true;
+        LoadAtModuleInit = false;
 
         ClassNames = new List<string>();
         InterfaceNames = new List<string>();
+        ContextName = null;
 
         EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
