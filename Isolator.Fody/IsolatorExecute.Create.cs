@@ -45,10 +45,7 @@ public partial class ModuleWeaver
         return parameter.Index + (method.HasThis ? 1 : 0);
     }
 
-    private VariableDefinition CreateParametersTypeArray(
-        MethodDefinition method,
-        ILProcessor il,
-        Instruction insertBefore)
+    private VariableDefinition CreateParametersTypeArray(MethodDefinition method, ILProcessor il, Instruction insertBefore, string searchMethodName = null)
     {
         int parameterCount = method.Parameters.Count;
         if (parameterCount == 0)
@@ -57,7 +54,7 @@ public partial class ModuleWeaver
         }
 
         // Check if Type contains only a single method with the given name
-        var methodName = method.Name;
+        var methodName = searchMethodName ?? method.Name;
         var typeDefinition = method.DeclaringType.Resolve();
         var hasSingleMethod = typeDefinition.Methods.Count(m => m.Name == methodName) == 1;
         if (hasSingleMethod)

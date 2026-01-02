@@ -210,7 +210,7 @@ public partial class ModuleWeaver
             // Create parameters type array using the new method
             var parametersArrayVariable = CreateParametersArray(method, il, first);
             // Create parameters array using the new method
-            var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first);
+            var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first, searchMethodName);
 
             // Import System.Reflection types and methods
             var typeType = ModuleDefinition.ImportReference(typeof(Type));

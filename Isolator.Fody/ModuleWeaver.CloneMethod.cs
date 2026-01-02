@@ -18,8 +18,6 @@ public partial class ModuleWeaver
         // 2. Add cloned method
         type.Methods.Add(cloned);
 
-        //cloned = AddWriteLineString(type, "Constructor", cloned.Name + "_");
-
         // 3. Redirect original
         RedirectMethodToClone(method, cloned);
 
