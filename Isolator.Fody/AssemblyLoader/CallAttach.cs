@@ -21,10 +21,10 @@ public partial class ModuleWeaver
         {
             AddModuleInitializerCall();
         }
-        else if (!initialized)
-        {
-            throw new WeavingException($"Isolator was not initialized. Make sure LoadAtModuleInit=true or call {AttachMethodName}.");
-        }
+        //else if (!initialized)
+        //{
+        //    throw new WeavingException($"Isolator was not initialized. Make sure LoadAtModuleInit=true or call {AttachMethodName}.");
+        //}
     }
 
     private bool FindInitializeCalls()
