@@ -555,35 +555,6 @@ public partial class ModuleWeaver
         il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
     }
 
-
-    private static void InjectDebugWriteLine2(ILProcessor il, Instruction first, string message, MethodDefinition method = null)
-    {
-        message = $"[Fody] {message}";
-        var writeLineMethod = il.Body.Method.Module.ImportReference(typeof(System.Diagnostics.Debug).GetMethod("WriteLine", new[] { typeof(string) }));
-        if (method is MethodDefinition && !method.IsStatic)
-        {
-            // Concat this.GetHashCode() in the end of the message
-            il.InsertBefore(first, il.Create(OpCodes.Ldstr, message + " | "));
-
-            il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
-            var getHashCodeMethod = il.Body.Method.Module.ImportReference(typeof(object).GetMethod("GetHashCode", Type.EmptyTypes));
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, getHashCodeMethod));
-            
-            // Box the int to object
-            il.InsertBefore(first, il.Create(OpCodes.Box, il.Body.Method.Module.TypeSystem.Int32));
-            
-            // Call ToString on the boxed integer
-            var toStringMethod = il.Body.Method.Module.ImportReference(typeof(object).GetMethod("ToString", Type.EmptyTypes));
-            il.InsertBefore(first, il.Create(OpCodes.Callvirt, toStringMethod));
-
-            // Concat two strings
-            var stringConcatMethod = il.Body.Method.Module.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }));
-            il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
-        }
-        il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
-        il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
-    }
-
     private static void ForceToReturn(MethodDefinition method, ILProcessor il, Instruction first)
     {
         // GetData not found - return default value
