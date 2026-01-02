@@ -504,23 +504,81 @@ public partial class ModuleWeaver
         InjectDebugWriteLine(il, first, message, method);
     }
 
-    private static void InjectDebugWriteLine(ILProcessor il, Instruction first, string message, MethodDefinition method = null)
+    private static void InjectDebugWriteLine(
+    ILProcessor il,
+    Instruction first,
+    string message,
+    MethodDefinition method = null)
+    {
+        var module = il.Body.Method.Module;
+        message = $"[Fody] {message}";
+
+        var writeLineMethod =
+            module.ImportReference(
+                typeof(System.Diagnostics.Debug)
+                    .GetMethod(nameof(System.Diagnostics.Debug.WriteLine),
+                               new[] { typeof(string) }));
+
+        // Static → simple call
+        if (method == null || method.IsStatic)
+        {
+            il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
+            il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
+            return;
+        }
+
+        // "[Fody] X | "
+        il.InsertBefore(first, il.Create(OpCodes.Ldstr, message + " | "));
+
+        // this
+        il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
+
+        // this.GetHashCode()
+        var getHashCodeMethod =
+            module.ImportReference(
+                typeof(object).GetMethod(nameof(object.GetHashCode)));
+
+        il.InsertBefore(first, il.Create(OpCodes.Callvirt, getHashCodeMethod));
+
+        // box int → object
+        il.InsertBefore(first, il.Create(OpCodes.Box, module.TypeSystem.Int32));
+
+        // string.Concat(string, object)
+        var concatMethod =
+            module.ImportReference(
+                typeof(string).GetMethod(nameof(string.Concat),
+                    new[] { typeof(string), typeof(object) }));
+
+        il.InsertBefore(first, il.Create(OpCodes.Call, concatMethod));
+
+        // Debug.WriteLine
+        il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
+    }
+
+
+    private static void InjectDebugWriteLine2(ILProcessor il, Instruction first, string message, MethodDefinition method = null)
     {
         message = $"[Fody] {message}";
         var writeLineMethod = il.Body.Method.Module.ImportReference(typeof(System.Diagnostics.Debug).GetMethod("WriteLine", new[] { typeof(string) }));
         if (method is MethodDefinition && !method.IsStatic)
         {
-            // Concat this.GetHashCode() in the end of the message;
+            // Concat this.GetHashCode() in the end of the message
             il.InsertBefore(first, il.Create(OpCodes.Ldstr, message + " | "));
 
-            var getHashCodeMethod = il.Body.Method.Module.ImportReference(typeof(object).GetMethod("GetHashCode", Type.EmptyTypes));
             il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
+            var getHashCodeMethod = il.Body.Method.Module.ImportReference(typeof(object).GetMethod("GetHashCode", Type.EmptyTypes));
             il.InsertBefore(first, il.Create(OpCodes.Callvirt, getHashCodeMethod));
+            
+            // Box the int to object
+            il.InsertBefore(first, il.Create(OpCodes.Box, il.Body.Method.Module.TypeSystem.Int32));
+            
+            // Call ToString on the boxed integer
+            var toStringMethod = il.Body.Method.Module.ImportReference(typeof(object).GetMethod("ToString", Type.EmptyTypes));
+            il.InsertBefore(first, il.Create(OpCodes.Callvirt, toStringMethod));
 
-            var stringConcatMethod = il.Body.Method.Module.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(int) }));
+            // Concat two strings
+            var stringConcatMethod = il.Body.Method.Module.ImportReference(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }));
             il.InsertBefore(first, il.Create(OpCodes.Call, stringConcatMethod));
-            il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
-            return;
         }
         il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
         il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
