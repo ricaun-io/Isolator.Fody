@@ -110,7 +110,8 @@ public partial class ModuleWeaver
             il.InsertBefore(first, il.Create(OpCodes.Stloc, instanceVariable)); // Store result in 'instance' variable
 
             // Write back ref/out parameters
-            WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
+            if (new Configuration(Config).EnableWriteBackRefOutParameters)
+                WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
         }
 
         il.InsertBefore(first, il.Create(OpCodes.Ret));
