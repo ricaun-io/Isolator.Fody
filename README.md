@@ -104,6 +104,93 @@ Every time a method or constructor of the isolated class is called, it checks if
 	- [ ] Isolate classes into different `AssemblyLoadContext` instances.
 	- [x] Find existent `AssemblyLoadContext` and use to share a common context between different `Assembly`.
 
+## Configuration Options
+
+All config options are accessed by modifying the `Isolator` node in FodyWeavers.xml.
+
+Default FodyWeavers.xml:
+
+```xml
+<Weavers>
+  <Isolator />
+</Weavers>
+```
+
+### ClassNames
+
+A list of class names to isolate. If a class name matches an entry in this list, it will be isolated even if it is not marked with the `[Isolator]` attribute.
+
+Can take two forms.
+
+As an element with items delimited by a newline.
+
+```xml
+<Isolator>
+  <ClassNames>
+    Foo
+    Bar
+  </ClassNames>
+</Isolator>
+```
+
+Or as an attribute with items delimited by a pipe `|`.
+
+```xml
+<Isolator ClassNames='Foo|Bar' />
+```
+
+### InterfaceNames
+
+A list of interface names to isolate. If a interface name matches an entry in this list, it will be isolated even if it is not marked with the `[Isolator]` attribute.
+
+Can take two forms.
+
+As an element with items delimited by a newline.
+
+```xml
+<Isolator>
+  <InterfaceNames>
+    Foo
+    Bar
+  </InterfaceNames>
+</Isolator>
+```
+
+Or as an attribute with items delimited by a pipe `|`.
+
+```xml
+<Isolator InterfaceNames='Foo|Bar' />
+```
+### ContextName
+
+The name of the `AssemblyLoadContext` to use for isolation. If a context with this name already exists, it will be used. Otherwise, a new context will be created with this name.
+
+*Defaults to an empty string, which creates a unique name with the assembly name and random guid included.*
+```xml
+<Isolator ContextName='MyContextName' />
+```
+*The context name is created with the `IsolatorContext.` in front of it.*
+
+### EnableCloneMethods
+
+Indicates whether to clone methods that are called internally within the isolated class to ensure they also run in the isolated context.
+
+*Defaults to `true`*
+
+```xml
+<Isolator EnableCloneMethods='false' />
+```
+
+### EnableWriteBackRefOutParameters
+
+Indicates whether to write back the values of `ref` and `out` parameters to the original method after invoking the isolated method.
+
+*Defaults to `true`*
+
+```xml
+<Isolator EnableWriteBackRefOutParameters='false' />
+```
+
 ## References
 
 This project use [Fody](https://github.com/Fody/Fody) and some of the base implementation was inspired by the [Costura.Fody](https://github.com/Fody/Costura).
