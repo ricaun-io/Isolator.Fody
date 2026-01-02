@@ -49,6 +49,10 @@ public partial class ModuleWeaver
             clone.Attributes |= Mono.Cecil.MethodAttributes.Private;
         }
 
+        // Remove abstract/virtual flags
+        clone.Attributes &= ~Mono.Cecil.MethodAttributes.Abstract;
+        clone.Attributes &= ~Mono.Cecil.MethodAttributes.Virtual;
+
         // Generic parameters
         foreach (var gp in source.GenericParameters)
             clone.GenericParameters.Add(new GenericParameter(gp.Name, clone));

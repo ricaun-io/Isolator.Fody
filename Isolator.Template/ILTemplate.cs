@@ -110,8 +110,8 @@ internal static class ILTemplate
     private static void Unloading(AssemblyLoadContext context)
     {
         _context = null;
-        Console.WriteLine($"Isolator.Unloading ... {context.Name}");
-        Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
+        //Console.WriteLine($"Isolator.Unloading ... {context.Name}");
+        //Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
     }
 
     public static void Unload()

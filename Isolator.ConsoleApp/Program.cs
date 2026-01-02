@@ -32,6 +32,8 @@ public class Program
         new ExternalCommand().Execute(ref cmd);
         Console.WriteLine(cmd);
 
+        new Command().Execute();
+
         //new MyClass().MyMethod();
         //Console.WriteLine(" ");
         //new MyClass2().MyMethod();
