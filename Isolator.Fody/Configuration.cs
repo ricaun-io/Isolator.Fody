@@ -25,8 +25,12 @@ public class Configuration
         ClassNames = ReadList(config, nameof(ClassNames));
         InterfaceNames = ReadList(config, nameof(InterfaceNames));
         ContextName = ReadString(config, nameof(ContextName));
+
+        EnableDebug = false;
+        EnableDebug = ReadBool(config, nameof(EnableDebug), EnableDebug);
     }
 
+    public bool EnableDebug { get; }
     public bool EnableCloneMethods { get; }
     public bool EnableWriteBackRefOutParameters { get; }
     public bool LoadAtModuleInit { get; }

@@ -18,6 +18,11 @@ public partial class ModuleWeaver
         // 2. Add cloned method
         type.Methods.Add(cloned);
 
+        if (new Configuration(Config).EnableDebug)
+        {
+            InjectDebugWriteLine(cloned, $"Entering {cloned.DeclaringType.FullName}.{cloned.Name}");
+        }
+
         // 3. Redirect original
         RedirectMethodToClone(method, cloned);
 
