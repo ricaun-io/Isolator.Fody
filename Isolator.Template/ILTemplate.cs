@@ -34,7 +34,8 @@ internal static class ILTemplate
                 }
                 else
                 {
-                    instance = assembly.CreateInstance(type.FullName, true, BindingFlags.Default, null, args, null, null);
+                    var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                    instance = assembly.CreateInstance(type.FullName, true, bindingAttr, null, args, null, null);
                 }
                 _table.Add(key, instance);
             }

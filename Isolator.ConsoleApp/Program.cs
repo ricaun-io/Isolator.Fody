@@ -34,7 +34,11 @@ public class Program
         new ExternalCommand().Execute(ref cmd);
         Console.WriteLine(cmd);
 
+        // Test if we can access base constructor
         new Command().Execute();
+
+        // Test if we can access private constructor
+        (Activator.CreateInstance(typeof(CommandPrivate), true) as CommandPrivate).Execute();
 
         //new MyClass().MyMethod();
         //Console.WriteLine(" ");
