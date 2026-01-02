@@ -42,7 +42,7 @@ public partial class ModuleWeaver
                 if (!method.HasBody)
                     continue;
 
-                CloneMethod(type, method, "_isolator_");
+                var isolatorMethod = CloneMethod(type, method, "_isolator_");
 
                 if (method.IsConstructor)
                 {
@@ -50,7 +50,7 @@ public partial class ModuleWeaver
                     continue;
                 }
 
-                InjectMethod(method);
+                InjectMethod(method, isolatorMethod.Name);
             }
         }
     }
@@ -153,7 +153,7 @@ public partial class ModuleWeaver
         method.Body.OptimizeMacros(); // This helps with stack issues
     }
 
-    private void InjectMethod(MethodDefinition method)
+    private void InjectMethod(MethodDefinition method, string searchMethodName = null)
     {
         var body = method.Body;
         var il = body.GetILProcessor();
@@ -244,6 +244,12 @@ public partial class ModuleWeaver
                 bindingFlags |= System.Reflection.BindingFlags.Public;
             }
 
+            if (!string.IsNullOrEmpty(searchMethodName))
+            {
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
+                bindingFlags &= ~System.Reflection.BindingFlags.Public;
+            }
+
             // Get the method using reflection
             if (method.IsStatic)
             {
@@ -256,7 +262,7 @@ public partial class ModuleWeaver
                 il.InsertBefore(first, il.Create(OpCodes.Callvirt, getTypeMethod));
             }
 
-            il.InsertBefore(first, il.Create(OpCodes.Ldstr, method.Name));
+            il.InsertBefore(first, il.Create(OpCodes.Ldstr, searchMethodName ?? method.Name));
             il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags));
 
             if (method.Parameters.Count > 0 && parametersTypeArrayVariable != null)
