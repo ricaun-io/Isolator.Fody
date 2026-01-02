@@ -188,7 +188,7 @@ public partial class ModuleWeaver
                 bindingFlags |= System.Reflection.BindingFlags.Public;
             }
 
-            if (!string.IsNullOrEmpty(searchMethodName))
+            if (!string.IsNullOrEmpty(searchMethodName) && searchMethodName != method.Name)
             {
                 bindingFlags |= System.Reflection.BindingFlags.NonPublic;
                 bindingFlags &= ~System.Reflection.BindingFlags.Public;
