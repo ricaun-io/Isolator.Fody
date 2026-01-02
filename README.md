@@ -69,7 +69,7 @@ public class MyIsolatedClass
 		{
 			object data = AssemblyLoader.GetData(this);
 			object[] parameters = new object[0];
-			MethodInfo method = data.GetType().GetMethod("MyMethod", BindingFlags.Instance | BindingFlags.Public);
+			MethodInfo method = data.GetType().GetMethod("_isolator_MyMethod", BindingFlags.Instance | BindingFlags.Private);
 			method.Invoke(data, parameters);
 		}
 		else

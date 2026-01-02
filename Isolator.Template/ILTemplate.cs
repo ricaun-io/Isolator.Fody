@@ -13,6 +13,7 @@ internal static class ILTemplate
 #if !NET
     internal static object CreateInstance(object key, params object[] args) { return null; }
     internal static object GetData(object key) { return null; }
+    internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
     public static void Attach(bool subscribe) { }
     public static bool IsDefault() { return false; }
 #endif
@@ -39,6 +40,20 @@ internal static class ILTemplate
             }
             return instance;
         }
+    }
+    internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null)
+    {
+        var instance = GetData(key);
+        if (instance != null)
+        {
+            var type = instance as Type ?? instance.GetType();
+            var method = type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
+            if (method != null)
+            {
+                return method.Invoke(instance is Type ? null : instance, args);
+            }
+        }
+        return null;
     }
     internal static object GetData(object key)
     {
