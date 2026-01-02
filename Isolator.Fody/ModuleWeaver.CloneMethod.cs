@@ -12,7 +12,7 @@ public partial class ModuleWeaver
     public MethodDefinition CloneMethod(TypeDefinition type, MethodDefinition method, string prefix = "_original_")
     {
         // 1. Clone
-        var cloned = CloneMethodSignature(method, (prefix + method.Name).Replace(".", "_"));
+        var cloned = CloneMethodSignature(method, (prefix + method.Name).Replace(".", string.Empty));
         CloneMethodBody(method, cloned);
 
         // 2. Add cloned method

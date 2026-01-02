@@ -81,14 +81,20 @@ internal static class ILTemplate
                 }
             }
 
-            var frame = new System.Diagnostics.StackFrame(0);
-            var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(IsolatorAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
+            var type = GetIsolatorAssemblyLoadContext();
 
             _context = Activator.CreateInstance(type, contextName, assembly.Location) as AssemblyLoadContext;
             _context?.Unloading += Unloading;
         }
 
         return _context;
+    }
+
+    private static Type GetIsolatorAssemblyLoadContext()
+    {
+        var frame = new System.Diagnostics.StackFrame(0);
+        var type = frame.GetMethod().DeclaringType.GetNestedType(nameof(IsolatorAssemblyLoadContext), BindingFlags.Public | BindingFlags.NonPublic);
+        return type;
     }
 
     private static AssemblyLoadContext FindAssemblyLoadContext(string contextName)
@@ -141,7 +147,7 @@ internal static class ILTemplate
         Console.WriteLine($"Isolator ... {context}");
     }
 
-    internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
+    public class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
         private readonly string _assemblyPath;

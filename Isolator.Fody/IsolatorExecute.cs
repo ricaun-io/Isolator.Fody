@@ -37,12 +37,13 @@ public partial class ModuleWeaver
             if (skipIsolation)
                 continue;
 
+            var index = 1;
             foreach (var method in type.Methods.ToArray())
             {
                 if (!method.HasBody)
                     continue;
 
-                var isolatorMethod = CloneMethod(type, method, "_isolator_");
+                var isolatorMethod = CloneMethod(type, method, $"_isolator_{index++}_");
 
                 if (method.IsConstructor)
                 {
