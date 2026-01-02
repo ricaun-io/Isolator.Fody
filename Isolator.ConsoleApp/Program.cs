@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 
@@ -12,6 +13,7 @@ public class Program
         var i3 = new IsolatorClass("Test3");
 
         i1.Name = "Hi";
+        Debug.Assert(i1.Name == "Hi");
         //i1.Context = "Context1";
 
         Console.WriteLine(i1);
@@ -19,7 +21,7 @@ public class Program
         Console.WriteLine(i3);
 
         Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
-        //Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
+        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
 
         IsolatorStaticClass.MyStaticMethod("Test");
         IsolatorStaticClass.MyStaticMethod("Test", 2);

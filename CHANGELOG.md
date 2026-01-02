@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update to find interface names inside base class.
 - Update to clone all methods to try to isolate internally called methods. (`EnableCloneMethods`)
 - Update to search `ContextName` and try to use existent `AssemblyLoadContext`. (`ContextName`)
+- Update `ILTemplate` to use `AssemblyLoader.InvokeMethod` to invoke isolated method.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

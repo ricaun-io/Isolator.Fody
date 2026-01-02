@@ -47,47 +47,18 @@ public partial class ModuleWeaver
 
                 if (method.IsConstructor)
                 {
-                    InsjectConstructor(method);
+                    InsjectConstructor_CreateInstance(method);
                     continue;
                 }
 
-                InjectMethod(method, isolatorMethod.Name);
+                InjectMethod_InvokeMethod(method, isolatorMethod.Name);
             }
         }
-    }
-
-    private static List<string> GetInterfacesAndBaseInterfaces(TypeDefinition type)
-    {
-        var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
-        // Add interfaces inside the base types
-        var baseType = type.BaseType;
-        while (baseType != null)
-        {
-            var baseTypeDef = baseType.Resolve();
-            if (baseTypeDef != null)
-            {
-                foreach (var iface in baseTypeDef.Interfaces)
-                {
-                    var ifaceName = iface.InterfaceType.Name;
-                    if (!listOfInterfacesInType.Contains(ifaceName))
-                    {
-                        listOfInterfacesInType.Add(ifaceName);
-                    }
-                }
-                baseType = baseTypeDef.BaseType;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        return listOfInterfacesInType;
     }
 
     private static bool logEnable = false;
 
-    private void InsjectConstructor(MethodDefinition method)
+    private void InsjectConstructor_CreateInstance(MethodDefinition method)
     {
         var body = method.Body;
         var il = body.GetILProcessor();
@@ -107,14 +78,6 @@ public partial class ModuleWeaver
         // Branch if false (skip log and return)
         var branchIfFalse = il.Create(OpCodes.Brfalse_S, continueNormalExecution);
         il.InsertBefore(first, branchIfFalse);
-
-        if (logEnable)
-        {
-            var message = $"[Fody] Entering constructor {method.DeclaringType.FullName}";
-            // Log message
-            il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
-            il.InsertBefore(first, il.Create(OpCodes.Call, writeLine));
-        }
 
         // object CreateInstance(object key, params object[] args)
         var createInstanceMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "CreateInstance");
@@ -148,6 +111,149 @@ public partial class ModuleWeaver
             WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
         }
 
+        il.InsertBefore(first, il.Create(OpCodes.Ret));
+
+        // REQUIRED
+        method.Body.OptimizeMacros(); // This helps with stack issues
+    }
+
+    private void InjectMethod_InvokeMethod(MethodDefinition method, string searchMethodName = null)
+    {
+        var body = method.Body;
+        var il = body.GetILProcessor();
+        var first = body.Instructions.First();
+
+        // REQUIRED
+        body.SimplifyMacros();
+        body.InitLocals = true;
+
+        // Create a method that returns bool to control isolation
+        var isolationControlMethod = CreateIsolationControlMethod();
+        var isolationControlMethodRef = ModuleDefinition.ImportReference(isolationControlMethod);
+
+        // Call the isolation control method
+        var callIsolationControl = il.Create(OpCodes.Call, isolationControlMethodRef);
+        il.InsertBefore(first, callIsolationControl);
+
+        // Branch if false (skip isolation and continue normal execution)
+        // When IsDefault() returns false, jump to original method body
+        var branchIfFalse = il.Create(OpCodes.Brfalse_S, first);
+        il.InsertBefore(first, branchIfFalse);
+
+        var getInvokeMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "InvokeMethod");
+        if (getInvokeMethod != null)
+        {
+            var getInvokeMethodRef = ModuleDefinition.ImportReference(getInvokeMethod);
+
+            // Create parameters type array using the new method
+            var parametersArrayVariable = CreateParametersArray(method, il, first);
+            // Create parameters array using the new method
+            var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first, searchMethodName);
+
+            // Import System.Reflection types and methods
+            var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
+            var makeByRefTypeMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("MakeByRefType", Type.EmptyTypes));
+
+            var resultVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
+            method.Body.Variables.Add(resultVariable);
+
+            // Determine binding flags
+            var bindingFlags = method.IsStatic
+                ? System.Reflection.BindingFlags.Static
+                : System.Reflection.BindingFlags.Instance;
+
+            if (method.IsPrivate)
+            {
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
+            }
+            else if (method.IsAssembly || method.IsFamilyAndAssembly)
+            {
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
+            }
+            else
+            {
+                bindingFlags |= System.Reflection.BindingFlags.Public;
+            }
+
+            if (!string.IsNullOrEmpty(searchMethodName))
+            {
+                bindingFlags |= System.Reflection.BindingFlags.NonPublic;
+                bindingFlags &= ~System.Reflection.BindingFlags.Public;
+            }
+
+            // Create a local variable to store the result
+            var returnValueVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
+            method.Body.Variables.Add(returnValueVariable);
+
+            // Load key argument: 'this' for instance methods, typeof(DeclaringType) for static methods
+            if (method.IsStatic)
+            {
+                var typeOfMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.DeclaringType));
+                il.InsertBefore(first, il.Create(OpCodes.Call, typeOfMethod));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
+            }
+
+            il.InsertBefore(first, il.Create(OpCodes.Ldstr, searchMethodName ?? method.Name));
+            il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersArrayVariable));
+            il.InsertBefore(first, il.Create(OpCodes.Ldc_I4, (int)bindingFlags));
+
+            if (method.Parameters.Count > 0 && parametersTypeArrayVariable != null)
+            {
+                // Use pre-built Type[] array for parameter types
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, parametersTypeArrayVariable));
+            }
+            else
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldnull));
+            }
+
+            il.InsertBefore(first, il.Create(OpCodes.Call, getInvokeMethodRef));
+            il.InsertBefore(first, il.Create(OpCodes.Stloc, returnValueVariable));
+
+            // Write back ref/out parameters
+            if (new Configuration(Config).EnableWriteBackRefOutParameters)
+                WriteBackRefOutParameters(method, il, first, parametersArrayVariable);
+
+            // Handle return value
+            if (method.ReturnType.FullName != "System.Void")
+            {
+                il.InsertBefore(first, il.Create(OpCodes.Ldloc, returnValueVariable));
+
+                if (method.ReturnType.IsValueType)
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Unbox_Any, method.ReturnType));
+                }
+                else
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Castclass, method.ReturnType));
+                }
+            }
+        }
+        else
+        {
+            // GetData not found - return default value
+            if (method.ReturnType.FullName != "System.Void")
+            {
+                if (method.ReturnType.IsValueType)
+                {
+                    var variable = new VariableDefinition(method.ReturnType);
+                    method.Body.Variables.Add(variable);
+                    il.InsertBefore(first, il.Create(OpCodes.Ldloca_S, variable));
+                    il.InsertBefore(first, il.Create(OpCodes.Initobj, method.ReturnType));
+                    il.InsertBefore(first, il.Create(OpCodes.Ldloc, variable));
+                }
+                else
+                {
+                    il.InsertBefore(first, il.Create(OpCodes.Ldnull));
+                }
+            }
+        }
+
+        // Return from isolation block (prevents fall-through to original method)
         il.InsertBefore(first, il.Create(OpCodes.Ret));
 
         // REQUIRED
@@ -414,5 +520,34 @@ public partial class ModuleWeaver
         }
 
         return shouldIsolateMethod;
+    }
+
+    private static List<string> GetInterfacesAndBaseInterfaces(TypeDefinition type)
+    {
+        var listOfInterfacesInType = type.Interfaces.Select(i => i.InterfaceType.Name).ToList();
+        // Add interfaces inside the base types
+        var baseType = type.BaseType;
+        while (baseType != null)
+        {
+            var baseTypeDef = baseType.Resolve();
+            if (baseTypeDef != null)
+            {
+                foreach (var iface in baseTypeDef.Interfaces)
+                {
+                    var ifaceName = iface.InterfaceType.Name;
+                    if (!listOfInterfacesInType.Contains(ifaceName))
+                    {
+                        listOfInterfacesInType.Add(ifaceName);
+                    }
+                }
+                baseType = baseTypeDef.BaseType;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return listOfInterfacesInType;
     }
 }
