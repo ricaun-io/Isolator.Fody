@@ -37,15 +37,23 @@ public partial class ModuleWeaver
             if (skipIsolation)
                 continue;
 
+            // Add [CompilerGenerated] attribute to show the class is modified
+            AddCompilerGeneratedAttribute(type);
+
             var index = 1;
             foreach (var method in type.Methods.ToArray())
             {
                 if (!method.HasBody)
                     continue;
 
+                // Add [CompilerGenerated] attribute to show the method is modified
+                AddCompilerGeneratedAttribute(method);
+
                 var isolatorMethod = cloneMethods ?
                     CloneMethod(type, method, $"_isolator_{index++}_") :
                     method;
+
+                AddCompilerGeneratedAttribute(isolatorMethod);
 
                 if (method.IsConstructor)
                 {

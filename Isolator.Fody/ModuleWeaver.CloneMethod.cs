@@ -16,7 +16,7 @@ public partial class ModuleWeaver
         CloneMethodBody(method, cloned);
 
         // 1.a Mark as [CompilerGenerated]
-        cloned.CustomAttributes.Add(new CustomAttribute(_compilerGeneratedAttributeCtor));
+        AddCompilerGeneratedAttribute(cloned);
 
         // 2. Add cloned method
         type.Methods.Add(cloned);

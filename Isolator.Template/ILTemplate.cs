@@ -14,8 +14,8 @@ internal static class ILTemplate
     internal static object CreateInstance(object key, params object[] args) { return null; }
     internal static object GetData(object key) { return null; }
     internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
-    public static void Attach() { }
-    public static bool IsDefault() { return false; }
+    internal static void Attach() { }
+    internal static bool IsDefault() { return false; }
 #endif
 
 #if NET
@@ -152,12 +152,12 @@ internal static class ILTemplate
         //Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
     }
 
-    public static void Unload()
+    internal static void Unload()
     {
         _context?.Unload();
     }
 
-    public static bool IsDefault()
+    internal static bool IsDefault()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
@@ -168,7 +168,7 @@ internal static class ILTemplate
         return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
     }
 
-    public static void Attach()
+    internal static void Attach()
     {
         if (IsDefault()) return;
         var assembly = Assembly.GetExecutingAssembly();
