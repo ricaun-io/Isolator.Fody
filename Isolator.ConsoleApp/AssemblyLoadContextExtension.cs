@@ -1,6 +1,29 @@
 ﻿public static class AssemblyLoadContextExtension
 {
     /// <summary>
+    /// Determines whether the assembly context of the specified object is the default context.
+    /// </summary>
+    /// <remarks>This method relies on the assembly's context string representation to determine if it is the
+    /// default. Passing a null value will result in a NullReferenceException.</remarks>
+    /// <param name="value">The object whose assembly context is to be evaluated. Cannot be null.</param>
+    /// <returns>true if the object's assembly context is the default context; otherwise, false.</returns>
+    public static bool IsContextDefault(this object value)
+    {
+        var assembly = value.GetType().Assembly;
+        return assembly.IsContextDefault();
+    }
+
+    /// <summary>
+    /// Determines whether the specified assembly is loaded into the default context.
+    /// </summary>
+    /// <param name="assembly">The assembly to evaluate for its loading context. Cannot be null.</param>
+    /// <returns>true if the assembly is loaded into the default context; otherwise, false.</returns>
+    public static bool IsContextDefault(this System.Reflection.Assembly assembly)
+    {
+        return assembly.ToContextString() == "Default";
+    }
+
+    /// <summary>
     /// Returns a string that represents the context of the assembly in which the specified object is defined.
     /// </summary>
     /// <remarks>This method is an extension method for all objects and delegates to the assembly's context

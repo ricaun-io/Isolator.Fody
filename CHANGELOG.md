@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `ILTemplate` to use `AssemblyLoader.InvokeMethod` to invoke isolated method.
 - Update `IsolatorAssemblyLoadContext` to support multiple resolvers and search in all resolvers.
 - Update `Isolator.ConsoleApp` and remove random class.
+- Update clone method to use `CompilerGenerated` attribute.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

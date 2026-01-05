@@ -1,4 +1,4 @@
-﻿public class ClassWithPrivateConstructor : IsolatorInteface
+﻿public class ClassWithPrivateConstructor : IsolatorInterface
 {
     private bool Result { get; set; }
     private ClassWithPrivateConstructor() {
@@ -6,11 +6,11 @@
     }
     public bool Execute()
     {
-        return Result;
+        return Result && !this.IsContextDefault();
     }
 }
 
-public class ClassWithPublicConstructor : IsolatorInteface
+public class ClassWithPublicConstructor : IsolatorInterface
 {
     private bool Result { get; set; }
     public ClassWithPublicConstructor()
@@ -19,7 +19,7 @@ public class ClassWithPublicConstructor : IsolatorInteface
     }
     public bool Execute()
     {
-        return Result;
+        return Result && !this.IsContextDefault();
     }
 }
 
@@ -27,11 +27,11 @@ public class ClassWithAbstractionConstructor : IsolatorAbstract
 {
     public override bool Execute()
     {
-        return Result;
+        return Result && !this.IsContextDefault();
     }
 }
 
-public abstract class IsolatorAbstract : IsolatorInteface
+public abstract class IsolatorAbstract : IsolatorInterface
 {
     public IsolatorAbstract()
     {
@@ -51,11 +51,11 @@ public static class ClassWithStaticConstructor
     }
     public static bool Execute()
     {
-        return Result;
+        return Result && !System.Reflection.Assembly.GetExecutingAssembly().IsContextDefault();
     }
 }
 
-public interface IsolatorInteface
+public interface IsolatorInterface
 {
     bool Execute();
 }

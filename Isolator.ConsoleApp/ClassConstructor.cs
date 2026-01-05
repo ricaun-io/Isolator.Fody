@@ -11,7 +11,7 @@ public class ClassConstructor
     }
     public bool Execute()
     {
-        return !string.IsNullOrEmpty(_name);
+        return !string.IsNullOrEmpty(_name) && !this.IsContextDefault();
     }
     public int Execute(int a)
     {

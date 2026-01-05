@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!--<PropertyGroup Condition="$(Configuration.Contains('Debug'))">
@@ -21,7 +20,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator EnableDebug="false" InterfacesName="IsolatorInteface" />
+        <Isolator EnableDebug="false" InterfaceNames="IsolatorInterface" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>

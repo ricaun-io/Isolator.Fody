@@ -3,7 +3,7 @@ public static class ClassStatic
 {
     public static bool Execute()
     {
-        return true;
+        return !System.Reflection.Assembly.GetExecutingAssembly().IsContextDefault();
     }
     public static bool Execute(bool value)
     {

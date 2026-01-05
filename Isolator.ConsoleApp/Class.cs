@@ -3,7 +3,7 @@ public class Class
 {
     public bool Execute()
     {
-        return true;
+        return !this.IsContextDefault();
     }
     public bool Execute(bool value)
     {

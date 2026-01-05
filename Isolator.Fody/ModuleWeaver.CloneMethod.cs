@@ -15,6 +15,9 @@ public partial class ModuleWeaver
         var cloned = CloneMethodSignature(method, (prefix + method.Name).Replace(".", string.Empty));
         CloneMethodBody(method, cloned);
 
+        // 1.a Mark as [CompilerGenerated]
+        cloned.CustomAttributes.Add(new CustomAttribute(_compilerGeneratedAttributeCtor));
+
         // 2. Add cloned method
         type.Methods.Add(cloned);
 
@@ -51,6 +54,13 @@ public partial class ModuleWeaver
             clone.Attributes &= ~Mono.Cecil.MethodAttributes.Public;
             clone.Attributes |= Mono.Cecil.MethodAttributes.Private;
         }
+
+        //if (makeInternal)
+        //{
+        //    clone.Attributes &= ~Mono.Cecil.MethodAttributes.Public;
+        //    clone.Attributes &= ~Mono.Cecil.MethodAttributes.Private;
+        //    clone.Attributes |= Mono.Cecil.MethodAttributes.Assembly;
+        //}
 
         // Remove abstract/virtual flags
         clone.Attributes &= ~Mono.Cecil.MethodAttributes.Abstract;
