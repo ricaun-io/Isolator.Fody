@@ -51,8 +51,10 @@ public class MyIsolatedClass
 
 When you build your project, the weaver will modify the IL code of the marked classes to ensure that their methods and constructors run in a separate `AssemblyLoadContext`.
 ```csharp
+[CompilerGenerated]
 public class MyIsolatedClass
 {
+	[CompilerGenerated]
 	public MyIsolatedClass()
 	{
 		if (AssemblyLoader.IsDefault())
@@ -60,30 +62,30 @@ public class MyIsolatedClass
 			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
 			return;
 		}
-		_isolator_ctor();
+		_isolator_1_ctor();
 	}
-
+	[CompilerGenerated]
 	public void MyMethod()
 	{
 		if (AssemblyLoader.IsDefault())
 		{
 			object data = AssemblyLoader.GetData(this);
 			object[] parameters = new object[0];
-			MethodInfo method = data.GetType().GetMethod("_isolator_MyMethod", BindingFlags.Instance | BindingFlags.Private);
+			MethodInfo method = data.GetType().GetMethod("_isolator_2_MyMethod", BindingFlags.Instance | BindingFlags.Private);
 			method.Invoke(data, parameters);
 		}
 		else
 		{
-			_isolator_MyMethod();
+			_isolator_2_MyMethod();
 		}
 	}
-
-	private void _isolator_ctor()
+	[CompilerGenerated]
+	private void _isolator_1_ctor()
 	{
 		Console.WriteLine("Constructor implementation");
 	}
-
-	private void _isolator_MyMethod()
+	[CompilerGenerated]
+	private void _isolator_2_MyMethod()
 	{
 		Console.WriteLine("Method implementation");
 	}
@@ -178,7 +180,7 @@ Indicates whether to clone methods that are called internally within the isolate
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableCloneMethods='false' />
+<Isolator EnableCloneMethods='true' />
 ```
 
 ### EnableWriteBackRefOutParameters
@@ -188,7 +190,7 @@ Indicates whether to write back the values of `ref` and `out` parameters to the 
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableWriteBackRefOutParameters='false' />
+<Isolator EnableWriteBackRefOutParameters='true' />
 ```
 
 ## References
