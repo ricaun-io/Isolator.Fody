@@ -21,7 +21,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator EnableDebug="true" />
+        <Isolator EnableDebug="false" InterfacesName="IsolatorInteface" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>

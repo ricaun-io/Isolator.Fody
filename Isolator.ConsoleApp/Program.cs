@@ -1,196 +1,82 @@
 ﻿
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.Loader;
 
 public class Program
 {
-    public unsafe static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
-        var i1 = new IsolatorClass("Test1");
-        var i2 = new IsolatorClass("Test2");
-        var i3 = new IsolatorClass("Test3");
+        Console.WriteLine(ClassStatic.ContextName());
 
-        i1.Name = "Hi";
-        Debug.Assert(i1.Name == "Hi");
-        //i1.Context = "Context1";
+        TestClass();
+        TestClassStatic();
+        TestClassConstructor();
+        TestClassWithConstructor();
+    }
 
-        Console.WriteLine(i1);
-        Console.WriteLine(i2);
-        Console.WriteLine(i3);
+    private static void TestClass()
+    {
+        var instance = new Class();
+        Debug.Assert(instance.Execute());
+        Debug.Assert(instance.Execute(true));
+        Debug.Assert(instance.Execute("Test"));
+        Debug.Assert(instance.Execute(123));
+        string outResult;
+        Debug.Assert(instance.ExecuteOut("TestOut", out outResult) && outResult == "TestOut");
+        string refResult = "Initial";
+        Debug.Assert(instance.ExecuteRef("TestRef", ref refResult) && refResult == "TestRef");
 
-        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21));
-        Console.WriteLine(IsolatorStaticClass.MyStaticMethod(21, 2));
+        // Check the ContextName
+        Debug.Assert(instance.ContextName() != "Default");
+        Debug.Assert(instance.ContextNameFail() == "Default");
 
-        IsolatorStaticClass.MyStaticMethod("Test");
-        IsolatorStaticClass.MyStaticMethod("Test", 2);
+        // Check the ContextName via ToString override
+        Debug.Assert(instance.ToString() != "Default");
+    }
 
-        //var message = "?";
-        //NewMethod(ref message);
-        //Console.WriteLine(message);
+    private static void TestClassStatic()
+    {
+        Debug.Assert(ClassStatic.Execute());
+        Debug.Assert(ClassStatic.Execute(true));
+        Debug.Assert(ClassStatic.Execute("Test"));
+        Debug.Assert(ClassStatic.Execute(123));
+        string outResult;
+        Debug.Assert(ClassStatic.ExecuteOut("TestOut", out outResult) && outResult == "TestOut");
+        string refResult = "Initial";
+        Debug.Assert(ClassStatic.ExecuteRef("TestRef", ref refResult) && refResult == "TestRef");
 
-        var cmd = "?";
-        new ExternalCommand().Execute(ref cmd);
-        Console.WriteLine(cmd);
+        // Check the ContextName
+        Debug.Assert(ClassStatic.ContextName() != "Default");
+        Debug.Assert(ClassStatic.ContextNameFail() == "Default");
+    }
 
-        // Test if we can access base constructor
-        new Command().Execute();
+    private static void TestClassConstructor()
+    {
+        var instanceFail = new ClassConstructor();
+        Debug.Assert(!instanceFail.Execute());
+
+        var instancePass = new ClassConstructor("ValidName");
+        Debug.Assert(instancePass.Execute());
+
+        Debug.Assert(instancePass.Execute(10) == 10);
+        Debug.Assert(instancePass.Execute(10, 20) == 30);
+    }
+
+    private static void TestClassWithConstructor()
+    {
+        // Test static constructor
+        Debug.Assert(ClassWithStaticConstructor.Execute());
+
+        // Test class with abstract constructor
+        var classAbstract = new ClassWithAbstractionConstructor();
+        Debug.Assert(classAbstract.Execute());
+
+        // Test class with public constructor
+        var classPublic = new ClassWithPublicConstructor();
+        Debug.Assert(classPublic.Execute());
 
         // Test if we can access private constructor
-        (Activator.CreateInstance(typeof(CommandPrivate), true) as CommandPrivate).Execute();
-
-        //new MyClass().MyMethod();
-        //Console.WriteLine(" ");
-        //new MyClass2().MyMethod();
-        //var obj = new MyClass2("class name");
-        //var arg = obj.MyMethod2("argument");
-        //Console.WriteLine(arg);
-    }
-
-    private static unsafe void NewMethod(ref string message)
-    {
-        object data = new ExternalCommand();
-        var method = data.GetType().GetMethod("Execute", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public, null, new Type[1] { typeof(string).MakeByRefType() }, null);
-        var args = new object[1] { message };
-        method.Invoke(data, args);
-        Console.WriteLine($"{message} >>>");
-    }
-
-}
-
-[Isolator]
-public static class IsolatorStaticClass
-{
-    static IsolatorStaticClass()
-    {
-        Console.WriteLine("Inside IsolatorStaticClass static constructor");
-    }
-    public static void MyStaticMethod()
-    {
-        Console.WriteLine("Inside MyStaticMethod");
-    }
-
-    public static int MyStaticMethod(int x)
-    {
-        return x * 2;
-    }
-
-    public static int MyStaticMethod(int x, int y)
-    {
-        return x * y;
-    }
-
-    public static void MyStaticMethod(params object[] args)
-    {
-        foreach (var item in args)
-        {
-            Console.WriteLine(item);
-        }
-    }
-}
-
-[Isolator]
-public class IsolatorClass
-{
-    public IsolatorClass(ref string name)
-    {
-
-    }
-
-    public IsolatorClass(string name = null)
-    {
-        var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
-        Console.WriteLine(context);
-        this.Name = name;
-    }
-
-    public IsolatorClass(string name, string name2)
-    {
-        var context = AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)?.ToString();
-        Console.WriteLine(context);
-        this.Name = name;
-    }
-
-    public int MyStaticMethod(out string x, string y)
-    {
-        x = "output";
-        return 0;
-    }
-
-    public int MyStaticMethod(string x, string y)
-    {
-        return 0;
-    }
-
-    public int MyStaticMethod(string x, string y, string z)
-    {
-        return 0;
-    }
-
-    public int MyStaticMethod(string x, string y, int z)
-    {
-        return 0;
-    }
-
-    public int MyStaticMethod(string x)
-    {
-        return 0;
-    }
-
-    public int MyStaticMethod(int x)
-    {
-        return 0;
-    }
-
-    public int MyStaticMethod(int x, int y)
-    {
-        return 0;
-    }
-
-    private void PrivateMethod()
-    {
-        Console.WriteLine($"Inside PrivateMethod {this}");
-    }
-
-    public string Name { get; set; }
-
-    internal string Context { get; set; }
-
-    override public string ToString()
-    {
-        return $"IsolatorClass: {Name} in {AssemblyLoadContext.GetLoadContext(typeof(IsolatorClass).Assembly)}";
-    }
-}
-
-[Isolator]
-public class MyClass
-{
-    public void MyMethod()
-    {
-        Console.WriteLine($"Inside MyMethod {this}");
-    }
-}
-
-[Isolator]
-public class MyClass2
-{
-    public MyClass2()
-    {
-        Console.WriteLine($"Inside MyClass2 constructor {this}");
-    }
-    public MyClass2(string name)
-    {
-        Console.WriteLine($"Inside MyClass2 constructor {this} {name}");
-    }
-    public void MyMethod()
-    {
-        Console.WriteLine($"Inside MyMethod {this}");
-    }
-
-    public object MyMethod2(object arg)
-    {
-        Console.WriteLine($"Inside MyMethod2 {this}");
-        return arg;
+        var classPrivate = (Activator.CreateInstance(typeof(ClassWithPrivateConstructor), true) as ClassWithPrivateConstructor);
+        Debug.Assert(classPrivate.Execute());
     }
 }
