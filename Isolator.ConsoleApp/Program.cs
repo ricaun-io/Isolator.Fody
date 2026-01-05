@@ -7,11 +7,23 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine(ClassStatic.ContextName());
-
+        
+        TestContextName();
         TestClass();
         TestClassStatic();
         TestClassConstructor();
         TestClassWithConstructor();
+    }
+
+    private static void TestContextName()
+    {
+        // Verify that the context name starts with "IsolatorContext"
+        var contextName = ClassStatic.ContextName();
+        Debug.Assert(contextName.StartsWith("IsolatorContext"));
+
+        // Verify that the context name ends with a valid GUID
+        var guid = contextName.Split('.').LastOrDefault();
+        Debug.Assert(Guid.TryParse(guid, out _));
     }
 
     private static void TestClass()
