@@ -48,10 +48,10 @@ internal static class ILTemplate
         if (instance != null)
         {
             var type = instance as Type ?? instance.GetType();
-            var method = (methodTypes is null) ? 
-                type.GetMethod(methodName, bindingAttr) : 
+            var method = (methodTypes is null) ?
+                type.GetMethod(methodName, bindingAttr) :
                 type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
-            
+
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
 
@@ -83,7 +83,9 @@ internal static class ILTemplate
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
-        var contextName = GetContextName() ?? $"IsolatorContext.{assembly.GetName().Name}.{Guid.NewGuid().ToString()}";
+        var contextName = GetContextName() ?? $"{assembly.GetName().Name}.{Guid.NewGuid().ToString()}";
+
+        contextName = $"IsolatorContext.{contextName}";
 
         if (IsDefault() == false)
             _context = context;
@@ -95,7 +97,7 @@ internal static class ILTemplate
                 _context = FindAssemblyLoadContext(contextName);
                 if (_context != null)
                 {
-                    _context.LoadFromAssemblyPath(assembly.Location);
+                    InstanceInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
                     return _context;
                 }
             }
@@ -107,6 +109,17 @@ internal static class ILTemplate
         }
 
         return _context;
+    }
+
+    private static object InstanceInvokeMethod(object instance, string methodName, params object[] parameters)
+    {
+        var type = instance.GetType();
+        var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (method is null)
+            throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
+
+        return method.Invoke(instance, parameters);
     }
 
     private static Type GetIsolatorAssemblyLoadContext()
@@ -166,36 +179,48 @@ internal static class ILTemplate
         Console.WriteLine($"Isolator ... {context}");
     }
 
-    public class IsolatorAssemblyLoadContext : AssemblyLoadContext
+    internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
-        private AssemblyDependencyResolver _resolver;
-        private readonly string _assemblyPath;
-        private Assembly _assembly;
+        private readonly List<AssemblyDependencyResolver> _resolvers = new List<AssemblyDependencyResolver>();
 
         public IsolatorAssemblyLoadContext(string contextName, string assemblyPath) : base(contextName, isCollectible: true)
         {
-            this._assemblyPath = assemblyPath;
-            this._resolver = new AssemblyDependencyResolver(assemblyPath);
+            // Cannot use 'AddResolver', not supported in the 'AssemblyLoaderImporter' in the 'Isolator.Fody' project.
+            _resolvers.Add(new AssemblyDependencyResolver(assemblyPath));
         }
 
-        public Assembly Initialize()
+        public void AddResolver(string componentAssemblyPath)
         {
-            if (_assembly is null)
-            {
-                _assembly = LoadFromAssemblyPath(_assemblyPath);
-            }
-            return _assembly;
+            if (string.IsNullOrWhiteSpace(componentAssemblyPath))
+                throw new ArgumentException(nameof(componentAssemblyPath));
+
+            _resolvers.Add(new AssemblyDependencyResolver(componentAssemblyPath));
         }
 
-        protected override Assembly Load(AssemblyName name)
+        protected override Assembly Load(AssemblyName assemblyName)
         {
-            string assemblyPath = _resolver.ResolveAssemblyToPath(name);
-            if (assemblyPath != null)
+            foreach (var resolver in _resolvers)
             {
-                return LoadFromAssemblyPath(assemblyPath);
+                var path = resolver.ResolveAssemblyToPath(assemblyName);
+                if (path != null)
+                {
+                    return LoadFromAssemblyPath(path);
+                }
             }
-
             return null;
+        }
+
+        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+        {
+            foreach (var resolver in _resolvers)
+            {
+                var path = resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+                if (path != null)
+                {
+                    return LoadUnmanagedDllFromPath(path);
+                }
+            }
+            return IntPtr.Zero;
         }
     }
 #endif

@@ -20,7 +20,7 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         var config = new Configuration(Config);
 
-        WriteInfo($"{GetType().Assembly.GetName().Name}.Fody v{GetType().Assembly.GetVersion()}");
+        WriteInfo($"{GetType().Assembly.GetName().Name} v{GetType().Assembly.GetVersion()}");
 
         FindMsCoreReferences();
         ImportAssemblyLoader();
@@ -38,8 +38,6 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         if (string.IsNullOrEmpty(contextName))
             return;
-
-        contextName = $"IsolatorContext.{contextName}";
 
         var getContextNameMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "GetContextName");
         if (getContextNameMethod is not null)
