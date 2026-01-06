@@ -7,7 +7,7 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine(ClassStatic.ContextName());
-        
+
         TestContextName();
         TestClass();
         TestClassStatic();
@@ -37,6 +37,11 @@ public class Program
         Debug.Assert(instance.ExecuteOut("TestOut", out outResult) && outResult == "TestOut");
         string refResult = "Initial";
         Debug.Assert(instance.ExecuteRef("TestRef", ref refResult) && refResult == "TestRef");
+
+        Debug.Assert(instance.ExecuteDefault());
+        Debug.Assert(instance.ExecuteDefault("Test"));
+        Debug.Assert(instance.ExecuteDefault(number: 123));
+        Debug.Assert(instance.ExecuteDefault("Test", 123));
 
         // Check the ContextName
         Debug.Assert(instance.ContextName() != "Default");

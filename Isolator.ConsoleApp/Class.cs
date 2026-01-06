@@ -27,6 +27,10 @@ public class Class
         result = value;
         return !string.IsNullOrEmpty(value);
     }
+    public bool ExecuteDefault(string value = "default", int number = 1)
+    {
+        return !string.IsNullOrEmpty(value) && number != 0;
+    }
     public string ContextName()
     {
         return this.ToContextString();

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `Isolator.ConsoleApp` and remove random class.
 - Update clone method to use `CompilerGenerated` attribute.
 - Update to add `CompilerGenerated` attribute in the methods and type using `AddCompilerGeneratedAttribute`.
+- Update `AssemblyLoaderImporter.` to copy if method `HasDefault` parameter.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

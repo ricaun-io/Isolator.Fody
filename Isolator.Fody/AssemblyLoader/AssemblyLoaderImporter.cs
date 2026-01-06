@@ -267,6 +267,14 @@ public partial class ModuleWeaver
                 Name = parameterDefinition.Name
             };
 
+            // Copy default value if any is defined
+            if (parameterDefinition.HasDefault)
+            {
+                newParameterDefinition.Attributes = parameterDefinition.Attributes;
+                newParameterDefinition.Constant = parameterDefinition.Constant;
+                newParameterDefinition.HasDefault = true;
+            }
+
             newMethod.Parameters.Add(newParameterDefinition);
         }
 
