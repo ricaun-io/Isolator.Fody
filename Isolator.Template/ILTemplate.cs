@@ -12,7 +12,7 @@ internal static class ILTemplate
 {
 #if !NET
     internal static object CreateInstance(object key, params object[] args) { return null; }
-    internal static object GetData(object key) { return null; }
+    internal static object GetInstance(object key) { return null; }
     internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
     internal static void Attach() { }
     internal static bool IsDefault() { return false; }
@@ -25,7 +25,7 @@ internal static class ILTemplate
         {
             if (_table.TryGetValue(key, out var instance) == false)
             {
-                var context = Get();
+                var context = GetContext();
                 var type = key is Type ? (Type)key : key.GetType();
                 var assembly = context.LoadFromAssemblyName(type.Assembly.GetName());
                 if (key is Type)
@@ -44,7 +44,7 @@ internal static class ILTemplate
     }
     internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null)
     {
-        var instance = GetData(key);
+        var instance = GetInstance(key);
         if (instance != null)
         {
             var type = instance as Type ?? instance.GetType();
@@ -59,7 +59,7 @@ internal static class ILTemplate
         }
         return null;
     }
-    private static object GetData(object key)
+    private static object GetInstance(object key)
     {
         lock (_table)
         {
@@ -79,7 +79,7 @@ internal static class ILTemplate
 
     static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
     static AssemblyLoadContext _context;
-    internal static AssemblyLoadContext Get()
+    internal static AssemblyLoadContext GetContext()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
@@ -99,7 +99,7 @@ internal static class ILTemplate
                 {
                     try
                     {
-                        InstanceInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
+                        ContextInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
                         return _context;
                     }
                     catch { }
@@ -115,7 +115,7 @@ internal static class ILTemplate
         return _context;
     }
 
-    private static object InstanceInvokeMethod(object instance, string methodName, params object[] parameters)
+    private static object ContextInvokeMethod(object instance, string methodName, params object[] parameters)
     {
         var type = instance.GetType();
         var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
