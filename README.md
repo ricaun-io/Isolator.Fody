@@ -50,6 +50,9 @@ public class MyIsolatedClass
 ```
 
 When you build your project, the weaver will modify the IL code of the marked classes to ensure that their methods and constructors run in a separate `AssemblyLoadContext`.
+
+*The class and methods are modified and the `[CompilerGenerated]` attribute is added.*
+
 ```csharp
 [CompilerGenerated]
 public class MyIsolatedClass

@@ -97,8 +97,12 @@ internal static class ILTemplate
                 _context = FindAssemblyLoadContext(contextName);
                 if (_context != null)
                 {
-                    InstanceInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
-                    return _context;
+                    try
+                    {
+                        InstanceInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
+                        return _context;
+                    }
+                    catch { }
                 }
             }
 
