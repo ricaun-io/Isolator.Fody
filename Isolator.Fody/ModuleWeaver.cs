@@ -76,7 +76,7 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
             if (config.SkipIsolator)
             {
                 IsolatorExecuteRemoveAttributes();
-                WriteInfo($"Isolator.Fody is skipped via configuration '{nameof(Configuration.SkipIsolator)}'.");
+                WriteWarning($"Isolator.Fody is skipped via configuration '{nameof(Configuration.SkipIsolator)}'.");
                 return false;
             }
 
