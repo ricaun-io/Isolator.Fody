@@ -31,8 +31,12 @@ public class Configuration
 
         EnableInjectDebug = false;
         EnableInjectDebug = ReadBool(config, nameof(EnableInjectDebug), EnableInjectDebug);
+
+        SkipIsolator = false;
+        SkipIsolator = ReadBool(config, nameof(SkipIsolator), SkipIsolator);
     }
 
+    public bool SkipIsolator { get; }
     public bool EnableDebug { get; }
     public bool EnableInjectDebug { get; }
     public bool EnableCloneMethods { get; }

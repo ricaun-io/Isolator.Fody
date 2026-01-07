@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `IsolatorExecute` with logic to find attribute context name and inject in methods.
 - Update `ILTemplate` to support `{name}` and `{guid}` placeholders in context name.
 - Update `IsolatorAvailable` to run `IsolatorExecuteRemoveAttributes` to remove attributes when available.
+- Update `Configuration` with `SkipIsolator` to skip isolator for specific assemblies.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

@@ -72,6 +72,14 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
         var systemRuntimeReference = ModuleDefinition.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Runtime");
         if (systemRuntimeReference is not null && systemRuntimeReference.Version.Major >= 6)
         {
+            var config = new Configuration(Config);
+            if (config.SkipIsolator)
+            {
+                IsolatorExecuteRemoveAttributes();
+                WriteInfo($"Isolator.Fody is skipped via configuration '{nameof(Configuration.SkipIsolator)}'.");
+                return false;
+            }
+
             return true;
         }
 
