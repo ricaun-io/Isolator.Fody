@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `ILTemplate` with method to `SetContextName` to enable changing context name by code.
 - Update `IsolatorAttribute` with context name constructor.
 - Update `IsolatorExecute` with logic to find attribute context name and inject in methods.
+- Update `ILTemplate` to support `{name}` and `{guid}` placeholders in context name.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

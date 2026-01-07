@@ -84,11 +84,17 @@ internal static class ILTemplate
     internal static void SetContextName(string contextName)
     {
         // Common.Log("[{0}] SetContextName \t '{1}'", "?", contextName);
-        if (string.IsNullOrEmpty(contextName))
+        if (string.IsNullOrWhiteSpace(contextName))
         {
             contextNameDefault = null;
             return;
         }
+        var assembly = Assembly.GetExecutingAssembly();
+        contextName = contextName
+            .Replace("{name}", assembly.GetName().Name)
+            .Replace("{guid}", assembly.ManifestModule.ModuleVersionId.ToString())
+            .Trim();
+
         contextName = $"IsolatorContext.{contextName}";
         contextNameDefault = contextName;
     }
@@ -96,8 +102,7 @@ internal static class ILTemplate
     {
         if (string.IsNullOrEmpty(contextNameDefault))
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var contextName = GetContextName() ?? $"{assembly.GetName().Name}.{assembly.ManifestModule.ModuleVersionId.ToString()}";
+            var contextName = GetContextName() ?? "{name}.{guid}";
             SetContextName(contextName);
         }
         return contextNameDefault;
