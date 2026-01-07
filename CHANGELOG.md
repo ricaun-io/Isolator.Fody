@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `EnableDebug` to remove `Log` in the `ILTemplate` when disabled.
 - Update `EnableInjectDebug` to inject debug information inside the clone and inject methods.
 - Update `ILTemplate` to find context using context name.
+- Update `ILTemplate` with method to `SetContextName` to enable changing context name by code.
+- Update `IsolatorAttribute` with context name constructor.
+- Update `IsolatorExecute` with logic to find attribute context name and inject in methods.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

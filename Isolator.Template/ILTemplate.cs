@@ -81,23 +81,38 @@ internal static class ILTemplate
 
     internal static string GetContextName() => null;
     private static string contextNameDefault = null;
+    internal static void SetContextName(string contextName)
+    {
+        // Common.Log("[{0}] SetContextName \t '{1}'", "?", contextName);
+        if (string.IsNullOrEmpty(contextName))
+        {
+            contextNameDefault = null;
+            return;
+        }
+        contextName = $"IsolatorContext.{contextName}";
+        contextNameDefault = contextName;
+    }
     private static string GetDefaultContextName()
     {
-        if (contextNameDefault is null)
+        if (string.IsNullOrEmpty(contextNameDefault))
         {
             var assembly = Assembly.GetExecutingAssembly();
             var contextName = GetContextName() ?? $"{assembly.GetName().Name}.{assembly.ManifestModule.ModuleVersionId.ToString()}";
-            contextName = $"IsolatorContext.{contextName}";
-            contextNameDefault = contextName;
+            SetContextName(contextName);
         }
         return contextNameDefault;
     }
 
     static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
-    static ConditionalWeakTable<string, AssemblyLoadContext> _contextTable = new ConditionalWeakTable<string, AssemblyLoadContext>();
+    static Dictionary<string, AssemblyLoadContext> _contextTable = new Dictionary<string, AssemblyLoadContext>();
     internal static AssemblyLoadContext GetContext()
     {
         var contextName = GetDefaultContextName();
+        //Common.Log("[{0}] GetContext \t '{1}'", "?", contextName);
+        //foreach (var contextItem in _contextTable)
+        //{
+        //    Common.Log("[{0}] ContextTable \t '{1}'", contextItem.Value.GetContextNumber(), contextItem.Key);
+        //}
         lock (_contextTable)
         {
             if (_contextTable.TryGetValue(contextName, out AssemblyLoadContext context))
@@ -120,7 +135,7 @@ internal static class ILTemplate
                         Common.Log("[{0}] Context.AddResolver \t '{1}'", context.GetContextNumber(), contextName);
                         return context;
                     }
-                    catch { }
+                    catch (Exception ex) { Common.Log("[{0}] Context.AddResolver.Exception \t '{1}'", context.GetContextNumber(), ex); }
                 }
 
                 var type = GetIsolatorAssemblyLoadContext();
@@ -211,11 +226,12 @@ internal static class ILTemplate
     internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
         private readonly List<AssemblyDependencyResolver> _resolvers = new List<AssemblyDependencyResolver>();
-
+        private readonly List<string> _resolverPaths = new List<string>();
         public IsolatorAssemblyLoadContext(string contextName, string assemblyPath) : base(contextName, isCollectible: true)
         {
             // Cannot use 'AddResolver', not supported in the 'AssemblyLoaderImporter' in the 'Isolator.Fody' project.
             _resolvers.Add(new AssemblyDependencyResolver(assemblyPath));
+            _resolverPaths.Add(assemblyPath);
         }
 
         public void AddResolver(string componentAssemblyPath)
@@ -223,7 +239,10 @@ internal static class ILTemplate
             if (string.IsNullOrWhiteSpace(componentAssemblyPath))
                 throw new ArgumentException(nameof(componentAssemblyPath));
 
+            if (_resolverPaths.Contains(componentAssemblyPath)) return;
+
             _resolvers.Add(new AssemblyDependencyResolver(componentAssemblyPath));
+            _resolverPaths.Add(componentAssemblyPath);
         }
 
         protected override Assembly Load(AssemblyName assemblyName)

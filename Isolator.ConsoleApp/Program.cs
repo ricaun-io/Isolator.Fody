@@ -13,6 +13,10 @@ public class Program
         TestClassStatic();
         TestClassConstructor();
         TestClassWithConstructor();
+
+        var instance = new ClassIsolatorTest();
+        Debug.Assert(instance.Execute());
+        Debug.Assert(instance.ExecuteClass());
     }
 
     private static void TestContextName()

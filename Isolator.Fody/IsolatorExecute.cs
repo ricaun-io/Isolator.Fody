@@ -23,10 +23,10 @@ public partial class ModuleWeaver
         {
             // WriteMessage($"Type: {type} {string.Join(" ", type.CustomAttributes.Select(e => e.AttributeType))}", MessageImportance.High);
 
-            if (!type.IsClass)
+            if (!IsValidIsolatorTypeDefinition(type))
                 continue;
 
-            var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute);
+            var needToIsolate = type.TryGetAndRemoveCustomAttribute(IsolatorAttribute, out var isolatorCustomAttribute);
             var equalToTypes = typeNames != null && typeNames.Count > 0 && typeNames.Contains(type.Name);
             var listOfInterfacesInType = GetInterfacesAndBaseInterfaces(type);
             var equalToInterfaces = intefaceNames != null &&
@@ -58,12 +58,19 @@ public partial class ModuleWeaver
                 if (method.IsConstructor)
                 {
                     InsjectConstructor_CreateInstance(method);
+                    InjectSetContextName(method, isolatorCustomAttribute);
                     continue;
                 }
 
                 InjectMethod_InvokeMethod(method, isolatorMethod.Name);
+                InjectSetContextName(method, isolatorCustomAttribute);
             }
         }
+    }
+
+    internal bool IsValidIsolatorTypeDefinition(TypeDefinition type)
+    {
+        return type.IsClass;
     }
 
     private static bool logEnable = false;
@@ -512,11 +519,7 @@ public partial class ModuleWeaver
         InjectDebugWriteLine(il, first, message, method);
     }
 
-    private static void InjectDebugWriteLine(
-    ILProcessor il,
-    Instruction first,
-    string message,
-    MethodDefinition method = null)
+    private static void InjectDebugWriteLine(ILProcessor il, Instruction first, string message, MethodDefinition method = null)
     {
         var module = il.Body.Method.Module;
         message = $"[Fody] {message}";
