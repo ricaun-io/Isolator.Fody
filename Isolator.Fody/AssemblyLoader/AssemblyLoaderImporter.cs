@@ -97,8 +97,8 @@ public partial class ModuleWeaver
         {
             return;
         }
-
-        using (var resourceStream = GetType().Assembly.GetManifestResourceStream($"{ModuleName}.src.{file}.cs"))
+        
+        using (var resourceStream = GetType().Assembly.GetManifestResourceStream($"{ModuleName}.Fody.src.{file}.cs"))
         {
             if (resourceStream is not null)
             {
@@ -107,6 +107,10 @@ public partial class ModuleWeaver
                 {
                     resourceStream.CopyTo(outStream);
                 }
+            }
+            else
+            {
+                WriteWarning($"Resource stream for {file} is null");
             }
         }
     }
