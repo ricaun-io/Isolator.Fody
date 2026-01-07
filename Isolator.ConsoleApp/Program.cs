@@ -7,16 +7,13 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine(ClassStatic.ContextName());
-        
+
         TestContextName();
         TestClass();
         TestClassStatic();
         TestClassConstructor();
         TestClassWithConstructor();
-
-        var instance = new ClassIsolatorTest();
-        Debug.Assert(instance.Execute());
-        Debug.Assert(instance.ExecuteClass());
+        TestClassIsolator();
     }
 
     private static void TestContextName()
@@ -49,6 +46,9 @@ public class Program
         Debug.Assert(instance.ExecuteDefault("Test"));
         Debug.Assert(instance.ExecuteDefault(number: 123));
         Debug.Assert(instance.ExecuteDefault("Test", 123));
+
+        // Check ContextNumber is not default
+        Debug.Assert(instance.ContextNumber() > 0);
 
         // Check the ContextName
         Debug.Assert(instance.ExecuteContextName() != "Default");
@@ -103,5 +103,20 @@ public class Program
         // Test if we can access private constructor
         var classPrivate = (Activator.CreateInstance(typeof(ClassWithPrivateConstructor), true) as ClassWithPrivateConstructor);
         Debug.Assert(classPrivate.Execute());
+    }
+
+    private static void TestClassIsolator()
+    {
+        var instance = new ClassIsolator();
+
+        Debug.Assert(instance.Execute());
+        Debug.Assert(instance.ExecuteClass());
+        Debug.Assert(instance.ExecuteClass(true));
+
+        // Check ContextNumber is not default
+        Debug.Assert(instance.ContextNumber() > 0);
+
+        // Check ClassIsolator context is different from Class context
+        Debug.Assert(instance.ExecuteContextNumber());
     }
 }

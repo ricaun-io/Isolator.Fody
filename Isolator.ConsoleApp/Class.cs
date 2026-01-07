@@ -44,6 +44,10 @@ public class Class
         // This return the default context name because of the typeof usage in the class.
         return typeof(Class).ToContextString();
     }
+    public int ContextNumber()
+    {
+        return this.ToContextNumber();
+    }
     public override string ToString()
     {
         return this.ToContextString();

@@ -54,4 +54,34 @@
         return "Default";
 #endif
     }
+
+    /// <summary>
+    /// Returns a context-specific integer identifier for the assembly of the specified object.
+    /// </summary>
+    /// <param name="value">The object whose assembly is used to determine the context number. Cannot be null.</param>
+    /// <returns>An integer representing the context number associated with the object's assembly.</returns>
+    public static int ToContextNumber(this object value)
+    {
+        var assembly = value.GetType().Assembly;
+        return assembly.ToContextNumber();
+    }
+
+    /// <summary>
+    /// Gets the context number associated with the specified assembly's load context.
+    /// </summary>
+    /// <remarks>On .NET platforms that support AssemblyLoadContext, this method extracts a numeric identifier
+    /// from the load context's string representation. On other platforms, the method always returns 0.</remarks>
+    /// <param name="assembly">The assembly for which to retrieve the load context number. Cannot be null.</param>
+    /// <returns>An integer representing the context number of the assembly's load context. Returns 0 on platforms where load
+    /// contexts are not supported.</returns>
+    public static int ToContextNumber(this System.Reflection.Assembly assembly)
+    {
+#if NET
+        var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+        var split = context.ToString().Split('#');
+        return int.Parse(split[split.Length - 1]);
+#else
+        return 0;
+#endif
+    }
 }
