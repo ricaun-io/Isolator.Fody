@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.0] / 2025-12-29
 ### Features
 - Support attribute `[Isolator]` to mark classes for isolation.
+- Support attribute `[Isolator("ContextName")]` to isolate a specific context.
+- Support `{name}` and `{guid}` placeholders in context name to be replaced by assembly name and assembly module guid.
 - Support for isolating static classes and methods.
 - Support clone method to isolate internally called methods. (Clone to a unique name start with `_isolate_`)
 - Support multiple methods with ref/out parameters.
