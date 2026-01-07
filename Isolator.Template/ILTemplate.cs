@@ -95,8 +95,7 @@ internal static class ILTemplate
             .Replace("{guid}", assembly.ManifestModule.ModuleVersionId.ToString())
             .Trim();
 
-        contextName = $"IsolatorContext.{contextName}";
-        contextNameDefault = contextName;
+        contextNameDefault = $"IsolatorContext.{contextName}";
     }
     private static string GetDefaultContextName()
     {
@@ -129,6 +128,13 @@ internal static class ILTemplate
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var location = assembly.Location;
+
+                if (string.IsNullOrEmpty(location) || assembly.IsDynamic)
+                {
+                    context = AssemblyLoadContext.GetLoadContext(assembly);
+                    Common.Log("[{0}] Context.Location.Empty \t '{1}'", context.GetContextNumber(), context.Name);
+                    return context;
+                }
 
                 context = FindAssemblyLoadContext(contextName);
                 if (context is not null)
