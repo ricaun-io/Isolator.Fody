@@ -31,6 +31,10 @@ public class Class
     {
         return !string.IsNullOrEmpty(value) && number != 0;
     }
+    public string ExecuteContextName()
+    {
+        return ContextName();
+    }
     public string ContextName()
     {
         return this.ToContextString();

@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update clone method to use `CompilerGenerated` attribute.
 - Update to add `CompilerGenerated` attribute in the methods and type using `AddCompilerGeneratedAttribute`.
 - Update `AssemblyLoaderImporter.` to copy if method `HasDefault` parameter.
+- Update `Common` with `Log` method with `DEBUG` level.
+- Update `EnableDebug` to remove `Log` in the `ILTemplate` when disabled.
+- Update `EnableInjectDebug` to inject debug information inside the clone and inject methods.
+- Update `ILTemplate` to find context using context name.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

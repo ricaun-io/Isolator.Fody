@@ -7,7 +7,7 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine(ClassStatic.ContextName());
-
+        
         TestContextName();
         TestClass();
         TestClassStatic();
@@ -22,8 +22,11 @@ public class Program
         Debug.Assert(contextName.StartsWith("IsolatorContext"));
 
         // Verify that the context name ends with a valid GUID
-        var guid = contextName.Split('.').LastOrDefault();
-        Debug.Assert(Guid.TryParse(guid, out _));
+        var guidString = contextName.Split('.').LastOrDefault();
+        Debug.Assert(Guid.TryParse(guidString, out Guid guid));
+
+        var moduleVersionId = typeof(Program).Assembly.ManifestModule.ModuleVersionId;
+        Debug.Assert(moduleVersionId == guid);
     }
 
     private static void TestClass()
@@ -44,6 +47,7 @@ public class Program
         Debug.Assert(instance.ExecuteDefault("Test", 123));
 
         // Check the ContextName
+        Debug.Assert(instance.ExecuteContextName() != "Default");
         Debug.Assert(instance.ContextName() != "Default");
         Debug.Assert(instance.ContextNameFail() == "Default");
 

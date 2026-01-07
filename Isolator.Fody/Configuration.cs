@@ -28,9 +28,13 @@ public class Configuration
 
         EnableDebug = false;
         EnableDebug = ReadBool(config, nameof(EnableDebug), EnableDebug);
+
+        EnableInjectDebug = false;
+        EnableInjectDebug = ReadBool(config, nameof(EnableInjectDebug), EnableInjectDebug);
     }
 
     public bool EnableDebug { get; }
+    public bool EnableInjectDebug { get; }
     public bool EnableCloneMethods { get; }
     public bool EnableWriteBackRefOutParameters { get; }
     public bool LoadAtModuleInit { get; }

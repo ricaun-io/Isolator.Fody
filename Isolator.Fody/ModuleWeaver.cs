@@ -26,9 +26,27 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
         ImportAssemblyLoader();
 
         FindContextNameMethod(config.ContextName);
+        FindLogMethod(config.EnableDebug);
         CallAttach(config);
 
         IsolatorExecute();
+    }
+
+    private void FindLogMethod(bool enableDebug)
+    {
+        if (_targetType is null)
+            return;
+
+        if (enableDebug)
+            return;
+
+        var logMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "Log");
+        if (logMethod is not null)
+        {
+            // change Log to do nothing
+            logMethod.Body.Instructions.Clear();
+            logMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+        }
     }
 
     private void FindContextNameMethod(string contextName)

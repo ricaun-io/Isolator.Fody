@@ -21,7 +21,7 @@ public partial class ModuleWeaver
         // 2. Add cloned method
         type.Methods.Add(cloned);
 
-        if (new Configuration(Config).EnableDebug)
+        if (new Configuration(Config).EnableInjectDebug)
         {
             InjectDebugWriteLine(cloned, $"Entering {cloned.DeclaringType.FullName}.{cloned.Name}");
         }

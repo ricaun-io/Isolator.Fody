@@ -37,6 +37,8 @@ internal static class ILTemplate
                     var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                     instance = assembly.CreateInstance(type.FullName, true, bindingAttr, null, args, null, null);
                 }
+                //Common.Log("[{0}] \t CreateInstance - {1}", context.Name, type.FullName);
+                Common.Log("[{0}] CreateInstance \t {1}", context.GetContextNumber(), type.FullName);
                 _table.Add(key, instance);
             }
             return instance;
@@ -51,6 +53,8 @@ internal static class ILTemplate
             var method = (methodTypes is null) ?
                 type.GetMethod(methodName, bindingAttr) :
                 type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
+
+            Common.Log("[{0}] InvokeMethod \t {1}", GetContext().GetContextNumber(), method.Name);
 
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
@@ -76,40 +80,65 @@ internal static class ILTemplate
     }
 
     internal static string GetContextName() => null;
+    private static string contextNameDefault = null;
+    private static string GetDefaultContextName()
+    {
+        if (contextNameDefault is null)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var contextName = GetContextName() ?? $"{assembly.GetName().Name}.{assembly.ManifestModule.ModuleVersionId.ToString()}";
+            contextName = $"IsolatorContext.{contextName}";
+            contextNameDefault = contextName;
+        }
+        return contextNameDefault;
+    }
 
     static ConditionalWeakTable<object, object> _table = new ConditionalWeakTable<object, object>();
-    static AssemblyLoadContext _context;
+    static ConditionalWeakTable<string, AssemblyLoadContext> _contextTable = new ConditionalWeakTable<string, AssemblyLoadContext>();
+    //static AssemblyLoadContext _context;
     internal static AssemblyLoadContext GetContext()
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var context = AssemblyLoadContext.GetLoadContext(assembly);
-        var contextName = GetContextName() ?? $"{assembly.GetName().Name}.{Guid.NewGuid().ToString()}";
-
-        contextName = $"IsolatorContext.{contextName}";
-
-        if (IsDefault() == false)
-            _context = context;
-
-        if (_context is null)
+        //var context = AssemblyLoadContext.GetLoadContext(assembly);
+        var contextName = GetDefaultContextName();
+        //Common.Log($"GetContext - {contextName}");
+        //Common.Log("[{0}] \t GetContext - {1}", GetContext().Name, contextName);
+        AssemblyLoadContext _context = null;
+        
+        lock (_contextTable)
         {
-            if (!string.IsNullOrEmpty(GetContextName()))
+            if (_contextTable.TryGetValue(contextName, out _context))
             {
+                return _context;
+            }
+
+            if (_context is null)
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var location = assembly.Location;
+
                 _context = FindAssemblyLoadContext(contextName);
-                if (_context != null)
+
+                if (_context is not null)
                 {
                     try
                     {
-                        ContextInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), assembly.Location);
+                        ContextInvokeMethod(_context, nameof(IsolatorAssemblyLoadContext.AddResolver), location);
+                        _contextTable.Add(contextName, _context);
+                        Common.Log("[{0}] Context.AddResolver \t '{1}'", _context.GetContextNumber(), contextName);
                         return _context;
                     }
                     catch { }
                 }
+
+                var type = GetIsolatorAssemblyLoadContext();
+
+                _context = Activator.CreateInstance(type, contextName, location) as AssemblyLoadContext;
+                _context?.Unloading += Unloading;
+
+
+                _contextTable.Add(contextName, _context);
+                Common.Log("[{0}] Context.CreateInstance \t '{1}'", _context.GetContextNumber(), contextName);
             }
-
-            var type = GetIsolatorAssemblyLoadContext();
-
-            _context = Activator.CreateInstance(type, contextName, assembly.Location) as AssemblyLoadContext;
-            _context?.Unloading += Unloading;
         }
 
         return _context;
@@ -151,14 +180,19 @@ internal static class ILTemplate
 
     private static void Unloading(AssemblyLoadContext context)
     {
-        _context = null;
-        //Console.WriteLine($"Isolator.Unloading ... {context.Name}");
-        //Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
+        if (_contextTable.Remove(context.Name))
+        {
+            Common.Log("[{0}] Context.Unloading \t '{1}'", context.GetContextNumber(), context.Name);
+            //Common.Log(" \t [{0}] \t Isolator.Unloading", context.Name);
+            //_context = null;
+            //Console.WriteLine($"Isolator.Unloading ... {context.Name}");
+            //Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
+        }
     }
 
     internal static void Unload()
     {
-        _context?.Unload();
+        //_context?.Unload();
     }
 
     internal static bool IsDefault()
@@ -169,7 +203,8 @@ internal static class ILTemplate
         if (context == AssemblyLoadContext.Default)
             return true;
 
-        return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
+        return context.Name != GetDefaultContextName();
+        //return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
     }
 
     internal static void Attach()

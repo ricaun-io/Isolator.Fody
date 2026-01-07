@@ -78,7 +78,7 @@ public partial class ModuleWeaver
         body.SimplifyMacros();
         body.InitLocals = true;
 
-        if (new Configuration(Config).EnableDebug)
+        if (new Configuration(Config).EnableInjectDebug)
         {
             InjectDebugWriteLine(method, $"Entering constructor {method.DeclaringType.FullName}.{method.Name}");
         }
@@ -143,7 +143,7 @@ public partial class ModuleWeaver
         body.SimplifyMacros();
         body.InitLocals = true;
 
-        if (new Configuration(Config).EnableDebug)
+        if (new Configuration(Config).EnableInjectDebug)
         {
             InjectDebugWriteLine(method, $"Entering {method.DeclaringType.FullName}.{method.Name}");
         }
