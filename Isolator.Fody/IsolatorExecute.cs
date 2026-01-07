@@ -68,6 +68,17 @@ public partial class ModuleWeaver
         }
     }
 
+    private void IsolatorExecuteRemoveAttributes()
+    {
+        foreach (var type in ModuleDefinition.GetTypes())
+        {
+            if (!IsValidIsolatorTypeDefinition(type))
+                continue;
+
+            type.TryGetAndRemoveCustomAttribute(IsolatorAttribute, out _);
+        }
+    }
+
     internal bool IsValidIsolatorTypeDefinition(TypeDefinition type)
     {
         return type.IsClass;

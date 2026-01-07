@@ -70,15 +70,14 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
     public bool IsolatorAvailable()
     {
         var systemRuntimeReference = ModuleDefinition.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Runtime");
-        if (systemRuntimeReference is not null)
+        if (systemRuntimeReference is not null && systemRuntimeReference.Version.Major >= 6)
         {
-            return systemRuntimeReference.Version.Major >= 6;
+            return true;
         }
-        else
-        {
-            WriteWarning("Could not find a reference to System.Runtime. Isolator.Fody requires .NET 6 or higher.");
-            return false;
-        }
+
+        IsolatorExecuteRemoveAttributes();
+        WriteWarning("Could not find a reference to System.Runtime. Isolator.Fody requires .NET 6 or higher.");
+        return false;
     }
 
     public override IEnumerable<string> GetAssembliesForScanning()
