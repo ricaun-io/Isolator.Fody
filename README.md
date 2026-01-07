@@ -106,7 +106,7 @@ Every time a method or constructor of the isolated class is called, it checks if
 - [x] Support xml configuration for advanced settings. 
 	- [x] Isolate all classes/interfaces by name. (`ClassNames` and `InterfaceNames`)
 - [x] Support context name.
-	- [ ] Isolate classes into different `AssemblyLoadContext` instances.
+	- [x] Isolate classes into different `AssemblyLoadContext` instances.
 	- [x] Find existent `AssemblyLoadContext` and use to share a common context between different `Assembly`.
 
 ## Configuration Options
