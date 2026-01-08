@@ -74,7 +74,6 @@ internal static class ILTemplate
     private static string contextNameDefault = null;
     internal static void SetContextName(string contextName)
     {
-        // Common.Log("[{0}] SetContextName \t '{1}'", "?", contextName);
         if (string.IsNullOrWhiteSpace(contextName))
         {
             contextNameDefault = null;
@@ -103,11 +102,6 @@ internal static class ILTemplate
     internal static AssemblyLoadContext GetContext()
     {
         var contextName = GetDefaultContextName();
-        //Common.Log("[{0}] GetContext \t '{1}'", "?", contextName);
-        //foreach (var contextItem in _contextTable)
-        //{
-        //    Common.Log("[{0}] ContextTable \t '{1}'", contextItem.Value.GetContextNumber(), contextItem.Key);
-        //}
         lock (_contextTable)
         {
             if (_contextTable.TryGetValue(contextName, out AssemblyLoadContext context))
@@ -191,16 +185,25 @@ internal static class ILTemplate
         if (_contextTable.Remove(context.Name))
         {
             Common.Log("[{0}] Context.Unloading \t '{1}'", context.GetContextNumber(), context.Name);
-            //Common.Log(" \t [{0}] \t Isolator.Unloading", context.Name);
-            //_context = null;
-            //Console.WriteLine($"Isolator.Unloading ... {context.Name}");
-            //Console.WriteLine($"Isolator.Unloading ... {context.ToString()}");
         }
     }
 
     internal static void Unload()
     {
-        //_context?.Unload();
+        foreach (var context in _contextTable.Values)
+        {
+            try
+            {
+                context.Unloading -= Unloading;
+                context.Unload();
+                Common.Log("[{0}] Context.Unload \t '{1}'", context.GetContextNumber(), context.Name);
+            }
+            catch (Exception ex)
+            {
+                Common.Log("[{0}] Context.Unload.Exception \t '{1}'", context.GetContextNumber(), ex);
+            }
+        }
+        _contextTable.Clear();
     }
 
     internal static bool IsDefault()
@@ -212,7 +215,6 @@ internal static class ILTemplate
             return true;
 
         return context.Name != GetDefaultContextName();
-        //return context.GetType().Name != nameof(IsolatorAssemblyLoadContext);
     }
 
     internal static void Attach()
