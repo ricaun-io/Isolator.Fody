@@ -21,7 +21,7 @@ public interface IBeforeCompile : IHazBeforeCompile, ICompile, ISign, IRelease, 
         .Executes(() =>
         {
             ReportSummaryProjectNames(GetExampleProjects());
-            BuildProjectsAndRelease(GetExampleProjects(), ReleaseExample, ReleaseExample);
+            BuildProjectsAndRelease(GetExampleProjects(), ReleaseCompile, ReleaseCompile, SignCompile);
         });
 }
 
@@ -43,10 +43,16 @@ public interface IHazBeforeCompile : IHazSolution, INukeBuild, IHazRelease, IHaz
     string Name => TryGetValue(() => Name) ?? "*.Example";
 
     /// <summary>
-    /// ReleaseExample (default: true)
+    /// ReleaseCompile (default: true)
     /// </summary>
     [Parameter]
-    bool ReleaseExample => TryGetValue<bool?>(() => ReleaseExample) ?? true;
+    bool ReleaseCompile => TryGetValue<bool?>(() => ReleaseCompile) ?? true;
+
+    /// <summary>
+    /// SignCompile (default: true)
+    /// </summary>
+    [Parameter]
+    bool SignCompile => TryGetValue<bool?>(() => SignCompile) ?? true;
 
     /// <summary>
     /// GetExampleProjects
@@ -67,7 +73,11 @@ public interface IHazBeforeCompile : IHazSolution, INukeBuild, IHazRelease, IHaz
     /// <param name="projects"></param>
     /// <param name="releaseProjectFiles"></param>
     /// <param name="releasePackages"></param>
-    public void BuildProjectsAndRelease(IEnumerable<Project> projects, bool releaseProjectFiles = true, bool releasePackages = true)
+    /// <param name="signProjects"></param>
+    public void BuildProjectsAndRelease(IEnumerable<Project> projects,
+        bool releaseProjectFiles = true,
+        bool releasePackages = true,
+        bool signProjects = true)
     {
         foreach (var project in projects)
         {
@@ -75,7 +85,8 @@ public interface IHazBeforeCompile : IHazSolution, INukeBuild, IHazRelease, IHaz
             {
                 project.ShowInformation();
 
-                SignProject(project);
+                if (signProjects)
+                    SignProject(project);
 
                 var exampleDirectory = GetExampleDirectory(project);
                 var fileName = project.Name;
