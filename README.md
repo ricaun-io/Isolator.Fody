@@ -62,7 +62,7 @@ public class MyIsolatedClass
 			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
 			return;
 		}
-		_isolator_1_ctor();
+		_isolator_ctor();
 	}
 	[CompilerGenerated]
 	public void MyMethod()
@@ -71,7 +71,7 @@ public class MyIsolatedClass
 		{
 			object data = AssemblyLoader.GetData(this);
 			object[] parameters = new object[0];
-			MethodInfo method = data.GetType().GetMethod("_isolator_2_MyMethod", BindingFlags.Instance | BindingFlags.Private);
+			MethodInfo method = data.GetType().GetMethod("_isolator_1_MyMethod", BindingFlags.Instance | BindingFlags.Private);
 			method.Invoke(data, parameters);
 		}
 		else
@@ -80,12 +80,12 @@ public class MyIsolatedClass
 		}
 	}
 	[CompilerGenerated]
-	private void _isolator_1_ctor()
+	private void _isolator_ctor()
 	{
 		Console.WriteLine("Constructor implementation");
 	}
 	[CompilerGenerated]
-	private void _isolator_2_MyMethod()
+	private void _isolator_1_MyMethod()
 	{
 		Console.WriteLine("Method implementation");
 	}
@@ -102,8 +102,8 @@ Every time a method or constructor of the isolated class is called, it checks if
 - [x] Support multiple methods with ref/out parameters. (There are some limitations when multiple methods with the same name.)
 - [x] Support xml configuration for advanced settings. 
 	- [x] Isolate all classes/interfaces by name. (`ClassNames` and `InterfaceNames`)
-- [x] Support context name.
-	- [x] Isolate classes into different `AssemblyLoadContext` instances.
+- [x] Support context name. (`ContextName`)
+	- [x] Isolate classes into different `AssemblyLoadContext` instances. (`[Isolator("ContextName")]`)
 	- [x] Find existent `AssemblyLoadContext` and use to share a common context between different `Assembly`.
 
 ## Configuration Options
@@ -117,6 +117,21 @@ Default FodyWeavers.xml:
   <Isolator />
 </Weavers>
 ```
+
+### ContextName
+
+The name of the `AssemblyLoadContext` to use for isolation. If a context with this name already exists, it will be used. Otherwise, a new context will be created with this name.
+
+*Defaults to an empty string, which creates a unique name with the assembly name and the assembly module guid included.*
+```xml
+<Isolator ContextName='MyContextName' />
+```
+
+This can be overridden on a per-class basis by specifying a context name in the `[Isolator("ContextName")]` attribute.
+
+*The `{name}` will be replaced with the assembly name and the `{guid}` will be replaced with the assembly module guid at runtime.*
+
+The `[Isolator("{name}.{guid}")]` is equivalent to the default context name in the current assembly.
 
 ### ClassNames
 
@@ -163,15 +178,10 @@ Or as an attribute with items delimited by a pipe `|`.
 ```xml
 <Isolator InterfaceNames='Foo|Bar' />
 ```
-### ContextName
 
-The name of the `AssemblyLoadContext` to use for isolation. If a context with this name already exists, it will be used. Otherwise, a new context will be created with this name.
+## Debug Configuration Options
 
-*Defaults to an empty string, which creates a unique name with the assembly name and random guid included.*
-```xml
-<Isolator ContextName='MyContextName' />
-```
-*The context name is created with the `IsolatorContext.` in front of it.*
+These options are used for debugging purposes and can be enabled or disabled as needed.
 
 ### EnableCloneMethods
 
