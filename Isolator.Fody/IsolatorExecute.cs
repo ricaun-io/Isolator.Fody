@@ -97,11 +97,6 @@ public partial class ModuleWeaver
         body.SimplifyMacros();
         body.InitLocals = true;
 
-        if (new Configuration(Config).EnableInjectDebug)
-        {
-            InjectDebugWriteLine(method, $"Entering constructor {method.DeclaringType.FullName}.{method.Name}");
-        }
-
         // Create a method that returns bool to control isolation
         var isolationControlMethod = CreateIsolationControlMethod();
         var isolationControlMethodRef = ModuleDefinition.ImportReference(isolationControlMethod);
@@ -161,11 +156,6 @@ public partial class ModuleWeaver
         // REQUIRED
         body.SimplifyMacros();
         body.InitLocals = true;
-
-        if (new Configuration(Config).EnableInjectDebug)
-        {
-            InjectDebugWriteLine(method, $"Entering {method.DeclaringType.FullName}.{method.Name}");
-        }
 
         // Create a method that returns bool to control isolation
         var isolationControlMethod = CreateIsolationControlMethod();
@@ -522,60 +512,6 @@ public partial class ModuleWeaver
 
         // REQUIRED
         method.Body.OptimizeMacros(); // This helps with stack issues
-    }
-
-    private static void InjectDebugWriteLine(MethodDefinition method, string message)
-    {
-        var il = method.Body.GetILProcessor();
-        var first = method.Body.Instructions.First();
-        InjectDebugWriteLine(il, first, message, method);
-    }
-
-    private static void InjectDebugWriteLine(ILProcessor il, Instruction first, string message, MethodDefinition method = null)
-    {
-        var module = il.Body.Method.Module;
-        message = $"[Fody] {message}";
-
-        var writeLineMethod =
-            module.ImportReference(
-                typeof(System.Diagnostics.Debug)
-                    .GetMethod(nameof(System.Diagnostics.Debug.WriteLine),
-                               new[] { typeof(string) }));
-
-        // Static → simple call
-        if (method == null || method.IsStatic)
-        {
-            il.InsertBefore(first, il.Create(OpCodes.Ldstr, message));
-            il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
-            return;
-        }
-
-        // "[Fody] X | "
-        il.InsertBefore(first, il.Create(OpCodes.Ldstr, message + " | "));
-
-        // this
-        il.InsertBefore(first, il.Create(OpCodes.Ldarg_0));
-
-        // this.GetHashCode()
-        var getHashCodeMethod =
-            module.ImportReference(
-                typeof(object).GetMethod(nameof(object.GetHashCode)));
-
-        il.InsertBefore(first, il.Create(OpCodes.Callvirt, getHashCodeMethod));
-
-        // box int → object
-        il.InsertBefore(first, il.Create(OpCodes.Box, module.TypeSystem.Int32));
-
-        // string.Concat(string, object)
-        var concatMethod =
-            module.ImportReference(
-                typeof(string).GetMethod(nameof(string.Concat),
-                    new[] { typeof(string), typeof(object) }));
-
-        il.InsertBefore(first, il.Create(OpCodes.Call, concatMethod));
-
-        // Debug.WriteLine
-        il.InsertBefore(first, il.Create(OpCodes.Call, writeLineMethod));
     }
 
     private static void ForceToReturn(MethodDefinition method, ILProcessor il, Instruction first)
