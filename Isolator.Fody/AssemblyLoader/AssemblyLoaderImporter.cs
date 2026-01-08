@@ -28,7 +28,7 @@ public partial class ModuleWeaver
     /// <summary>
     /// This method and dependecies are based in the `Costura.Fody` project.
     /// </summary>
-    private void ImportAssemblyLoader()
+    private void ImportAssemblyLoader(bool debugTemplate = false)
     {
         var readerParameters = new ReaderParameters
         {
@@ -56,8 +56,18 @@ public partial class ModuleWeaver
             // Add more supported platforms once added
         }
 
-        using (var resourceStream = GetType().Assembly.GetManifestResourceStream($"{ModuleName}.Template.{targetFramework}.dll"))
+        var templateName = debugTemplate
+            ? $"{ModuleName}.Template.Debug.{targetFramework}.dll"
+            : $"{ModuleName}.Template.{targetFramework}.dll";
+
+        using (var resourceStream = GetType().Assembly.GetManifestResourceStream(templateName))
         {
+            if (resourceStream is null)
+            {
+                WriteError($"Resource stream for '{templateName}' is null");
+                return;
+            }
+
             var moduleDefinition = ModuleDefinition.ReadModule(resourceStream, readerParameters);
 
             _sourceType = moduleDefinition.Types.SingleOrDefault(_ => _.Name == "ILTemplate");
@@ -97,7 +107,7 @@ public partial class ModuleWeaver
         {
             return;
         }
-        
+
         using (var resourceStream = GetType().Assembly.GetManifestResourceStream($"{ModuleName}.Fody.src.{file}.cs"))
         {
             if (resourceStream is not null)
@@ -230,9 +240,9 @@ public partial class ModuleWeaver
             IsPreserveSig = templateMethod.IsPreserveSig,
         };
 
-        var existingMethod = targetType.Methods.SingleOrDefault(m => 
-            m.Name == templateMethod.Name && 
-            m.Parameters.Count == templateMethod.Parameters.Count && 
+        var existingMethod = targetType.Methods.SingleOrDefault(m =>
+            m.Name == templateMethod.Name &&
+            m.Parameters.Count == templateMethod.Parameters.Count &&
             m.ReturnType.Name == returnType.Name);
 
         if (existingMethod is not null)

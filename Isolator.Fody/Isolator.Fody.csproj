@@ -49,4 +49,23 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Isolator.Template.Debug\Isolator.Template.Debug.csproj" PrivateAssets="All" ReferenceOutputAssembly="false" />
+    <EmbeddedResource Include="..\Isolator.Template.Debug\bin\$(Configuration)\netstandard2.0\Isolator.Template.Debug.dll">
+      <Link>src\Template.Debug.netstandard2.0.dll</Link>
+      <InProject>false</InProject>
+      <LogicalName>Isolator.Template.Debug.netstandard2.0.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Isolator.Template.Debug\bin\$(Configuration)\net6.0\Isolator.Template.Debug.dll">
+      <Link>src\Template.Debug.net6.0.dll</Link>
+      <InProject>false</InProject>
+      <LogicalName>Isolator.Template.Debug.net6.0.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Isolator.Template.Debug\bin\$(Configuration)\net8.0\Isolator.Template.Debug.dll">
+      <Link>src\Template.Debug.net8.0.dll</Link>
+      <InProject>false</InProject>
+      <LogicalName>Isolator.Template.Debug.net8.0.dll</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

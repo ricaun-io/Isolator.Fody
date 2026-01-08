@@ -20,7 +20,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator InterfaceNames="IsolatorInterface" EnableDebug="true" />
+        <Isolator InterfaceNames="IsolatorInterface" EnableDebug="false" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>
