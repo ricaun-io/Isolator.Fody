@@ -15,10 +15,7 @@ Inside your project file, add the following lines to reference the `Isolator.Fod
 
 ```xml
 <ItemGroup>
-	<PackageReference Include="Isolator.Fody" Version="*">
-		<PrivateAssets>all</PrivateAssets>
-		<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-	</PackageReference>
+	<PackageReference Include="Isolator.Fody" Version="*" IncludeAssets="build; compile" PrivateAssets="all" />
 </ItemGroup>
 ```
 
