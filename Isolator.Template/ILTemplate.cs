@@ -4,21 +4,13 @@ using System.Reflection;
 using System.Threading;
 using System.Runtime.CompilerServices;
 
-#if NET
+#if !NETSTANDARD
 using System.Runtime.Loader;
 #endif
 
 internal static class ILTemplate
 {
-#if !NET
-    internal static object CreateInstance(object key, params object[] args) { return null; }
-    internal static object GetInstance(object key) { return null; }
-    internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
-    internal static void Attach() { }
-    internal static bool IsDefault() { return false; }
-#endif
-
-#if NET
+#if !NETSTANDARD
     internal static object CreateInstance(object key, params object[] args)
     {
         lock (_table)
@@ -227,11 +219,9 @@ internal static class ILTemplate
     internal static void Attach()
     {
         if (IsDefault()) return;
-#if NET
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
         Common.Log("[{0}] Context.Attach \t '{1}'", context.GetContextNumber(), context.Name);
-#endif
     }
 
     internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
@@ -284,4 +274,11 @@ internal static class ILTemplate
     }
 #endif
 
+#if NETSTANDARD
+    internal static object CreateInstance(object key, params object[] args) { return null; }
+    internal static object GetInstance(object key) { return null; }
+    internal static object InvokeMethod(object key, string methodName, object[] args, BindingFlags bindingAttr, Type[] methodTypes = null) { return null; }
+    internal static void Attach() { }
+    internal static bool IsDefault() { return false; }
+#endif
 }

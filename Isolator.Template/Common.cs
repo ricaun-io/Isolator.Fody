@@ -6,14 +6,7 @@ using System.Reflection;
 
 internal static class Common
 {
-#if NET
-
-    //[Conditional("DEBUG")]
-    //internal static void Log(string message)
-    //{
-    //    Debug.WriteLine("=== ISOLATOR === " + message);
-    //}
-
+#if !NETSTANDARD
     [Conditional("DEBUG")]
     internal static void Log(string format, params object[] args)
     {
