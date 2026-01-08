@@ -7,7 +7,7 @@
 
 ### This is an add-in for [Fody](https://github.com/Fody/Home/)
 
-This is a Fody add-in that isolates classes marked with the `[Isolator]` attribute by injection custom code to force the methods and constructor to run in a separate `AssemblyLoadContext`.
+This is a Fody add-in that isolate classes marked with the `[Isolator]` attribute by injection custom code to force the methods and constructor to run in a separate `AssemblyLoadContext`.
 
 ## How to use
 
@@ -122,7 +122,7 @@ Default FodyWeavers.xml:
 
 The name of the `AssemblyLoadContext` to use for isolation. If a context with this name already exists, it will be used. Otherwise, a new context will be created with this name.
 
-*Defaults to an empty string, which creates a unique name with the assembly name and the assembly module guid included.*
+*Defaults to an empty string, which creates a unique name with the assembly name and the assembly module guid separated with dot `"{name}.{guid}"`.*
 ```xml
 <Isolator ContextName='MyContextName' />
 ```
