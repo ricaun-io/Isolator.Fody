@@ -24,27 +24,27 @@
   </xs:attribute>
   <xs:attribute name="ContextName" type="xs:string">
     <xs:annotation>
-      <xs:documentation></xs:documentation>
+      <xs:documentation>Name of the isolation context.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="EnableDebug" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation>Force the template with the debug log enable.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="SkipIsolator" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation>Skip the isolation process.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
   <xs:attribute name="EnableCloneMethods" type="xs:boolean">
     <xs:annotation>
-      <xs:documentation></xs:documentation>
+      <xs:documentation>Enable cloning methods.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
   <xs:attribute name="EnableWriteBackRefOutParameters" type="xs:boolean">
     <xs:annotation>
       <xs:documentation>This flag disables the use of `ref` and `out` parameters in the weaving process.</xs:documentation>
-    </xs:annotation>
-  </xs:attribute>
-  <xs:attribute name="DisableEventSubscription" type="xs:boolean">
-    <xs:annotation>
-      <xs:documentation>The attach method no longer subscribes to the `AppDomain.AssemblyResolve` (.NET 4.x) and `AssemblyLoadContext.Resolving` (.NET 6.0+) events.</xs:documentation>
-    </xs:annotation>
-  </xs:attribute>
-  <xs:attribute name="LoadAtModuleInit" type="xs:boolean">
-    <xs:annotation>
-      <xs:documentation>Costura by default will load as part of the module initialization. This flag disables that behavior. Make sure you call CosturaUtility.Initialize() somewhere in your code.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
 </xs:complexType>
