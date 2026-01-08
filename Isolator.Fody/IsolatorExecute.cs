@@ -10,6 +10,7 @@ public partial class ModuleWeaver
 {
     MethodReference writeLine;
     public static string IsolatorAttribute { get; } = nameof(IsolatorAttribute);
+    private const string IsolatorMethodPrefix = "_isolator_";
     private void IsolatorExecute()
     {
         writeLine = ModuleDefinition.ImportReference(typeof(Console).GetMethod(nameof(Console.WriteLine), new[] { typeof(string) }));
@@ -41,7 +42,7 @@ public partial class ModuleWeaver
             AddCompilerGeneratedAttribute(type);
 
             var index = 1;
-            foreach (var method in type.Methods.ToArray())
+            foreach (var method in type.Methods.OrderByDescending(e => e.IsConstructor).ToArray())
             {
                 if (!method.HasBody)
                     continue;
@@ -50,7 +51,7 @@ public partial class ModuleWeaver
                 AddCompilerGeneratedAttribute(method);
 
                 var isolatorMethod = cloneMethods ?
-                    CloneMethod(type, method, $"_isolator_{index++}_") :
+                    CloneMethod(type, method, method.IsConstructor ? IsolatorMethodPrefix : $"{IsolatorMethodPrefix}{index++}_") :
                     method;
 
                 AddCompilerGeneratedAttribute(isolatorMethod);

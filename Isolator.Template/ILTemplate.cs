@@ -29,7 +29,6 @@ internal static class ILTemplate
                     var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                     instance = assembly.CreateInstance(type.FullName, true, bindingAttr, null, args, null, null);
                 }
-                //Common.Log("[{0}] \t CreateInstance - {1}", context.Name, type.FullName);
                 Common.Log("[{0}] CreateInstance \t {1}", context.GetContextNumber(), type.FullName);
                 _table.Add(key, instance);
             }
@@ -46,7 +45,7 @@ internal static class ILTemplate
                 type.GetMethod(methodName, bindingAttr) :
                 type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
 
-            Common.Log("[{0}] InvokeMethod \t {1}", GetContext().GetContextNumber(), method.Name);
+            Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method.Name);
 
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
