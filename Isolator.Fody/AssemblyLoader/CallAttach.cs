@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 public partial class ModuleWeaver
 {
     private const string AttachMethodName = "IsolatorUtility::Initialize()";
-    private void CallAttach(Configuration config)
+    private void CallAttach(bool loadAtModuleInit = false)
     {
         if (_attachMethod is null)
         {
@@ -14,7 +14,6 @@ public partial class ModuleWeaver
             return;
         }
 
-        var loadAtModuleInit = config.LoadAtModuleInit;
         var initialized = FindInitializeCalls();
 
         if (loadAtModuleInit)

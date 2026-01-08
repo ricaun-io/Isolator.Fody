@@ -9,35 +9,32 @@ public class Configuration
 {
     public Configuration(XElement config)
     {
-        // Defaults
-        EnableCloneMethods = true;
-        EnableWriteBackRefOutParameters = true;
-        LoadAtModuleInit = false;
+        ContextName = null;
+        ContextName = ReadString(config, nameof(ContextName));
 
         ClassNames = new List<string>();
-        InterfaceNames = new List<string>();
-        ContextName = null;
-
-        EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
-        EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
-        LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
-
         ClassNames = ReadList(config, nameof(ClassNames));
+
+        InterfaceNames = new List<string>();
         InterfaceNames = ReadList(config, nameof(InterfaceNames));
-        ContextName = ReadString(config, nameof(ContextName));
 
         EnableDebug = false;
         EnableDebug = ReadBool(config, nameof(EnableDebug), EnableDebug);
 
         SkipIsolator = false;
         SkipIsolator = ReadBool(config, nameof(SkipIsolator), SkipIsolator);
+
+        EnableCloneMethods = true;
+        EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
+
+        EnableWriteBackRefOutParameters = true;
+        EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
     }
 
     public bool SkipIsolator { get; }
     public bool EnableDebug { get; }
     public bool EnableCloneMethods { get; }
     public bool EnableWriteBackRefOutParameters { get; }
-    public bool LoadAtModuleInit { get; }
     public List<string> ClassNames { get; }
     public List<string> InterfaceNames { get; }
     public string ContextName { get; }
