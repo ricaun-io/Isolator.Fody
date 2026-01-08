@@ -21,6 +21,41 @@ public partial class ModuleWeaver
     }
 
 
+    private void FindContextNameMethod(string contextName)
+    {
+        if (_targetType is null)
+            return;
+
+        if (string.IsNullOrEmpty(contextName))
+            return;
+
+        var getContextNameMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "GetContextName");
+        if (getContextNameMethod is not null)
+        {
+            // change GetContextName to return a constant string
+            getContextNameMethod.Body.Instructions.Clear();
+            getContextNameMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ldstr, contextName));
+            getContextNameMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+        }
+    }
+
+    private void FindLogMethod(bool enableDebug)
+    {
+        if (_targetType is null)
+            return;
+
+        if (enableDebug)
+            return;
+
+        var logMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "Log");
+        if (logMethod is not null)
+        {
+            // change Log to do nothing
+            logMethod.Body.Instructions.Clear();
+            logMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+        }
+    }
+
     private List<string> GetListOfUniqueIsolatorConstextNames()
     {
         var isolatorCustomAttributes = ModuleDefinition.GetTypes()
