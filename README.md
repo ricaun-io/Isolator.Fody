@@ -183,6 +183,26 @@ Or as an attribute with items delimited by a pipe `|`.
 
 These options are used for debugging purposes and can be enabled or disabled as needed.
 
+### EnableDebug
+
+Indicates whether to enable debug logging for the isolator. When enabled, additional debug information will be logged in the `Debug` console.
+
+*Defaults to `false`*
+```xml
+<Isolator EnableDebug='true' />
+```
+
+### SkipIsolator
+
+Disable the isolator process without the need to remove the weaver from the project. This is useful for debugging purposes when you want to temporarily disable the isolator without modifying the project configuration.
+
+*Defaults to `false`*
+```xml
+<Isolator SkipIsolator='true' />
+```
+
+*This force the `[Isolator]` to be removed, and the class is not isolated.*
+
 ### EnableCloneMethods
 
 Indicates whether to clone methods that are called internally within the isolated class to ensure they also run in the isolated context.
