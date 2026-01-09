@@ -16,18 +16,18 @@ Inside your project file, add the following lines to reference the `Isolator.Fod
 
 ```xml
 <ItemGroup>
-	<PackageReference Include="Isolator.Fody" Version="*" IncludeAssets="build; compile" PrivateAssets="all" />
+  <PackageReference Include="Isolator.Fody" Version="*" IncludeAssets="build; compile" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 Then, add the following configuration to enable the weaver:
 ```xml
 <PropertyGroup>
-	<WeaverConfiguration>
-		<Weavers>
-			<Isolator />
-		</Weavers>
-	</WeaverConfiguration>
+  <WeaverConfiguration>
+    <Weavers>
+      <Isolator />
+    </Weavers>
+  </WeaverConfiguration>
 </PropertyGroup>
 ```
 
@@ -36,14 +36,14 @@ Next, mark the classes you want to isolate with the `[Isolator]` attribute:
 [Isolator]
 public class MyIsolatedClass
 {
-	public MyIsolatedClass()
-	{
-		Console.WriteLine("Constructor implementation");
-	}
-	public void MyMethod()
-	{
-		Console.WriteLine("Method implementation");
-	}
+  public MyIsolatedClass()
+  {
+    Console.WriteLine("Constructor implementation");
+  }
+  public void MyMethod()
+  {
+    Console.WriteLine("Method implementation");
+  }
 }
 ```
 
@@ -55,39 +55,39 @@ When you build your project, the weaver will modify the IL code of the marked cl
 [CompilerGenerated]
 public class MyIsolatedClass
 {
-	[CompilerGenerated]
-	public MyIsolatedClass()
-	{
-		if (AssemblyLoader.IsDefault())
-		{
-			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
-			return;
-		}
-		_isolator_ctor();
-	}
-	[CompilerGenerated]
-	public void MyMethod()
-	{
-		if (AssemblyLoader.IsDefault())
-		{
-			object[] args = new object[0];
-			object obj = AssemblyLoader.InvokeMethod(this, "_isolator_1_MyMethod", args, BindingFlags.Instance | BindingFlags.NonPublic);
-		}
-		else
-		{
-			_isolator_1_MyMethod();
-		}
-	}
-	[CompilerGenerated]
-	private void _isolator_ctor()
-	{
-		Console.WriteLine("Constructor implementation");
-	}
-	[CompilerGenerated]
-	private void _isolator_1_MyMethod()
-	{
-		Console.WriteLine("Method implementation");
-	}
+  [CompilerGenerated]
+  public MyIsolatedClass()
+  {
+    if (AssemblyLoader.IsDefault())
+    {
+      object obj = AssemblyLoader.CreateInstance(this, new object[0]);
+      return;
+    }
+    _isolator_ctor();
+  }
+  [CompilerGenerated]
+  public void MyMethod()
+  {
+    if (AssemblyLoader.IsDefault())
+    {
+      object[] args = new object[0];
+      object obj = AssemblyLoader.InvokeMethod(this, "_isolator_1_MyMethod", args, BindingFlags.Instance | BindingFlags.NonPublic);
+    }
+    else
+    {
+      _isolator_1_MyMethod();
+    }
+  }
+  [CompilerGenerated]
+  private void _isolator_ctor()
+  {
+    Console.WriteLine("Constructor implementation");
+  }
+  [CompilerGenerated]
+  private void _isolator_1_MyMethod()
+  {
+    Console.WriteLine("Method implementation");
+  }
 }
 ```
 
@@ -119,7 +119,7 @@ Default FodyWeavers.xml:
 
 ```xml
 <Weavers>
-	<Isolator />
+  <Isolator />
 </Weavers>
 ```
 
@@ -148,11 +148,11 @@ As an element with items delimited by a newline.
 
 ```xml
 <Isolator>
-	<ClassNames>
-		App
-		AppDB
-		Command
-	</ClassNames>
+  <ClassNames>
+    App
+    AppDB
+    Command
+  </ClassNames>
 </Isolator>
 ```
 
@@ -172,18 +172,18 @@ As an element with items delimited by a newline.
 
 ```xml
 <Isolator>
-	<InterfaceNames>
-		IExternalApplication
-		IExternalDBApplication
-		IExternalCommand
-	</InterfaceNames>
+  <InterfaceNames>
+    IExternalApplication
+    IExternalDBApplication
+    IExternalCommand
+  </InterfaceNames>
 </Isolator>
 ```
 
 Or as an attribute with items delimited by a pipe `|`.
 
 ```xml
-<Isolator InterfaceNames="IExternalApplication|IExternalDBApplication|IExternalCommand" />
+<Isolator InterfaceNames='IExternalApplication|IExternalDBApplication|IExternalCommand' />
 ```
 
 ## Debug Configuration Options
@@ -210,6 +210,15 @@ Disable the isolator process without the need to remove the weaver from the proj
 
 *This force the `[Isolator]` to be removed, and the class is not isolated.*
 
+### LoadAtModuleInit
+
+Indicates whether to load the `AssemblyLoadContext` at module initialization. When enabled, the context will be created and attached when the module is initialized.
+
+*Defaults to `true`*
+```xml
+<Isolator LoadAtModuleInit='false' />
+```
+
 ### EnableCloneMethods
 
 Indicates whether to clone methods that are called internally within the isolated class to ensure they also run in the isolated context.
@@ -217,7 +226,7 @@ Indicates whether to clone methods that are called internally within the isolate
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableCloneMethods='true' />
+<Isolator EnableCloneMethods='false' />
 ```
 
 ### EnableWriteBackRefOutParameters
@@ -227,7 +236,7 @@ Indicates whether to write back the values of `ref` and `out` parameters to the 
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableWriteBackRefOutParameters='true' />
+<Isolator EnableWriteBackRefOutParameters='false' />
 ```
 
 ## References

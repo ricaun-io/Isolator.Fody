@@ -13,15 +13,6 @@ public partial class ModuleWeaver
     private TypeDefinition _sourceType;
     private TypeDefinition _commonType;
     private MethodDefinition _attachMethod;
-    //private MethodDefinition _loaderCctor;
-    //private bool _hasUnmanaged;
-    //private FieldDefinition _assemblyNamesField;
-    //private FieldDefinition _symbolNamesField;
-    //private FieldDefinition _preloadListField;
-    //private FieldDefinition _preloadWinX86ListField;
-    //private FieldDefinition _preloadWinX64ListField;
-    //private FieldDefinition _preloadWinArm64ListField;
-    //private FieldDefinition _checksumsField;
 
     private const string ModuleName = "Isolator";
 
@@ -30,6 +21,8 @@ public partial class ModuleWeaver
     /// </summary>
     private void ImportAssemblyLoader(bool debugTemplate = false)
     {
+        FindMsCoreReferences();
+
         var readerParameters = new ReaderParameters
         {
             AssemblyResolver = new NetStandardAssemblyResolver(this),
@@ -89,13 +82,6 @@ public partial class ModuleWeaver
             // Copy type + nested types
             CopyType(_targetType, _sourceType, true, true);
             _attachMethod = _targetType.Methods.SingleOrDefault(_ => _.Name == "Attach");
-
-            //// Copy type + nested types
-            //CopyType(_targetType, _sourceType, true, false);
-
-            //CopyMethod(_targetType, _sourceType.Methods.Single(_ => _.Name == "ResolveAssembly"));
-            //_loaderCctor = CopyMethod(_targetType, _sourceType.Methods.Single(_ => _.IsConstructor && _.IsStatic));
-            //_attachMethod = CopyMethod(_targetType, _sourceType.Methods.Single(_ => _.Name == "Attach"));
         }
     }
 
@@ -160,41 +146,6 @@ public partial class ModuleWeaver
         {
             var newField = new FieldDefinition(field.Name, field.Attributes, Resolve(field.FieldType));
             targetType.Fields.Add(newField);
-
-            //if (field.Name == "assemblyNames")
-            //{
-            //    _assemblyNamesField = newField;
-            //}
-
-            //if (field.Name == "symbolNames")
-            //{
-            //    _symbolNamesField = newField;
-            //}
-
-            //if (field.Name == "preloadList")
-            //{
-            //    _preloadListField = newField;
-            //}
-
-            //if (field.Name == "preloadWinX86List")
-            //{
-            //    _preloadWinX86ListField = newField;
-            //}
-
-            //if (field.Name == "preloadWinX64List")
-            //{
-            //    _preloadWinX64ListField = newField;
-            //}
-
-            //if (field.Name == "preloadWinArm64List")
-            //{
-            //    _preloadWinArm64ListField = newField;
-            //}
-
-            //if (field.Name == "checksums")
-            //{
-            //    _checksumsField = newField;
-            //}
         }
     }
 
@@ -376,11 +327,6 @@ public partial class ModuleWeaver
 
     private Instruction CloneInstruction(TypeDefinition targetType, Instruction instruction)
     {
-        //if (instruction.OpCode == OpCodes.Ldstr && (string)instruction.Operand == "To be replaced at compile time")
-        //{
-        //    return Instruction.Create(OpCodes.Ldstr, _resourcesHash);
-        //}
-
         var newInstruction = (Instruction)_instructionConstructorInfo.Invoke(new[] { instruction.OpCode, instruction.Operand });
         newInstruction.Operand = Import(targetType, instruction.Operand);
         return newInstruction;

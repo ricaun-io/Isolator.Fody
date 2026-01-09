@@ -14,11 +14,10 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         WriteInfo($"{GetType().Assembly.GetName().Name} v{GetType().Assembly.GetVersion()}");
 
-        FindMsCoreReferences();
         ImportAssemblyLoader(config.EnableDebug);
 
         FindContextNameMethod(config.ContextName);
-        // CallAttach();
+        CallAttach(config.LoadAtModuleInit);
 
         IsolatorExecute();
     }

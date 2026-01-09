@@ -24,6 +24,9 @@ public class Configuration
         SkipIsolator = false;
         SkipIsolator = ReadBool(config, nameof(SkipIsolator), SkipIsolator);
 
+        LoadAtModuleInit = true;
+        LoadAtModuleInit = ReadBool(config, nameof(LoadAtModuleInit), LoadAtModuleInit);
+
         EnableCloneMethods = true;
         EnableCloneMethods = ReadBool(config, nameof(EnableCloneMethods), EnableCloneMethods);
 
@@ -31,6 +34,7 @@ public class Configuration
         EnableWriteBackRefOutParameters = ReadBool(config, nameof(EnableWriteBackRefOutParameters), EnableWriteBackRefOutParameters);
     }
 
+    public bool LoadAtModuleInit { get; }
     public bool SkipIsolator { get; }
     public bool EnableDebug { get; }
     public bool EnableCloneMethods { get; }

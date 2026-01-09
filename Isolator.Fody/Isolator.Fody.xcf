@@ -37,6 +37,11 @@
       <xs:documentation>Skip the isolation process.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
+  <xs:attribute name="LoadAtModuleInit" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation>Enable loading default context at module initialization.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="EnableCloneMethods" type="xs:boolean">
     <xs:annotation>
       <xs:documentation>Enable cloning methods.</xs:documentation>

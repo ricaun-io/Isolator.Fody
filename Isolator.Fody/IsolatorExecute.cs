@@ -38,11 +38,15 @@ public partial class ModuleWeaver
             // Add [CompilerGenerated] attribute to show the class is modified
             AddCompilerGeneratedAttribute(type);
 
+            WriteInfo($"Isolating Type: {type.FullName}");
+
             var index = 1;
             foreach (var method in type.Methods.OrderByDescending(e => e.IsConstructor).ToArray())
             {
                 if (!method.HasBody)
                     continue;
+
+                WriteInfo($"Isolating Method: {method.FullName}");
 
                 // Add [CompilerGenerated] attribute to show the method is modified
                 AddCompilerGeneratedAttribute(method);
