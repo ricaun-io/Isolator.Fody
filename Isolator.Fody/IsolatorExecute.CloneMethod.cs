@@ -15,6 +15,8 @@ public partial class ModuleWeaver
         var cloned = CloneMethodSignature(method, (prefix + method.Name).Replace(".", string.Empty));
         CloneMethodBody(method, cloned);
 
+        WriteInfo($"Cloning method: {method.FullName} to {cloned.FullName}");
+
         // 1.a Mark as [CompilerGenerated]
         AddCompilerGeneratedAttribute(cloned);
 

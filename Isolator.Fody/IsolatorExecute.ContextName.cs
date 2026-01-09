@@ -17,9 +17,10 @@ public partial class ModuleWeaver
         {
             var contextNameValue = isolatorCustomAttribute?.ConstructorArguments[0].Value as string;
             InjectMethodWithStringParameter(method, _setContextName, contextNameValue);
+
+            WriteInfo($"Injected SetContextName with value: {contextNameValue} into method: {method.FullName}");
         }
     }
-
 
     private void FindContextNameMethod(string contextName)
     {
