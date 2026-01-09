@@ -183,7 +183,7 @@ As an element with items delimited by a newline.
 Or as an attribute with items delimited by a pipe `|`.
 
 ```xml
-<Isolator InterfaceNames="IExternalApplication|IExternalDBApplication|IExternalCommand" />
+<Isolator InterfaceNames='IExternalApplication|IExternalDBApplication|IExternalCommand' />
 ```
 
 ## Debug Configuration Options
@@ -217,7 +217,7 @@ Indicates whether to clone methods that are called internally within the isolate
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableCloneMethods='true' />
+<Isolator EnableCloneMethods='false' />
 ```
 
 ### EnableWriteBackRefOutParameters
@@ -227,7 +227,7 @@ Indicates whether to write back the values of `ref` and `out` parameters to the 
 *Defaults to `true`*
 
 ```xml
-<Isolator EnableWriteBackRefOutParameters='true' />
+<Isolator EnableWriteBackRefOutParameters='false' />
 ```
 
 ## References
