@@ -210,6 +210,15 @@ Disable the isolator process without the need to remove the weaver from the proj
 
 *This force the `[Isolator]` to be removed, and the class is not isolated.*
 
+### LoadAtModuleInit
+
+Indicates whether to load the `AssemblyLoadContext` at module initialization. When enabled, the context will be created and attached when the module is initialized.
+
+*Defaults to `true`*
+```xml
+<Isolator LoadAtModuleInit='false' />
+```
+
 ### EnableCloneMethods
 
 Indicates whether to clone methods that are called internally within the isolated class to ensure they also run in the isolated context.
