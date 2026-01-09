@@ -62,7 +62,6 @@ public class MyIsolatedClass
 			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
 			return;
 		}
-		base..ctor();
 		_isolator_ctor();
 	}
 	[CompilerGenerated]
