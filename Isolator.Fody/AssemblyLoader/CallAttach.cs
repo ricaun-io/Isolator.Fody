@@ -14,7 +14,7 @@ public partial class ModuleWeaver
             return;
         }
 
-        var initialized = FindInitializeCalls();
+        //var initialized = FindInitializeCalls();
 
         if (loadAtModuleInit)
         {

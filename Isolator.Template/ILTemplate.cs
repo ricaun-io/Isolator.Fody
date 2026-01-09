@@ -219,10 +219,11 @@ internal static class ILTemplate
 
     internal static void Attach()
     {
-        if (IsDefault()) return;
-        var assembly = Assembly.GetExecutingAssembly();
-        var context = AssemblyLoadContext.GetLoadContext(assembly);
-        Common.Log("[{0}] Context.Attach \t '{1}'", context.GetContextNumber(), context.Name);
+        if (IsDefault())
+        {
+            var context = GetContext();
+            Common.Log("[{0}] Context.Attach \t '{1}'", context.GetContextNumber(), context.Name);
+        }
     }
 
     internal class IsolatorAssemblyLoadContext : AssemblyLoadContext

@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `AssemblyLoaderImporter` to select `debug` or `release` version of `Isolator.Template` based on `EnableDebug` setting.
 - Update `Build` to release in `Nuget`.
 - Create `Isolator.Fody.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
+- Update `Configuration` to use `LoadAtModuleInit` and force `Attach` to create default `AssemblyLoadContext` at module init.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

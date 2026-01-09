@@ -17,7 +17,7 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
         ImportAssemblyLoader(config.EnableDebug);
 
         FindContextNameMethod(config.ContextName);
-        // CallAttach();
+        CallAttach(config.LoadAtModuleInit);
 
         IsolatorExecute();
     }
