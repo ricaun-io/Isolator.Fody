@@ -62,6 +62,7 @@ public class MyIsolatedClass
 			object obj = AssemblyLoader.CreateInstance(this, new object[0]);
 			return;
 		}
+		base..ctor();
 		_isolator_ctor();
 	}
 	[CompilerGenerated]
@@ -69,14 +70,12 @@ public class MyIsolatedClass
 	{
 		if (AssemblyLoader.IsDefault())
 		{
-			object data = AssemblyLoader.GetData(this);
-			object[] parameters = new object[0];
-			MethodInfo method = data.GetType().GetMethod("_isolator_1_MyMethod", BindingFlags.Instance | BindingFlags.Private);
-			method.Invoke(data, parameters);
+			object[] args = new object[0];
+			object obj = AssemblyLoader.InvokeMethod(this, "_isolator_1_MyMethod", args, BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 		else
 		{
-			_isolator_2_MyMethod();
+			_isolator_1_MyMethod();
 		}
 	}
 	[CompilerGenerated]
