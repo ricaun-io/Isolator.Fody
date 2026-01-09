@@ -119,7 +119,7 @@ Default FodyWeavers.xml:
 
 ```xml
 <Weavers>
-  <Isolator />
+	<Isolator />
 </Weavers>
 ```
 
@@ -148,17 +148,18 @@ As an element with items delimited by a newline.
 
 ```xml
 <Isolator>
-  <ClassNames>
-    Foo
-    Bar
-  </ClassNames>
+	<ClassNames>
+		App
+		AppDB
+		Command
+	</ClassNames>
 </Isolator>
 ```
 
 Or as an attribute with items delimited by a pipe `|`.
 
 ```xml
-<Isolator ClassNames='Foo|Bar' />
+<Isolator ClassNames='App|AppDB|Command' />
 ```
 
 ### InterfaceNames
@@ -171,17 +172,18 @@ As an element with items delimited by a newline.
 
 ```xml
 <Isolator>
-  <InterfaceNames>
-    Foo
-    Bar
-  </InterfaceNames>
+	<InterfaceNames>
+		IExternalApplication
+		IExternalDBApplication
+		IExternalCommand
+	</InterfaceNames>
 </Isolator>
 ```
 
 Or as an attribute with items delimited by a pipe `|`.
 
 ```xml
-<Isolator InterfaceNames='Foo|Bar' />
+<Isolator InterfaceNames="IExternalApplication|IExternalDBApplication|IExternalCommand" />
 ```
 
 ## Debug Configuration Options
