@@ -103,10 +103,7 @@ public partial class ModuleWeaver
         return typeArrayVariable;
     }
 
-    private VariableDefinition CreateParametersArray(
-    MethodDefinition method,
-    ILProcessor il,
-    Instruction insertBefore)
+    private VariableDefinition CreateParametersArray(MethodDefinition method, ILProcessor il, Instruction insertBefore)
     {
         var module = method.Module;
         var body = method.Body;
@@ -114,8 +111,7 @@ public partial class ModuleWeaver
         body.InitLocals = true;
 
         // object[] local
-        var objectArray = new VariableDefinition(
-            new ArrayType(module.TypeSystem.Object));
+        var objectArray = new VariableDefinition(new ArrayType(module.TypeSystem.Object));
 
         body.Variables.Add(objectArray);
 
@@ -142,35 +138,28 @@ public partial class ModuleWeaver
             // args[i] = (object)value;
 
             // array
-            il.InsertBefore(insertBefore,
-                Instruction.Create(OpCodes.Ldloc, objectArray));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldloc, objectArray));
 
             // index
-            il.InsertBefore(insertBefore,
-                Instruction.Create(OpCodes.Ldc_I4, i));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Ldc_I4, i));
 
             // load argument
-            il.InsertBefore(insertBefore,
-                CreateLdarg(argIndex));
+            il.InsertBefore(insertBefore, CreateLdarg(argIndex));
 
             // dereference ref/out
             if (isByRef)
             {
-                il.InsertBefore(insertBefore,
-                    CreateLdind(valueType));
+                il.InsertBefore(insertBefore, CreateLdind(valueType));
             }
 
             // box value types & generics
             if (valueType.IsValueType || valueType.IsGenericParameter)
             {
-                il.InsertBefore(insertBefore,
-                    Instruction.Create(OpCodes.Box,
-                        module.ImportReference(valueType)));
+                il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Box, module.ImportReference(valueType)));
             }
 
             // store
-            il.InsertBefore(insertBefore,
-                Instruction.Create(OpCodes.Stelem_Ref));
+            il.InsertBefore(insertBefore, Instruction.Create(OpCodes.Stelem_Ref));
         }
 
         return objectArray;

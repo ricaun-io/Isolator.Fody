@@ -28,15 +28,9 @@ public partial class ModuleWeaver
         return cloned;
     }
 
-    private MethodDefinition CloneMethodSignature(
-        MethodDefinition source,
-        string newName,
-        bool makePrivate = true)
+    private MethodDefinition CloneMethodSignature(MethodDefinition source, string newName, bool makePrivate = true)
     {
-        var clone = new MethodDefinition(
-            newName,
-            source.Attributes,
-            source.ReturnType)
+        var clone = new MethodDefinition(newName, source.Attributes, source.ReturnType)
         {
             ImplAttributes = source.ImplAttributes,
             CallingConvention = source.CallingConvention,
@@ -67,17 +61,12 @@ public partial class ModuleWeaver
 
         // Parameters
         foreach (var p in source.Parameters)
-            clone.Parameters.Add(new ParameterDefinition(
-                p.Name,
-                p.Attributes,
-                p.ParameterType));
+            clone.Parameters.Add(new ParameterDefinition(p.Name, p.Attributes, p.ParameterType));
 
         return clone;
     }
 
-    private void CloneMethodBody(
-    MethodDefinition source,
-    MethodDefinition target)
+    private void CloneMethodBody(MethodDefinition source, MethodDefinition target)
     {
         target.Body.SimplifyMacros();
         target.Body.InitLocals = source.Body.InitLocals;
@@ -189,9 +178,7 @@ public partial class ModuleWeaver
         };
     }
 
-    private void RedirectMethodToClone(
-    MethodDefinition original,
-    MethodDefinition clone)
+    private void RedirectMethodToClone(MethodDefinition original, MethodDefinition clone)
     {
         var il = original.Body.GetILProcessor();
 

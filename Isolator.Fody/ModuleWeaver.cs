@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Fody;
-using Mono.Cecil.Cil;
 
 public sealed partial class ModuleWeaver : BaseModuleWeaver
 {
