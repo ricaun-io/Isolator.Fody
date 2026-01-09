@@ -18,7 +18,16 @@
     <PackageProjectUrl>https://github.com/$(GitHubRepositoryOwner)/$(PackageId)</PackageProjectUrl>
     <RepositoryUrl>https://github.com/$(GitHubRepositoryOwner)/$(PackageId)</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
+    <PackageIcon>Isolator.Fody.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
+    <None Include="..\Resources\Isolator.Fody.png" Pack="true" PackagePath="" Visible="false"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fody" Version="*" PrivateAssets="none" />
