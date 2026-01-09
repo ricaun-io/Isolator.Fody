@@ -128,7 +128,7 @@ internal static class ILTemplate
                     {
                         ContextInvokeMethod(context, nameof(IsolatorAssemblyLoadContext.AddResolver), location);
                         _contextTable.Add(contextName, context);
-                        Common.Log("[{0}] Context.AddResolver \t '{1}'", context.GetContextNumber(), contextName);
+                        Common.Log("[{0}] Context.AddResolver \t '{1}' \t {2}", context.GetContextNumber(), contextName, location);
                         return context;
                     }
                     catch (Exception ex) { Common.Log("[{0}] Context.AddResolver.Exception \t '{1}'", context.GetContextNumber(), ex); }
@@ -139,7 +139,7 @@ internal static class ILTemplate
                 context?.Unloading += Unloading;
 
                 _contextTable.Add(contextName, context);
-                Common.Log("[{0}] Context.CreateInstance \t '{1}'", context.GetContextNumber(), contextName);
+                Common.Log("[{0}] Context.CreateInstance \t '{1}' \t {2}", context.GetContextNumber(), contextName, location);
                 return context;
             }
         }
@@ -222,7 +222,7 @@ internal static class ILTemplate
         if (IsDefault())
         {
             var context = GetContext();
-            Common.Log("[{0}] Context.Attach \t '{1}'", context.GetContextNumber(), context.Name);
+            Common.Log("[{0}] Context.AttachModule \t '{1}' \t {2}", context.GetContextNumber(), context.Name, Assembly.GetExecutingAssembly());
         }
     }
 
