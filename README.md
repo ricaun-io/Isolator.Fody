@@ -96,7 +96,7 @@ Every time a method or constructor of the isolated class is called, it checks if
 
 The `AssemblyLoader` class is injected into the assembly to handle the loading of the isolated classes into separate `AssemblyLoadContext` instances.
 
-[Isolator.Template](./src/Isolator.Template) project contains the source code for the `AssemblyLoader` class in the [ILTemplate.cs](./src/Isolator.Template/ILTemplate.cs) file.
+[Isolator.Template](./Isolator.Template) project contains the source code for the `AssemblyLoader` class in the [ILTemplate.cs](./Isolator.Template/ILTemplate.cs) file.
 
 ## Features
 
