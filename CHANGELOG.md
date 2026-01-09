@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] / 2025-12-29
+## [1.0.0] / 2025-12-29 - 2025-01-09
 ### Features
 - Support attribute `[Isolator]` to mark classes for isolation.
 - Support attribute `[Isolator("ContextName")]` to isolate a specific context.
@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `SkipIsolator` to show warning log when assembly is skipped.
 - Create `Isolator.Template.Debug` project to hold debug with `DEBUG` level logs.
 - Update `AssemblyLoaderImporter` to select `debug` or `release` version of `Isolator.Template` based on `EnableDebug` setting.
+- Update `Build` to release in `Nuget`.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

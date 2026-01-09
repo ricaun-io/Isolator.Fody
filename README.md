@@ -1,9 +1,10 @@
 # Isolator.Fody 
 
-[![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-blue)](../..)
+[![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-blue)](https://github.com/ricaun-io/Isolator.Fody)
 [![Nuke](https://img.shields.io/badge/Nuke-Build-blue)](https://nuke.build/)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build](../../actions/workflows/Build.yml/badge.svg)](../../actions)
+[![Build](https://github.com/ricaun-io/Isolator.Fody/actions/workflows/Build.yml/badge.svg)](https://github.com/ricaun-io/Isolator.Fody/actions)
+[![Release](https://img.shields.io/nuget/v/Isolator.Fody?logo=nuget&label=release&color=blue)](https://www.nuget.org/packages/Isolator.Fody)
 
 ### This is an add-in for [Fody](https://github.com/Fody/Home/)
 
@@ -237,4 +238,4 @@ This project is [licensed](LICENSE) under the [MIT License](https://en.wikipedia
 
 ---
 
-Do you like this project? Please [star this project on GitHub](../../stargazers)!
+Do you like this project? Please [star this project on GitHub](https://github.com/ricaun-io/Isolator.Fody/stargazers)!
