@@ -1,4 +1,6 @@
-﻿public static class AssemblyLoadContextExtension
+﻿namespace Isolator.ConsoleApp;
+
+public static class AssemblyLoadContextExtension
 {
     /// <summary>
     /// Determines whether the assembly context of the specified object is the default context.

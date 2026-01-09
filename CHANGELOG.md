@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Create `Isolator.Template.Debug` project to hold debug with `DEBUG` level logs.
 - Update `AssemblyLoaderImporter` to select `debug` or `release` version of `Isolator.Template` based on `EnableDebug` setting.
 - Update `Build` to release in `Nuget`.
+- Create `Isolator.Fody.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
 
 [vNext]: ../../compare/1.0.0...HEAD
 [1.0.0]: ../../compare/1.0.0

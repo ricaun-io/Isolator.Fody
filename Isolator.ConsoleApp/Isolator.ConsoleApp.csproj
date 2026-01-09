@@ -2,16 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!--<PropertyGroup Condition="$(Configuration.Contains('Debug'))">
-    <Revision>$([MSBuild]::Divide($([System.DateTime]::Now.TimeOfDay.TotalSeconds), 4).ToString('F0'))</Revision>
-    <PackageAssemblyVersion>.Dev.$(Version).$(Revision)</PackageAssemblyVersion>
-    <AssemblyName>$(AssemblyName)$(PackageAssemblyVersion)</AssemblyName>
-  </PropertyGroup>-->
-  
   <ItemGroup>
     <ProjectReference Include="..\Isolator.Fody\Isolator.Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
     <WeaverFiles Include="..\Isolator.Fody\bin\$(Configuration)\netstandard2.0\Isolator.Fody.dll" />

@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.ConsoleApp", "Isol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Template.Debug", "Isolator.Template.Debug\Isolator.Template.Debug.csproj", "{2B492BBB-43DA-4E47-BCA4-6FA63CC5BE7E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Fody.Tests", "Isolator.Fody.Tests\Isolator.Fody.Tests.csproj", "{28CEC005-5E33-4B81-B171-C8412F8E4038}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{2B492BBB-43DA-4E47-BCA4-6FA63CC5BE7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B492BBB-43DA-4E47-BCA4-6FA63CC5BE7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B492BBB-43DA-4E47-BCA4-6FA63CC5BE7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28CEC005-5E33-4B81-B171-C8412F8E4038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28CEC005-5E33-4B81-B171-C8412F8E4038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28CEC005-5E33-4B81-B171-C8412F8E4038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28CEC005-5E33-4B81-B171-C8412F8E4038}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,6 @@
-﻿[Isolator]
+﻿namespace Isolator.ConsoleApp;
+
+[Isolator]
 public static class ClassStatic
 {
     public static bool Execute()

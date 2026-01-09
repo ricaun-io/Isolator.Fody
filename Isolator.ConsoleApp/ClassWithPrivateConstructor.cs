@@ -1,4 +1,6 @@
-﻿public class ClassWithPrivateConstructor : IsolatorInterface
+﻿namespace Isolator.ConsoleApp;
+
+public class ClassWithPrivateConstructor : IsolatorInterface
 {
     private bool Result { get; set; }
     private ClassWithPrivateConstructor() {

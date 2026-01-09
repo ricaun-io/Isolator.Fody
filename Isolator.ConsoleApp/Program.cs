@@ -1,6 +1,7 @@
 ﻿
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+namespace Isolator.ConsoleApp;
 
 public class Program
 {
