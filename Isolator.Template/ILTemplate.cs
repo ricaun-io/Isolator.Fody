@@ -90,8 +90,11 @@ internal static class ILTemplate
         bool sourceIsType = source is Type;
         bool destIsType = destination is Type;
 
-        var srcType = sourceIsType ? (Type)source : source.GetType();
-        var dstType = destIsType ? (Type)destination : destination.GetType();
+        if (sourceIsType || destIsType) 
+            return;
+
+        var srcType = source.GetType();
+        var dstType = destination.GetType();
 
         if (srcType.BaseType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0)
             return;
