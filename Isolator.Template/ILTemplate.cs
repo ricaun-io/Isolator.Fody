@@ -51,12 +51,12 @@ internal static class ILTemplate
             object value = null;
             try
             {
-                CopyProperties(key, instance);
+                CopyBaseTypeProperties(key, instance);
                 value = method.Invoke(instance is Type ? null : instance, args);
             }
             finally
             {
-                CopyProperties(instance, key);
+                CopyBaseTypeProperties(instance, key);
             }
             return value;
         }
@@ -80,7 +80,7 @@ internal static class ILTemplate
         return null;
     }
 
-    private static void CopyProperties(object source, object destination)
+    private static void CopyBaseTypeProperties(object source, object destination)
     {
         if (source == null)
             throw new ArgumentNullException(nameof(source));
@@ -93,31 +93,31 @@ internal static class ILTemplate
         var srcType = sourceIsType ? (Type)source : source.GetType();
         var dstType = destIsType ? (Type)destination : destination.GetType();
 
-        var srcInstance = sourceIsType ? null : source;
-        var dstInstance = destIsType ? null : destination;
+        if (srcType.BaseType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0)
+            return;
 
-        const BindingFlags flags =
-            BindingFlags.Public |
-            BindingFlags.NonPublic |
-            BindingFlags.Instance |
-            BindingFlags.Static;
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        foreach (var sp in srcType.GetProperties(flags))
+        foreach (var _sp in srcType.BaseType.GetProperties(flags))
         {
-            // only abstract base class properties
-            if (sp.DeclaringType != srcType.BaseType)
+            if (_sp.DeclaringType == srcType)
                 continue;
 
-            // skip compiler generated properties
-            if (sp.DeclaringType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0)
+            var sp = _sp.DeclaringType.GetProperty(_sp.Name, flags);
+            //Console.WriteLine($"{srcType.Name} \t CanRead: {sp.CanRead.ToString()} \t CanWrite: {sp.CanWrite.ToString()} \t {sp.ToString()} \t {sp.GetSetMethod(true)?.ToString()} \t {sp.GetAccessors(true).Length.ToString()}");
+            if (!sp.CanWrite)
                 continue;
 
-            var dp = dstType.GetProperty(sp.Name, flags);
+            var dp = dstType.BaseType.GetProperty(sp.Name, flags);
             if (dp is null)
                 continue;
 
             try
             {
+                var isStatic = (sp.SetMethod ?? sp.GetMethod)?.IsStatic ?? false;
+                var srcInstance = isStatic ? null : source;
+                var dstInstance = isStatic ? null : destination;
+
                 var value = sp.DeclaringType.InvokeMember(sp.Name, flags | BindingFlags.GetProperty, null, srcInstance, null);
                 var valueDest = dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.GetProperty, null, dstInstance, null);
 
@@ -130,7 +130,7 @@ internal static class ILTemplate
             }
             catch (Exception ex)
             {
-                Common.Log("[{0} -> {1}] CopyProperty.Exception \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.ToString());
+                Common.Log("[{0} -> {1}] CopyProperty.Exception \t {2}.{3} = {4}: {5}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.GetType().FullName, ex.Message);
             }
         }
     }

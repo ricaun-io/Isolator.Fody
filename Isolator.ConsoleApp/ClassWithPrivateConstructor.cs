@@ -38,7 +38,7 @@ public class ClassWithAbstractionConstructor : IsolatorAbstract
     }
 }
 
-[Isolator(" ")] // This ignore isolation in this class
+//[Isolator(" ")] // This ignore isolation in this class
 public abstract class IsolatorAbstract : IsolatorInterface
 {
     public IsolatorAbstract()
@@ -56,12 +56,15 @@ public abstract class IsolatorAbstract : IsolatorInterface
     public bool Result { get; set; }
     public bool ResultOnlySet { private get; set; }
     public bool ResultOnlyGet { get; }
+    public bool ResultOnlyGetInterface => ResultInterface;
+    public static bool ResultStatic { get; set; }
     public bool ResultAbstract { get; protected set; }
     public bool ResultInterface { get; private set; }
     public abstract bool ExecuteAbstract();
     public bool Execute()
     {
         ResultInterface = true;
+        ResultStatic = true;
 
         if (!ResultOnlySet)
             throw new InvalidOperationException("ResultOnlySet was not set properly.");
