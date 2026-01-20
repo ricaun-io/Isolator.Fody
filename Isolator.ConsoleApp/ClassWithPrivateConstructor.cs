@@ -27,7 +27,7 @@ public class ClassWithPublicConstructor : IsolatorInterface
 
 public class ClassWithAbstractionConstructor : IsolatorAbstract
 {
-    public override bool Execute()
+    public override bool ExecuteAbstract()
     {
         return Result && !this.IsContextDefault();
     }
@@ -40,7 +40,13 @@ public abstract class IsolatorAbstract : IsolatorInterface
         Result = true;
     }
     protected bool Result { get; set; }
-    public abstract bool Execute();
+    protected bool ResultInterface { get; set; }
+    public abstract bool ExecuteAbstract();
+    public bool Execute()
+    {
+        ResultInterface = true;
+        return ExecuteAbstract();
+    }
 }
 
 [Isolator]
