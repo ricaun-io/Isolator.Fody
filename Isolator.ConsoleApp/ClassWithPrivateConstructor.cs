@@ -3,7 +3,8 @@
 public class ClassWithPrivateConstructor : IsolatorInterface
 {
     private bool Result { get; set; }
-    private ClassWithPrivateConstructor() {
+    private ClassWithPrivateConstructor()
+    {
         Result = true;
     }
     public bool Execute()
@@ -40,14 +41,25 @@ public abstract class IsolatorAbstract : IsolatorInterface
     public IsolatorAbstract()
     {
         Result = true;
+        ResultOnlySet = true;
+        ResultOnlyGet = true;
     }
     public bool Result { get; set; }
+    public bool ResultOnlySet { private get; set; }
+    public bool ResultOnlyGet { get; }
     public bool ResultAbstract { get; protected set; }
     public bool ResultInterface { get; private set; }
     public abstract bool ExecuteAbstract();
     public bool Execute()
     {
         ResultInterface = true;
+
+        if (!ResultOnlySet)
+            throw new InvalidOperationException("ResultOnlySet was not set properly.");
+
+        if (!ResultOnlyGet)
+            throw new InvalidOperationException("ResultOnlyGet was not set properly.");
+
         return ExecuteAbstract();
     }
 }

@@ -119,13 +119,13 @@ internal static class ILTemplate
 
             try
             {
-                var value = sp.GetValue(srcInstance);
-                var valueDest = dp.GetValue(dstInstance);
+                var value = sp.DeclaringType.InvokeMember(sp.Name, flags | BindingFlags.GetProperty, null, srcInstance, null);
+                var valueDest = dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.GetProperty, null, dstInstance, null);
 
                 if (Equals(value, valueDest))
                     continue;
 
-                dp.SetValue(dstInstance, value);
+                dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.SetProperty, null, dstInstance, new object[] { value });
 
                 Common.Log("[{0} -> {1}] CopyProperty \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, value?.ToString());
             }
