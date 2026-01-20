@@ -7,12 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.0] / 2026-01-19
 ### Features
 - Support ignore isolator for specific class using attribute `[Isolator(" ")]`.
-- Support copy properties before and after execute methods. (Fix: #4)
+- Support copy properties in `BaseType` before and after execute methods. (Fix: #4)
 - Support dynamic or in-memory assembly by disabling isolator to avoid infinite loops. (Fix: #2)
 ### Fixes
 - Fix issue with methods inside abstract class. (Fix: #3)
 ### Updates
 - Add `GetFirstInstructionAfterBaseConstructor` to inject after base constructor. (Fix: #3)
+- Ignore isolator in abstract classes without `[Isolator]` attribute. (Fix: #3)
 ### Tests
 - Add `AssemblyLoadContextTests` with `MemoryAssemblyLoadContext` tests.
 
