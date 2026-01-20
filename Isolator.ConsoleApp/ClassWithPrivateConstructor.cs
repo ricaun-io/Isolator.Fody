@@ -33,7 +33,7 @@ public class ClassWithAbstractionConstructor : IsolatorAbstract
     }
 }
 
-//[Isolator(" ")] // This ignore isolation in this class
+[Isolator(" ")] // This ignore isolation in this class
 public abstract class IsolatorAbstract : IsolatorInterface
 {
     public IsolatorAbstract()

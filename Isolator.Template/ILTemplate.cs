@@ -31,6 +31,7 @@ internal static class ILTemplate
                 }
                 Common.Log("[{0}] CreateInstance \t {1}", context.GetContextNumber(), type.FullName);
                 _table.Add(key, instance);
+                CopyProperties(instance, key);
             }
             return instance;
         }
@@ -48,7 +49,17 @@ internal static class ILTemplate
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
 
-            return method.Invoke(instance is Type ? null : instance, args);
+            object value = null;
+            try
+            {
+                CopyProperties(key, instance);
+                value = method.Invoke(instance is Type ? null : instance, args);
+            }
+            finally
+            {
+                CopyProperties(instance, key);
+            }
+            return value;
         }
         return null;
     }
@@ -69,6 +80,62 @@ internal static class ILTemplate
 
         return null;
     }
+
+    private static void CopyProperties(object source, object destination)
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+        if (destination == null)
+            throw new ArgumentNullException(nameof(destination));
+
+        bool sourceIsType = source is Type;
+        bool destIsType = destination is Type;
+
+        var srcType = sourceIsType ? (Type)source : source.GetType();
+        var dstType = destIsType ? (Type)destination : destination.GetType();
+
+        var srcInstance = sourceIsType ? null : source;
+        var dstInstance = destIsType ? null : destination;
+
+        const BindingFlags flags =
+            BindingFlags.Public |
+            BindingFlags.NonPublic |
+            BindingFlags.Instance |
+            BindingFlags.Static;
+
+        foreach (var sp in srcType.GetProperties(flags))
+        {
+            // only abstract base class properties
+            if (sp.DeclaringType != srcType.BaseType)
+                continue;
+
+            // skip compiler generated properties
+            if (sp.DeclaringType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0)
+                continue;
+
+            var dp = dstType.GetProperty(sp.Name, flags);
+            if (dp is null)
+                continue;
+
+            try
+            {
+                var value = sp.GetValue(srcInstance);
+                var valueDest = dp.GetValue(dstInstance);
+
+                if (Equals(value, valueDest))
+                    continue;
+
+                dp.SetValue(dstInstance, value);
+
+                Common.Log("[{0} -> {1}] CopyProperty \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, value?.ToString());
+            }
+            catch (Exception ex)
+            {
+                Common.Log("[{0} -> {1}] CopyProperty.Exception \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.ToString());
+            }
+        }
+    }
+
     private static object GetInstance(object key)
     {
         lock (_table)
