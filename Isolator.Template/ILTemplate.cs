@@ -43,8 +43,6 @@ internal static class ILTemplate
             var type = instance as Type ?? instance.GetType();
             var method = FindMethod(type, methodName, bindingAttr, methodTypes);
 
-            Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method?.Name);
-
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
 
@@ -52,6 +50,7 @@ internal static class ILTemplate
             try
             {
                 CopyBaseTypeProperties(key, instance);
+                Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method?.Name);
                 value = method.Invoke(instance is Type ? null : instance, args);
             }
             finally
@@ -90,7 +89,7 @@ internal static class ILTemplate
         bool sourceIsType = source is Type;
         bool destIsType = destination is Type;
 
-        if (sourceIsType || destIsType) 
+        if (sourceIsType || destIsType)
             return;
 
         var srcType = source.GetType();
@@ -128,11 +127,11 @@ internal static class ILTemplate
 
                 dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.SetProperty, null, dstInstance, new object[] { value });
 
-                Common.Log("[{0} -> {1}] CopyProperty \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, value?.ToString());
+                Common.Log("[{0} => {1}] CopyProperty \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, value?.ToString());
             }
             catch (Exception ex)
             {
-                Common.Log("[{0} -> {1}] CopyProperty.Exception \t {2}.{3} = {4}: {5}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.GetType().FullName, ex.Message);
+                Common.Log("[{0} => {1}] CopyProperty.Exception \t {2}.{3} = {4}: {5}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.GetType().FullName, ex.Message);
             }
         }
     }
