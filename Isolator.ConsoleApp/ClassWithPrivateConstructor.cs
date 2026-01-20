@@ -29,10 +29,11 @@ public class ClassWithAbstractionConstructor : IsolatorAbstract
 {
     public override bool ExecuteAbstract()
     {
-        return Result && !this.IsContextDefault();
+        return ResultInterface && !this.IsContextDefault();
     }
 }
 
+//[Isolator(" ")] // This ignore isolation in this class
 public abstract class IsolatorAbstract : IsolatorInterface
 {
     public IsolatorAbstract()

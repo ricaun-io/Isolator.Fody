@@ -35,6 +35,16 @@ public partial class ModuleWeaver
             if (skipIsolation)
                 continue;
 
+            if (needToIsolate)
+            {
+                var firstArgument = GetFirstConstructorArgumentAsString(isolatorCustomAttribute);
+                if (firstArgument.Length > 0 && string.IsNullOrWhiteSpace(firstArgument))
+                {
+                    WriteInfo($"Skipping class '{type.FullName}' with white space.");
+                    continue;
+                }
+            }
+
             // Add [CompilerGenerated] attribute to show the class is modified
             AddCompilerGeneratedAttribute(type);
 

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] / 2026-01-19
+### Features
+- Support ignore isolator for specific class using attribute `[Isolator(" ")]`.
+### Fixes
+- Fix issue with methods inside base class. (Fix: #3)
+
 ## [1.0.0] / 2025-12-29 - 2025-01-09
 ### Features
 - Support attribute `[Isolator]` to mark classes for isolation.
@@ -43,4 +49,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `Configuration` to use `LoadAtModuleInit` and force `Attach` to create default `AssemblyLoadContext` at module init.
 
 [vNext]: ../../compare/1.0.0...HEAD
+[1.1.0]: ../../compare/1.0.0...1.1.0
 [1.0.0]: ../../compare/1.0.0
