@@ -44,6 +44,11 @@ public partial class ModuleWeaver
                     continue;
                 }
             }
+            else if (type.IsAbstract)
+            {
+                WriteInfo($"Skipping class abstract '{type.FullName}'.");
+                continue;
+            }
 
             // Add [CompilerGenerated] attribute to show the class is modified
             AddCompilerGeneratedAttribute(type);
