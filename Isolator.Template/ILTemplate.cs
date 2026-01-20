@@ -199,7 +199,7 @@ internal static class ILTemplate
                 {
                     context = AssemblyLoadContext.GetLoadContext(assembly);
                     Common.Log("[{0}] Context.Location.Empty \t '{1}'", context.GetContextNumber(), context.Name);
-                    return context;
+                    throw new InvalidOperationException($"Cannot create AssemblyLoadContext for dynamic or in-memory assembly '{assembly.FullName}'.");
                 }
 
                 context = FindAssemblyLoadContext(contextName);
@@ -281,7 +281,7 @@ internal static class ILTemplate
             }
             catch (Exception ex)
             {
-                Common.Log("[{0}] Context.Unload.Exception \t '{1}'", context.GetContextNumber(), ex);
+                Common.Log("[{0}] Context.Unload.Exception \t {1}", context.GetContextNumber(), ex);
             }
         }
         _contextTable.Clear();
@@ -291,6 +291,12 @@ internal static class ILTemplate
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
+
+        if (string.IsNullOrEmpty(assembly.Location) || assembly.IsDynamic)
+        {
+            Common.Log("[{0}] IsDefault.Location.Empty \t {1}", context.GetContextNumber(), $"Ignore Isolator for dynamic or in-memory assembly '{assembly.FullName}'.");
+            return false;
+        }
 
         if (context == AssemblyLoadContext.Default)
             return true;
