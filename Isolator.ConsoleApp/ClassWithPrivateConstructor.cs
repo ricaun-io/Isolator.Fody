@@ -66,8 +66,8 @@ public abstract class IsolatorAbstract : IsolatorInterface
         if (!ResultOnlySet)
             throw new InvalidOperationException("ResultOnlySet was not set properly.");
 
-        //if (!ResultOnlyGet)
-        //    throw new InvalidOperationException("ResultOnlyGet was not set properly.");
+        if (!ResultOnlyGet)
+            throw new InvalidOperationException("ResultOnlyGet was not set properly.");
 
         return ExecuteAbstract();
     }
