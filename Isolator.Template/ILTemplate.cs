@@ -31,7 +31,6 @@ internal static class ILTemplate
                 }
                 Common.Log("[{0}] CreateInstance \t {1}", context.GetContextNumber(), type.FullName);
                 _table.Add(key, instance);
-                CopyProperties(instance, key);
             }
             return instance;
         }

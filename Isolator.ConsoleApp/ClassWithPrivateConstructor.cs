@@ -28,6 +28,9 @@ public class ClassWithPublicConstructor : IsolatorInterface
 
 public class ClassWithAbstractionConstructor : IsolatorAbstract
 {
+    public ClassWithAbstractionConstructor() : base(true)
+    {
+    }
     public override bool ExecuteAbstract()
     {
         ResultAbstract = Result && ResultInterface && !this.IsContextDefault();
@@ -43,6 +46,12 @@ public abstract class IsolatorAbstract : IsolatorInterface
         Result = true;
         ResultOnlySet = true;
         ResultOnlyGet = true;
+    }
+    public IsolatorAbstract(bool value)
+    {
+        Result = value;
+        ResultOnlySet = value;
+        ResultOnlyGet = value;
     }
     public bool Result { get; set; }
     public bool ResultOnlySet { private get; set; }

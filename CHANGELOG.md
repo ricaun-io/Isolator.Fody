@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.0] / 2026-01-19
 ### Features
 - Support ignore isolator for specific class using attribute `[Isolator(" ")]`.
-- Support copy properties when create instance, before and after execute methods. (Fix: #4)
+- Support copy properties before and after execute methods. (Fix: #4)
 ### Fixes
 - Fix issue with methods inside base class. (Fix: #3)
+### Updates
+- Add `GetFirstInstructionAfterBaseConstructor` to inject after base constructor.
 
 ## [1.0.0] / 2025-12-29 - 2025-01-09
 ### Features

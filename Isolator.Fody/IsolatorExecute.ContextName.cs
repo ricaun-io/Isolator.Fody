@@ -91,7 +91,7 @@ public partial class ModuleWeaver
     private static void InjectMethodWithStringParameter(MethodDefinition method, MethodDefinition methodWithStringParameter, string value)
     {
         var il = method.Body.GetILProcessor();
-        var first = method.Body.Instructions.First();
+        var first = GetFirstInstructionAfterBaseConstructor(method);
         InjectMethodWithStringParameter(il, first, methodWithStringParameter, value);
     }
     private static void InjectMethodWithStringParameter(ILProcessor il, Instruction first, MethodDefinition methodWithStringParameter, string value)
