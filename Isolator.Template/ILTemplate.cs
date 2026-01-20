@@ -41,17 +41,32 @@ internal static class ILTemplate
         if (instance != null)
         {
             var type = instance as Type ?? instance.GetType();
-            var method = (methodTypes is null) ?
-                type.GetMethod(methodName, bindingAttr) :
-                type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
+            var method = FindMethod(type, methodName, bindingAttr, methodTypes);
 
-            Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method.Name);
+            Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method?.Name);
 
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
 
             return method.Invoke(instance is Type ? null : instance, args);
         }
+        return null;
+    }
+    private static MethodInfo FindMethod(Type type, string methodName, BindingFlags bindingAttr, Type[] methodTypes = null)
+    {
+        bindingAttr |= BindingFlags.DeclaredOnly;
+        while (type is not null)
+        {
+            var method = (methodTypes is null) ?
+                type.GetMethod(methodName, bindingAttr) :
+                type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
+
+            if (method != null)
+                return method;
+
+            type = type.BaseType;
+        }
+
         return null;
     }
     private static object GetInstance(object key)
