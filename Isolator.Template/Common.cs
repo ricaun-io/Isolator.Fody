@@ -21,5 +21,12 @@ internal static class Common
         var split = context.ToString().Split('#');
         return split[split.Length - 1];
     }
+
+    internal static string GetTypeContextNumber(this System.Type type)
+    {
+        var assembly = type.Assembly;
+        var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+        return context.GetContextNumber();
+    }
 #endif
 }

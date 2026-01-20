@@ -3,7 +3,8 @@
 public class ClassWithPrivateConstructor : IsolatorInterface
 {
     private bool Result { get; set; }
-    private ClassWithPrivateConstructor() {
+    private ClassWithPrivateConstructor()
+    {
         Result = true;
     }
     public bool Execute()
@@ -27,20 +28,52 @@ public class ClassWithPublicConstructor : IsolatorInterface
 
 public class ClassWithAbstractionConstructor : IsolatorAbstract
 {
-    public override bool Execute()
+    public ClassWithAbstractionConstructor() : base(true)
     {
-        return Result && !this.IsContextDefault();
+    }
+    public override bool ExecuteAbstract()
+    {
+        ResultAbstract = Result && ResultInterface && !this.IsContextDefault();
+        return ResultAbstract;
     }
 }
 
+//[Isolator(" ")] // This ignore isolation in this class
 public abstract class IsolatorAbstract : IsolatorInterface
 {
     public IsolatorAbstract()
     {
         Result = true;
+        ResultOnlySet = true;
+        ResultOnlyGet = true;
     }
-    protected bool Result { get; set; }
-    public abstract bool Execute();
+    public IsolatorAbstract(bool value)
+    {
+        Result = value;
+        ResultOnlySet = value;
+        ResultOnlyGet = value;
+    }
+    public bool Result { get; set; }
+    public bool ResultOnlySet { private get; set; }
+    public bool ResultOnlyGet { get; }
+    public bool ResultOnlyGetInterface => ResultInterface;
+    public static bool ResultStatic { get; set; }
+    public bool ResultAbstract { get; protected set; }
+    public bool ResultInterface { get; private set; }
+    public abstract bool ExecuteAbstract();
+    public bool Execute()
+    {
+        ResultInterface = true;
+        ResultStatic = true;
+
+        if (!ResultOnlySet)
+            throw new InvalidOperationException("ResultOnlySet was not set properly.");
+
+        if (!ResultOnlyGet)
+            throw new InvalidOperationException("ResultOnlyGet was not set properly.");
+
+        return ExecuteAbstract();
+    }
 }
 
 [Isolator]

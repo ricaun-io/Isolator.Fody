@@ -35,6 +35,21 @@ public partial class ModuleWeaver
             if (skipIsolation)
                 continue;
 
+            if (needToIsolate)
+            {
+                var firstArgument = GetFirstConstructorArgumentAsString(isolatorCustomAttribute);
+                if (firstArgument.Length > 0 && string.IsNullOrWhiteSpace(firstArgument))
+                {
+                    WriteInfo($"Skipping class '{type.FullName}' with white space.");
+                    continue;
+                }
+            }
+            else if (type.IsAbstract)
+            {
+                WriteInfo($"Skipping class abstract '{type.FullName}'.");
+                continue;
+            }
+
             // Add [CompilerGenerated] attribute to show the class is modified
             AddCompilerGeneratedAttribute(type);
 
@@ -86,11 +101,39 @@ public partial class ModuleWeaver
         return type.IsClass;
     }
 
+    private static Instruction GetFirstInstructionAfterBaseConstructor(MethodDefinition method)
+    {
+        if (!method.IsConstructor || !method.HasBody)
+            return method.Body.Instructions.First();
+
+        var instructions = method.Body.Instructions;
+
+        // Look for call to base or this constructor
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            var instruction = instructions[i];
+
+            if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference methodRef)
+            {
+                // Check if it's a constructor call
+                if (methodRef.Name == ".ctor")
+                {
+                    // Return the next instruction after the constructor call
+                    if (i + 1 < instructions.Count)
+                        return instructions[i + 1];
+                }
+            }
+        }
+
+        // If no constructor call found, return first instruction
+        return instructions.First();
+    }
+
     private void InsjectConstructor_CreateInstance(MethodDefinition method)
     {
         var body = method.Body;
         var il = body.GetILProcessor();
-        var first = body.Instructions.First();
+        var first = GetFirstInstructionAfterBaseConstructor(method);
 
         // REQUIRED
         body.SimplifyMacros();

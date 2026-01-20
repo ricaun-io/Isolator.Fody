@@ -41,19 +41,101 @@ internal static class ILTemplate
         if (instance != null)
         {
             var type = instance as Type ?? instance.GetType();
-            var method = (methodTypes is null) ?
-                type.GetMethod(methodName, bindingAttr) :
-                type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
-
-            Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method.Name);
+            var method = FindMethod(type, methodName, bindingAttr, methodTypes);
 
             if (method is null)
                 throw new MissingMethodException($"Method '{methodName}' not found in type '{type.FullName}'.");
 
-            return method.Invoke(instance is Type ? null : instance, args);
+            object value = null;
+            try
+            {
+                CopyBaseTypeProperties(key, instance);
+                Common.Log("[{0}] InvokeMethod \t {1}.{2}", GetContext().GetContextNumber(), type.Name, method?.Name);
+                value = method.Invoke(instance is Type ? null : instance, args);
+            }
+            finally
+            {
+                CopyBaseTypeProperties(instance, key);
+            }
+            return value;
         }
         return null;
     }
+    private static MethodInfo FindMethod(Type type, string methodName, BindingFlags bindingAttr, Type[] methodTypes = null)
+    {
+        bindingAttr |= BindingFlags.DeclaredOnly;
+        while (type is not null)
+        {
+            var method = (methodTypes is null) ?
+                type.GetMethod(methodName, bindingAttr) :
+                type.GetMethod(methodName, bindingAttr, null, methodTypes, null);
+
+            if (method != null)
+                return method;
+
+            type = type.BaseType;
+        }
+
+        return null;
+    }
+
+    private static void CopyBaseTypeProperties(object source, object destination)
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+        if (destination == null)
+            throw new ArgumentNullException(nameof(destination));
+
+        bool sourceIsType = source is Type;
+        bool destIsType = destination is Type;
+
+        if (sourceIsType || destIsType)
+            return;
+
+        var srcType = source.GetType();
+        var dstType = destination.GetType();
+
+        if (srcType.BaseType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0)
+            return;
+
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
+        foreach (var _sp in srcType.BaseType.GetProperties(flags))
+        {
+            if (_sp.DeclaringType == srcType)
+                continue;
+
+            var sp = _sp.DeclaringType.GetProperty(_sp.Name, flags);
+            if (!sp.CanWrite)
+                continue;
+
+            var dp = dstType.BaseType.GetProperty(sp.Name, flags);
+            if (dp is null)
+                continue;
+
+            try
+            {
+                var isStatic = (sp.SetMethod ?? sp.GetMethod)?.IsStatic ?? false;
+                var srcInstance = isStatic ? null : source;
+                var dstInstance = isStatic ? null : destination;
+
+                var value = sp.DeclaringType.InvokeMember(sp.Name, flags | BindingFlags.GetProperty, null, srcInstance, null);
+                var valueDest = dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.GetProperty, null, dstInstance, null);
+
+                if (Equals(value, valueDest))
+                    continue;
+
+                dp.DeclaringType.InvokeMember(dp.Name, flags | BindingFlags.SetProperty, null, dstInstance, new object[] { value });
+
+                Common.Log("[{0} => {1}] CopyProperty \t {2}.{3} = {4}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, value?.ToString());
+            }
+            catch (Exception ex)
+            {
+                Common.Log("[{0} => {1}] CopyProperty.Exception \t {2}.{3} = {4}: {5}", srcType.GetTypeContextNumber(), dstType.GetTypeContextNumber(), sp.DeclaringType.FullName, sp.Name, ex.GetType().FullName, ex.Message);
+            }
+        }
+    }
+
     private static object GetInstance(object key)
     {
         lock (_table)
@@ -118,7 +200,7 @@ internal static class ILTemplate
                 {
                     context = AssemblyLoadContext.GetLoadContext(assembly);
                     Common.Log("[{0}] Context.Location.Empty \t '{1}'", context.GetContextNumber(), context.Name);
-                    return context;
+                    throw new InvalidOperationException($"Cannot create AssemblyLoadContext for dynamic or in-memory assembly '{assembly.FullName}'.");
                 }
 
                 context = FindAssemblyLoadContext(contextName);
@@ -200,7 +282,7 @@ internal static class ILTemplate
             }
             catch (Exception ex)
             {
-                Common.Log("[{0}] Context.Unload.Exception \t '{1}'", context.GetContextNumber(), ex);
+                Common.Log("[{0}] Context.Unload.Exception \t {1}", context.GetContextNumber(), ex);
             }
         }
         _contextTable.Clear();
@@ -210,6 +292,12 @@ internal static class ILTemplate
     {
         var assembly = Assembly.GetExecutingAssembly();
         var context = AssemblyLoadContext.GetLoadContext(assembly);
+
+        if (string.IsNullOrEmpty(assembly.Location) || assembly.IsDynamic)
+        {
+            Common.Log("[{0}] IsDefault.Location.Empty \t {1}", context.GetContextNumber(), $"Ignore Isolator for dynamic or in-memory assembly '{assembly.FullName}'.");
+            return false;
+        }
 
         if (context == AssemblyLoadContext.Default)
             return true;

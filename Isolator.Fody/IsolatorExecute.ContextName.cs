@@ -15,11 +15,17 @@ public partial class ModuleWeaver
         // Only inject SetContextName if there are any custom context names defined
         if (_isolatorContextNames.Count > 0)
         {
-            var contextNameValue = isolatorCustomAttribute?.ConstructorArguments[0].Value as string;
+            var contextNameValue = GetFirstConstructorArgumentAsString(isolatorCustomAttribute);
             InjectMethodWithStringParameter(method, _setContextName, contextNameValue);
 
             WriteInfo($"Injected SetContextName with value: {contextNameValue} into method: {method.FullName}");
         }
+    }
+
+    private static string GetFirstConstructorArgumentAsString(CustomAttribute isolatorCustomAttribute)
+    {
+        var contextNameValue = isolatorCustomAttribute?.ConstructorArguments[0].Value as string;
+        return contextNameValue ?? string.Empty;
     }
 
     private void FindContextNameMethod(string contextName)
@@ -85,7 +91,7 @@ public partial class ModuleWeaver
     private static void InjectMethodWithStringParameter(MethodDefinition method, MethodDefinition methodWithStringParameter, string value)
     {
         var il = method.Body.GetILProcessor();
-        var first = method.Body.Instructions.First();
+        var first = GetFirstInstructionAfterBaseConstructor(method);
         InjectMethodWithStringParameter(il, first, methodWithStringParameter, value);
     }
     private static void InjectMethodWithStringParameter(ILProcessor il, Instruction first, MethodDefinition methodWithStringParameter, string value)
