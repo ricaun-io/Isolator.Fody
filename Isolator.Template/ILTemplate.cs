@@ -107,7 +107,6 @@ internal static class ILTemplate
                 continue;
 
             var sp = _sp.DeclaringType.GetProperty(_sp.Name, flags);
-            //Console.WriteLine($"{srcType.Name} \t CanRead: {sp.CanRead.ToString()} \t CanWrite: {sp.CanWrite.ToString()} \t {sp.ToString()} \t {sp.GetSetMethod(true)?.ToString()} \t {sp.GetAccessors(true).Length.ToString()}");
             if (!sp.CanWrite)
                 continue;
 
