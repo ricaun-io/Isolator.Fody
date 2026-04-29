@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Updates
 - Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
 - Rename `Isolator.ConsoleApp` to `Isolator.Fody.ConsoleApp`.
+### Tests
+- Add `Isolator.Fody.ConsoleApp.Tests` to `dotnet build` and run sample.
 
 ## [1.1.0] / 2026-01-19 - 2025-01-20
 ### Features

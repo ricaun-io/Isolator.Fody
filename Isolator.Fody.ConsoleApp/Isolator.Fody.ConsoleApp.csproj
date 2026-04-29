@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition="!$(Configuration.Contains('Debug'))">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Isolator.Fody\Isolator.Fody.csproj" ReferenceOutputAssembly="false" PrivateAssets="All" />
     <WeaverFiles Include="..\Isolator.Fody\bin\$(Configuration)\netstandard2.0\Isolator.Fody.dll" />
