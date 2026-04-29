@@ -11,6 +11,15 @@ namespace Isolator.Fody.Tests
         }
 
         [Test]
+        public void Program_References()
+        {
+            foreach (var assemblyName in typeof(Program).Assembly.GetReferencedAssemblies())
+            {
+                Console.WriteLine(assemblyName);
+            }
+        }
+
+        [Test]
         public void AssemblyLoader_Exists()
         {
             var type = typeof(Program).Assembly.GetType("Isolator.AssemblyLoader");
