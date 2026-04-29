@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator", "Isolator\Isolat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Template", "Isolator.Template\Isolator.Template.csproj", "{FF04B3EC-2F06-F6E1-2212-06C43E7DBFD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.ConsoleApp", "Isolator.ConsoleApp\Isolator.ConsoleApp.csproj", "{0F366368-6648-558B-DC6D-5D65296C5F0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Fody.ConsoleApp", "Isolator.Fody.ConsoleApp\Isolator.Fody.ConsoleApp.csproj", "{0F366368-6648-558B-DC6D-5D65296C5F0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Isolator.Template.Debug", "Isolator.Template.Debug\Isolator.Template.Debug.csproj", "{2B492BBB-43DA-4E47-BCA4-6FA63CC5BE7E}"
 EndProject

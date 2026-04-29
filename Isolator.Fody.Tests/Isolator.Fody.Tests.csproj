@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Isolator.ConsoleApp\Isolator.ConsoleApp.csproj" />
+    <ProjectReference Include="..\Isolator.Fody.ConsoleApp\Isolator.Fody.ConsoleApp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
