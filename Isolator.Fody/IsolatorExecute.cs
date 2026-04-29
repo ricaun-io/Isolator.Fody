@@ -162,7 +162,7 @@ public partial class ModuleWeaver
             // Load key argument: 'this' for instance constructors, typeof(DeclaringType) for static constructors
             if (method.IsStatic)
             {
-                var typeOfMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                var typeOfMethod = this.ImportMethodReference(typeof(Type), "GetTypeFromHandle");
                 il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.DeclaringType));
                 il.InsertBefore(first, il.Create(OpCodes.Call, typeOfMethod));
             }
@@ -223,8 +223,8 @@ public partial class ModuleWeaver
             var parametersTypeArrayVariable = CreateParametersTypeArray(method, il, first, searchMethodName);
 
             // Import System.Reflection types and methods
-            var bindingFlagsType = ModuleDefinition.ImportReference(typeof(System.Reflection.BindingFlags));
-            var makeByRefTypeMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("MakeByRefType", Type.EmptyTypes));
+            var bindingFlagsType = this.ImportTypeReference(typeof(System.Reflection.BindingFlags));
+            var makeByRefTypeMethod = this.ImportMethodReference(typeof(Type), "MakeByRefType", Type.EmptyTypes);
 
             var resultVariable = new VariableDefinition(ModuleDefinition.TypeSystem.Object);
             method.Body.Variables.Add(resultVariable);
@@ -260,7 +260,7 @@ public partial class ModuleWeaver
             // Load key argument: 'this' for instance methods, typeof(DeclaringType) for static methods
             if (method.IsStatic)
             {
-                var typeOfMethod = ModuleDefinition.ImportReference(typeof(Type).GetMethod("GetTypeFromHandle"));
+                var typeOfMethod = this.ImportMethodReference(typeof(Type), "GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) });
                 il.InsertBefore(first, il.Create(OpCodes.Ldtoken, method.DeclaringType));
                 il.InsertBefore(first, il.Create(OpCodes.Call, typeOfMethod));
             }

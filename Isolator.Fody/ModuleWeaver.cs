@@ -20,6 +20,8 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
         CallAttach(config.LoadAtModuleInit);
 
         IsolatorExecute();
+
+        this.EnsureCoreLibReferenceDoesNotExist();
     }
 
     public bool IsolatorAvailable()

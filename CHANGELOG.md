@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] / 2026-04-29
+### Features
+### Updates
+- Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
+
 ## [1.1.0] / 2026-01-19 - 2025-01-20
 ### Features
 - Support ignore isolator for specific class using attribute `[Isolator(" ")]`.
@@ -56,5 +61,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `Configuration` to use `LoadAtModuleInit` and force `Attach` to create default `AssemblyLoadContext` at module init.
 
 [vNext]: ../../compare/1.0.0...HEAD
+[1.2.0]: ../../compare/1.1.0...1.2.0
 [1.1.0]: ../../compare/1.0.0...1.1.0
 [1.0.0]: ../../compare/1.0.0
