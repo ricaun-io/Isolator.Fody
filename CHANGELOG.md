@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.2.0] / 2026-04-29
 ### Features
+- Support build using `dotnet build`.
 ### Updates
 - Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
 - Rename `Isolator.ConsoleApp` to `Isolator.Fody.ConsoleApp`.

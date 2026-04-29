@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
 
-#if NET10_0
 namespace Isolator.Fody.ConsoleApp.Tests
 {
     public class DotNetBuild_Tests
@@ -9,6 +8,9 @@ namespace Isolator.Fody.ConsoleApp.Tests
         [TestCase("Isolator.Fody.ConsoleApp")]
         public void Test(string projectName)
         {
+#if NET8_0
+            Thread.Sleep(5000); // Workaround for potential file locking issues on .NET 8.0
+#endif
             var location = Path.GetDirectoryName(typeof(DotNetBuild_Tests).Assembly.Location)!;
             var csprojPath = Path.Combine(location, "..", "..", "..", "..", projectName, $"{projectName}.csproj");
 
@@ -128,4 +130,3 @@ namespace Isolator.Fody.ConsoleApp.Tests
         }
     }
 }
-#endif
