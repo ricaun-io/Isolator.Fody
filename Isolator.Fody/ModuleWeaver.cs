@@ -21,7 +21,7 @@ public sealed partial class ModuleWeaver : BaseModuleWeaver
 
         IsolatorExecute();
 
-        this.ForceToImportReferenceIncorrectly();
+        //this.ForceToImportReferenceIncorrectly();
         this.EnsureCoreLibReferenceDoesNotExist(!config.EnableDebug);
     }
 
