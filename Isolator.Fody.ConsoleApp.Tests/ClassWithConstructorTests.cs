@@ -1,6 +1,6 @@
 using Isolator.ConsoleApp;
 
-namespace Isolator.Fody.Tests
+namespace Isolator.Fody.ConsoleApp.Tests
 {
     public class ClassWithConstructorTests
     {

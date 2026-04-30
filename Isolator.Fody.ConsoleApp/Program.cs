@@ -3,6 +3,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 namespace Isolator.ConsoleApp;
 
+// msbuild .\Isolator.ConsoleApp\Isolator.ConsoleApp.csproj -p:configuration=Release -t:Rebuild /verbosity:Minimal
+// dotnet build .\Isolator.ConsoleApp\Isolator.ConsoleApp.csproj --configuration Release -t:Rebuild
+
 public class Program
 {
     public static void Main(string[] args)

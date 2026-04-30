@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] / 2026-04-29
+### Features
+- Support build using `dotnet build`.
+### Build
+- Update `ricaun.Nuke` to version `1.12.0` to support `dotnetBuildOnly`.
+### Updates
+- Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
+- Rename `Isolator.ConsoleApp` to `Isolator.Fody.ConsoleApp`.
+- Update build to use `ICompileBefore` and remove local `IBeforeCompile`.
+- Update `EnsureCoreLibReferenceDoesNotExist` to disable error in debug configuration.
+### Tests
+- Rename `Isolator.Fody.Tests` to `Isolator.Fody.ConsoleApp.Tests` tests.
+
 ## [1.1.0] / 2026-01-19 - 2025-01-20
 ### Features
 - Support ignore isolator for specific class using attribute `[Isolator(" ")]`.
@@ -52,9 +65,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Create `Isolator.Template.Debug` project to hold debug with `DEBUG` level logs.
 - Update `AssemblyLoaderImporter` to select `debug` or `release` version of `Isolator.Template` based on `EnableDebug` setting.
 - Update `Build` to release in `Nuget`.
-- Create `Isolator.Fody.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
+- Create `Isolator.Fody.ConsoleApp.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
 - Update `Configuration` to use `LoadAtModuleInit` and force `Attach` to create default `AssemblyLoadContext` at module init.
 
 [vNext]: ../../compare/1.0.0...HEAD
+[1.2.0]: ../../compare/1.1.0...1.2.0
 [1.1.0]: ../../compare/1.0.0...1.1.0
 [1.0.0]: ../../compare/1.0.0

@@ -1,6 +1,6 @@
 using Isolator.ConsoleApp;
 
-namespace Isolator.Fody.Tests
+namespace Isolator.Fody.ConsoleApp.Tests
 {
     public class Tests
     {
@@ -8,6 +8,15 @@ namespace Isolator.Fody.Tests
         public void Program_Main()
         {
             Program.Main(Array.Empty<string>());
+        }
+
+        [Test]
+        public void Program_References()
+        {
+            foreach (var assemblyName in typeof(Program).Assembly.GetReferencedAssemblies())
+            {
+                Console.WriteLine(assemblyName);
+            }
         }
 
         [Test]

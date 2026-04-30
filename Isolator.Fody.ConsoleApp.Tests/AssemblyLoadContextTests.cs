@@ -2,7 +2,7 @@ using Isolator.ConsoleApp;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Isolator.Fody.Tests
+namespace Isolator.Fody.ConsoleApp.Tests
 {
     public class AssemblyLoadContextTests
     {
