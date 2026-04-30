@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
 - Rename `Isolator.ConsoleApp` to `Isolator.Fody.ConsoleApp`.
 ### Tests
-- Add `Isolator.Fody.ConsoleApp.Tests` to `dotnet build` and run sample.
+- Rename `Isolator.Fody.Tests` to `Isolator.Fody.ConsoleApp.Tests` tests.
 
 ## [1.1.0] / 2026-01-19 - 2025-01-20
 ### Features
@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Create `Isolator.Template.Debug` project to hold debug with `DEBUG` level logs.
 - Update `AssemblyLoaderImporter` to select `debug` or `release` version of `Isolator.Template` based on `EnableDebug` setting.
 - Update `Build` to release in `Nuget`.
-- Create `Isolator.Fody.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
+- Create `Isolator.Fody.ConsoleApp.Tests` project to test `Isolator.ConsoleApp` and `Isolator.Fody` functionality.
 - Update `Configuration` to use `LoadAtModuleInit` and force `Attach` to create default `AssemblyLoadContext` at module init.
 
 [vNext]: ../../compare/1.0.0...HEAD
