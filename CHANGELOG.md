@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.0] / 2026-04-29
 ### Features
 - Support build using `dotnet build`.
+### Build
+- Update `ricaun.Nuke` to version `1.12.0` to support `dotnetBuildOnly`.
 ### Updates
 - Add `BaseModuleWeaverImportExtension` to import `Type` and `Method` to fix issue with `dotnet build`. 
 - Rename `Isolator.ConsoleApp` to `Isolator.Fody.ConsoleApp`.
