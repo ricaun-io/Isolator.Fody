@@ -186,6 +186,15 @@ Or as an attribute with items delimited by a pipe `|`.
 <Isolator InterfaceNames='IExternalApplication|IExternalDBApplication|IExternalCommand' />
 ```
 
+### Collectible
+
+Indicates whether to enable the `Collectible` option in the `AssemblyLoadContext` to allow unloading assemblies. When enabled, the isolated assemblies can be unloaded from memory when they are no longer needed.
+
+*Defaults to `false`*
+```xml
+<Isolator Collectible='true' />
+```
+
 ## Debug Configuration Options
 
 These options are used for debugging purposes and can be enabled or disabled as needed.

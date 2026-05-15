@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.0] / 2026-05-14
 ### Features
+- Support `Collectible` options to enable in the `AssemblyLoadContext` to allow unloading assemblies.
 ### Updates
 - Update `ILTemplate` Collectible to `false`, disable `Unload` in `AssemblyLoadContext`.
 - Add `IsolatorExecute.Collectible` to update `Collectible` in the `ILTemplate`.
