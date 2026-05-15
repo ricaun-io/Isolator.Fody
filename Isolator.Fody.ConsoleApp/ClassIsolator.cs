@@ -26,4 +26,8 @@ public class ClassIsolator
     {
         return this.ToContextNumber();
     }
+    public bool IsCollectible()
+    {
+        return this.GetType().Assembly.IsCollectible();
+    }
 }
