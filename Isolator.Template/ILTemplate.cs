@@ -278,7 +278,7 @@ internal static class ILTemplate
             {
                 context.Unloading -= Unloading;
                 context.Unload();
-                Common.Log("[{0}] Context.Unload \t '{1}'", context.GetContextNumber(), context.Name);
+                Common.Log("[{0}] Context.Unload \t '{1}' \t {2}", context.GetContextNumber(), context.Name);
             }
             catch (Exception ex)
             {
@@ -316,9 +316,10 @@ internal static class ILTemplate
 
     internal class IsolatorAssemblyLoadContext : AssemblyLoadContext
     {
+        private static bool Collectible = false;
         private readonly List<AssemblyDependencyResolver> _resolvers = new List<AssemblyDependencyResolver>();
         private readonly List<string> _resolverPaths = new List<string>();
-        public IsolatorAssemblyLoadContext(string contextName, string assemblyPath) : base(contextName, isCollectible: true)
+        public IsolatorAssemblyLoadContext(string contextName, string assemblyPath) : base(contextName, isCollectible: Collectible)
         {
             // Cannot use 'AddResolver', not supported in the 'AssemblyLoaderImporter' in the 'Isolator.Fody' project.
             _resolvers.Add(new AssemblyDependencyResolver(assemblyPath));
