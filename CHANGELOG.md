@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Features
 ### Updates
 - Update `ILTemplate` Collectible to `false`, disable `Unload` in `AssemblyLoadContext`.
+- Add `IsolatorExecute.Collectible` to update `Collectible` in the `ILTemplate`.
 
 ## [1.2.0] / 2026-04-29
 ### Features

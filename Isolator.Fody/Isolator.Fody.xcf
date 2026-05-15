@@ -27,6 +27,11 @@
       <xs:documentation>Name of the isolation context.</xs:documentation>
     </xs:annotation>
   </xs:attribute>
+  <xs:attribute name="Collectible" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation>Enable collectible in the 'IsolatorAssemblyLoadContext' template.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="EnableDebug" type="xs:boolean">
     <xs:annotation>
       <xs:documentation>Force the template with the debug log enable.</xs:documentation>
