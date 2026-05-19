@@ -122,5 +122,8 @@ public class Program
 
         // Check ClassIsolator context is different from Class context
         Debug.Assert(instance.ExecuteContextNumber());
+
+        // Check if the context is collectible
+        Debug.Assert(instance.IsCollectible() == false);
     }
 }

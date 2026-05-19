@@ -18,7 +18,7 @@
   <PropertyGroup>
     <WeaverConfiguration>
       <Weavers>
-        <Isolator InterfaceNames="IsolatorInterface" />
+        <Isolator InterfaceNames="IsolatorInterface" Collectible="false" />
       </Weavers>
     </WeaverConfiguration>
   </PropertyGroup>

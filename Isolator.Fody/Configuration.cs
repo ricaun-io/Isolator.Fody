@@ -12,6 +12,9 @@ public class Configuration
         ContextName = null;
         ContextName = ReadString(config, nameof(ContextName));
 
+        Collectible = false;
+        Collectible = ReadBool(config, nameof(Collectible), Collectible);
+
         ClassNames = new List<string>();
         ClassNames = ReadList(config, nameof(ClassNames));
 
@@ -42,6 +45,7 @@ public class Configuration
     public List<string> ClassNames { get; }
     public List<string> InterfaceNames { get; }
     public string ContextName { get; }
+    public bool Collectible { get; }
 
     public static bool ReadBool(XElement config, string nodeName, bool @default)
     {

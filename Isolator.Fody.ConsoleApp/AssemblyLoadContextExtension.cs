@@ -58,6 +58,21 @@ public static class AssemblyLoadContextExtension
     }
 
     /// <summary>
+    /// Determines whether the assembly of the specified object is loaded into a collectible context.
+    /// </summary>
+    /// <param name="assembly">The assembly to evaluate for its loading context. Cannot be null.</param>
+    /// <returns>true if the assembly is loaded into a collectible context; otherwise, false.</returns>
+    public static bool IsCollectible(this System.Reflection.Assembly assembly)
+    {
+#if NET
+        var context = System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(assembly);
+        return context.IsCollectible;
+#else
+        return false;
+#endif
+    }
+
+    /// <summary>
     /// Returns a context-specific integer identifier for the assembly of the specified object.
     /// </summary>
     /// <param name="value">The object whose assembly is used to determine the context number. Cannot be null.</param>

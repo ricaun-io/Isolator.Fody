@@ -1,6 +1,6 @@
 # Isolator.Fody 
 
-[![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-blue)](https://github.com/ricaun-io/Isolator.Fody)
+[![Visual Studio 2026](https://img.shields.io/badge/Visual%20Studio-2026-blue)](https://github.com/ricaun-io/Isolator.Fody)
 [![Nuke](https://img.shields.io/badge/Nuke-Build-blue)](https://nuke.build/)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build](https://github.com/ricaun-io/Isolator.Fody/actions/workflows/Build.yml/badge.svg)](https://github.com/ricaun-io/Isolator.Fody/actions)
@@ -184,6 +184,15 @@ Or as an attribute with items delimited by a pipe `|`.
 
 ```xml
 <Isolator InterfaceNames='IExternalApplication|IExternalDBApplication|IExternalCommand' />
+```
+
+### Collectible
+
+Indicates whether to enable the `Collectible` option in the `AssemblyLoadContext` to allow unloading assemblies. When enabled, the isolated assemblies can be unloaded from memory when they are no longer needed.
+
+*Defaults to `false`*
+```xml
+<Isolator Collectible='true' />
 ```
 
 ## Debug Configuration Options
